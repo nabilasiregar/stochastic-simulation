@@ -31,8 +31,8 @@ def plot_mandelbrot():
             mandelbrot_set[i, j] = val
     
     plt.imshow(mandelbrot_set, cmap='viridis')
-    plt.ylabel("Imaginary Numbers")
-    plt.xlabel("Real Numbers")
+    plt.ylabel("Real Numbers")
+    plt.xlabel("Imaginary Numbers")
     plt.show()
             
 plot_mandelbrot()
