@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap
+from numba import njit
 
 palette = {
     "green": (139, 191, 159),
@@ -14,13 +15,12 @@ normalized_palette = {key: tuple(val / 255.0 for val in value)
                       for key, value in palette.items()}
 
 colors = list(normalized_palette.values())
-
 color_stops = [i / (len(colors) - 1) for i in range(len(colors))]
-
 cmap = LinearSegmentedColormap.from_list(
     "custom_gradient", list(zip(color_stops, colors)))
 
 
+@njit
 def mandelbrott(x, y, max):
     iteration = 0
     x_start = x
@@ -33,15 +33,21 @@ def mandelbrott(x, y, max):
     return iteration
 
 
-x = np.linspace(-2, 0.47, 500)
-y = np.linspace(-1.12, 1.12, 500)
+x = np.linspace(-2, 0.47, 1000)
+y = np.linspace(-1.12, 1.12, 1000)
 values = np.ndarray((x.shape[0], y.shape[0]))
-max_iterations = 1000
 
-for i in range(len(x)):
-    for j in range(len(y)):
-        values[i, j] = mandelbrott(x[i], y[j], max_iterations)
 
-plt.matshow(values, cmap=cmap)
+@njit
+def get_mandelbrot(x, y, matrix):
+    max_iterations = 500
+    for i in range(len(x)):
+        for j in range(len(y)):
+            matrix[i, j] = mandelbrott(x[i], y[j], max_iterations)
+    return matrix
+
+
+output = get_mandelbrot(x, y, values)
+plt.matshow(output, cmap=cmap)
 plt.colorbar()
 plt.show()
