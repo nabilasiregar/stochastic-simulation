@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap
-from numba import njit
+from numba import njit, prange
 
 palette = {
     "green": (139, 191, 159),
@@ -33,21 +33,21 @@ def mandelbrott(x, y, max):
     return iteration
 
 
-x = np.linspace(-2, 0.47, 1000)
-y = np.linspace(-1.12, 1.12, 1000)
+x = np.linspace(-2, 0.47, 2000)
+y = np.linspace(-1.12, 1.12, 2000)
 values = np.ndarray((x.shape[0], y.shape[0]))
 
 
-@njit
-def get_mandelbrot(x, y, matrix):
-    max_iterations = 500
-    for i in range(len(x)):
-        for j in range(len(y)):
+@njit(parallel=True)
+def get_mandelbrot(x, y, matrix, max):
+    for i in prange(matrix.shape[0]):
+        for j in prange(matrix.shape[1]):
             matrix[i, j] = mandelbrott(x[i], y[j], max_iterations)
     return matrix
 
 
-output = get_mandelbrot(x, y, values)
+max_iterations = 1000
+output = get_mandelbrot(x, y, values, max_iterations)
 plt.matshow(output, cmap=cmap)
 plt.colorbar()
 plt.show()
