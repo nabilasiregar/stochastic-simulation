@@ -32,8 +32,8 @@ def mandelbrott(x, y, max_iteration):
     return iteration
 
 
-x = np.linspace(-2, 0.47, 2000)
-y = np.linspace(-1.12, 1.12, 2000)
+x = np.linspace(-2, 0.47, 10000)
+y = np.linspace(-1.12, 1.12, 10000)
 values = np.ndarray((x.shape[0], y.shape[0]))
 
 
