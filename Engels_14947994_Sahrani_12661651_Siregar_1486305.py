@@ -1,5 +1,3 @@
-import math
-import cmath
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap
@@ -22,36 +20,34 @@ cmap = LinearSegmentedColormap.from_list(
     "custom_gradient", list(zip(color_stops, colors)))
 
 
-palette = {
-    "green": "8bbf9f",
-    "blue": "83bcff",
-    "midnight": " 124559",
-    "violet": "59344f",
-    "crayola": "EE204D"
-}
-    
-def mandelbrot(c, num_set):
-    z = 0
-    for i in range(num_set):
-        z = z**2 + c
-        if abs(z) > 2:
-            return i
-    return num_set
+@njit
+def mandelbrott(x, y, max_iteration):
+    iteration = 0
+    x_start = x
+    y_start = y
+    while (x**2 + y**2) < 4 and iteration < max_iteration:
+        x_temp = x**2 - y**2 + x_start
+        y = 2*x*y + y_start
+        x = x_temp
+        iteration += 1
+    return iteration
 
-def plot_mandelbrot():
-    x = np.linspace(-2, 2, 1000)
-    y = np.linspace(-2, 2, 1000)
-    mandelbrot_set = np.zeros((len(y), len(x)))
-    
-    for i, x_coord in enumerate(x):
-        for j, y_coord in enumerate(y):
-            c = complex(x_coord, y_coord)
-            val = mandelbrot(c, 100)
-            mandelbrot_set[i, j] = val
-    
-    plt.imshow(mandelbrot_set, cmap=cmap)
-    plt.ylabel("Real Numbers")
-    plt.xlabel("Imaginary Numbers")
-    plt.show()
-            
-plot_mandelbrot()
+
+x = np.linspace(-2, 0.47, 2000)
+y = np.linspace(-1.12, 1.12, 2000)
+values = np.ndarray((x.shape[0], y.shape[0]))
+
+
+@njit(parallel=True)
+def get_mandelbrot(x, y, matrix, max_iteration):
+    for i in prange(matrix.shape[0]):
+        for j in prange(matrix.shape[1]):
+            matrix[i, j] = mandelbrott(x[i], y[j], max_iteration)
+    return matrix
+
+
+max_iterations = 1000
+output = get_mandelbrot(x, y, values, max_iterations)
+plt.matshow(output, cmap=cmap)
+plt.colorbar()
+plt.show()
