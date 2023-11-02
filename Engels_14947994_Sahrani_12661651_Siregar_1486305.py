@@ -74,6 +74,6 @@ def mc_integrate(a, b, N, s):
             colors.append("r")
     plt.scatter(samplesy,samplesx, color = colors)
     plt.show()
-    return accept/N
+    return accept*(b-a)**2/N
 
-print(mc_integrate(-1.5, 1, 100000, 250))
+print(mc_integrate(-1.5, 1, 100000, 2500))
