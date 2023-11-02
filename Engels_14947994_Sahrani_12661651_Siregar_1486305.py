@@ -1,9 +1,9 @@
 import numpy as np
 import cmath
 import matplotlib.pyplot as plt
+import random
 from matplotlib.colors import LinearSegmentedColormap
 from numba import njit, prange
-
 palette = {
     "green": (139, 191, 159),
     "blue": (131, 188, 255),
@@ -22,11 +22,11 @@ cmap = LinearSegmentedColormap.from_list(
 
 
 @njit
-def mandelbrott(x, y, max_iteration):
+def mandelbrot(x, y, max_iteration):
     c = complex(x, y)
     z = 0
     iteration = 0
-    while abs(z) < 1 and iteration < max_iteration:
+    while abs(z) < 2 and iteration < max_iteration:
         z = z**2 + c
         iteration += 1
     return iteration
@@ -41,14 +41,39 @@ values = np.ndarray((x.shape[0], y.shape[0]))
 def get_mandelbrot(x, y, matrix, max_iteration):
     for i in prange(matrix.shape[0]):
         for j in prange(matrix.shape[1]):
-            matrix[i, j] = mandelbrott(x[i], y[j], max_iteration)
+            matrix[i, j] = mandelbrot(x[i], y[j], max_iteration)
     return matrix
 
 
-max_iterations = 1000
-output = get_mandelbrot(x, y, values, max_iterations)
-plt.matshow(output, cmap=cmap)
-plt.ylabel("Real Numbers")
-plt.xlabel("Imaginary Numbers")
-plt.colorbar()
-plt.show()
+# max_iterations = 1000
+# output = get_mandelbrot(x, y, values, max_iterations)
+# plt.matshow(output, cmap=cmap)
+# plt.ylabel("Real Numbers")
+# plt.xlabel("Imaginary Numbers")
+# plt.colorbar()
+# plt.show()
+
+# @njit(parallel=True)
+def mc_integrate(a, b, N, s):
+    accept = 0
+    samplesx = []
+    samplesy = []
+    colors = []
+    for i in prange(N):
+        sample_x = random.random()
+        sample_y = random.random()
+        sample_x = sample_x*(b-a) + a
+        sample_y = sample_y*(b-a) + a
+        result = mandelbrot(sample_x, sample_y, s)
+        samplesx.append(sample_x)
+        samplesy.append(sample_y)
+        if result == s:
+            colors.append("g")
+            accept += 1
+        else:
+            colors.append("r")
+    plt.scatter(samplesy,samplesx, color = colors)
+    plt.show()
+    return accept/N
+
+print(mc_integrate(-1.5, 1, 100000, 250))
