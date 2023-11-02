@@ -1,4 +1,5 @@
 import numpy as np
+import cmath
 import matplotlib.pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap
 from numba import njit, prange
@@ -22,13 +23,11 @@ cmap = LinearSegmentedColormap.from_list(
 
 @njit
 def mandelbrott(x, y, max_iteration):
+    c = complex(x, y)
+    z = 0
     iteration = 0
-    x_start = x
-    y_start = y
-    while (x**2 + y**2) < 4 and iteration < max_iteration:
-        x_temp = x**2 - y**2 + x_start
-        y = 2*x*y + y_start
-        x = x_temp
+    while abs(z) < 1 and iteration < max_iteration:
+        z = z**2 + c
         iteration += 1
     return iteration
 
@@ -49,5 +48,7 @@ def get_mandelbrot(x, y, matrix, max_iteration):
 max_iterations = 1000
 output = get_mandelbrot(x, y, values, max_iterations)
 plt.matshow(output, cmap=cmap)
+plt.ylabel("Real Numbers")
+plt.xlabel("Imaginary Numbers")
 plt.colorbar()
 plt.show()
