@@ -26,14 +26,14 @@ def mandelbrott(x, y, max_iteration):
     c = complex(x, y)
     z = 0
     iteration = 0
-    while abs(z) < 1 and iteration < max_iteration:
+    while abs(z) < 2 and iteration < max_iteration:
         z = z**2 + c
         iteration += 1
     return iteration
 
 
-x = np.linspace(-2, 0.47, 10000)
-y = np.linspace(-1.12, 1.12, 10000)
+x = np.linspace(-2, 0.47, 1000)
+y = np.linspace(-1.12, 1.12, 1000)
 values = np.ndarray((x.shape[0], y.shape[0]))
 
 
