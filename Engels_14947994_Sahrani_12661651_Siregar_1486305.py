@@ -1,9 +1,9 @@
 import numpy as np
 import cmath
 import matplotlib.pyplot as plt
+import random
 from matplotlib.colors import LinearSegmentedColormap
 from numba import njit, prange
-
 palette = {
     "green": (139, 191, 159),
     "blue": (131, 188, 255),
@@ -22,7 +22,7 @@ cmap = LinearSegmentedColormap.from_list(
 
 
 @njit
-def mandelbrott(x, y, max_iteration):
+def mandelbrot(x, y, max_iteration):
     c = complex(x, y)
     z = 0
     iteration = 0
@@ -41,14 +41,51 @@ values = np.ndarray((x.shape[0], y.shape[0]))
 def get_mandelbrot(x, y, matrix, max_iteration):
     for i in prange(matrix.shape[0]):
         for j in prange(matrix.shape[1]):
-            matrix[i, j] = mandelbrott(x[i], y[j], max_iteration)
+            matrix[i, j] = mandelbrot(x[i], y[j], max_iteration)
     return matrix
 
 
-max_iterations = 1000
-output = get_mandelbrot(x, y, values, max_iterations)
-plt.matshow(output, cmap=cmap)
-plt.ylabel("Real Numbers")
-plt.xlabel("Imaginary Numbers")
-plt.colorbar()
-plt.show()
+# max_iterations = 1000
+# output = get_mandelbrot(x, y, values, max_iterations)
+# plt.matshow(output, cmap=cmap)
+# plt.ylabel("Real Numbers")
+# plt.xlabel("Imaginary Numbers")
+# plt.colorbar()
+# plt.show()
+
+@njit(parallel=True)
+def mc_integrate(a, b, N, s):
+    accept = 0
+    for i in prange(N):
+        sample_x = random.random()
+        sample_y = random.random()
+        sample_x = sample_x*(b-a) + a
+        sample_y = sample_y*(b-a) + a
+        result = mandelbrot(sample_x, sample_y, s)
+        if result == s:
+            accept += 1
+    return accept*(b-a)**2/N
+
+
+def hyper_cude_integration(a, b, N, s):
+    dimensions = 2
+    samples = np.random.uniform(size=(N, dimensions))
+    tiles = np.tile(np.arange(1, N+1), (dimensions, 1))
+    for i in range(tiles.shape[0]):
+        np.random.shuffle(tiles[i, :])
+    tiles = tiles.T
+    samples = (tiles-samples)/N
+    samples = samples * (b-a) + a
+    accept = 0
+    for i in samples:
+        result = mandelbrot(i[0], i[1], s)
+        if result == s:
+            accept += 1
+    return accept*(b-a)**2/N
+
+
+samples_sizes = [4, 5, 6, 7]
+for i in samples_sizes:
+    hyper = hyper_cude_integration(-1.5, 1, 10**i, 1000)
+    uniform = mc_integrate(-1.5, 1, 10**i, 1000)
+    print(f"Estimate standard uniform sampling: {uniform} \t latin hypercube sampling: {hyper} \t sample size: {10**i}")
