@@ -53,27 +53,39 @@ def get_mandelbrot(x, y, matrix, max_iteration):
 # plt.colorbar()
 # plt.show()
 
-# @njit(parallel=True)
+@njit(parallel=True)
 def mc_integrate(a, b, N, s):
     accept = 0
-    samplesx = []
-    samplesy = []
-    colors = []
     for i in prange(N):
         sample_x = random.random()
         sample_y = random.random()
         sample_x = sample_x*(b-a) + a
         sample_y = sample_y*(b-a) + a
         result = mandelbrot(sample_x, sample_y, s)
-        samplesx.append(sample_x)
-        samplesy.append(sample_y)
         if result == s:
-            colors.append("g")
             accept += 1
-        else:
-            colors.append("r")
-    plt.scatter(samplesy,samplesx, color = colors)
-    plt.show()
     return accept*(b-a)**2/N
 
-print(mc_integrate(-1.5, 1, 100000, 2500))
+
+def hyper_cude_integration(a, b, N, s):
+    dimensions = 2
+    samples = np.random.uniform(size=(N, dimensions))
+    tiles = np.tile(np.arange(1, N+1), (dimensions, 1))
+    for i in range(tiles.shape[0]):
+        np.random.shuffle(tiles[i, :])
+    tiles = tiles.T
+    samples = (tiles-samples)/N
+    samples = samples * (b-a) + a
+    accept = 0
+    for i in samples:
+        result = mandelbrot(i[0], i[1], s)
+        if result == s:
+            accept += 1
+    return accept*(b-a)**2/N
+
+
+samples_sizes = [4, 5, 6, 7]
+for i in samples_sizes:
+    hyper = hyper_cude_integration(-1.5, 1, 10**i, 1000)
+    uniform = mc_integrate(-1.5, 1, 10**i, 1000)
+    print(f"Estimate standard uniform sampling: {uniform} \t latin hypercube sampling: {hyper} \t sample size: {10**i}")
