@@ -56,24 +56,39 @@ def get_mandelbrot(x, y, matrix, max_iteration):
 # @njit(parallel=True)
 def mc_integrate(a, b, N, s):
     accept = 0
-    samplesx = []
-    samplesy = []
-    colors = []
+    # samplesx = []
+    # samplesy = []
+    # colors = []
     for i in prange(N):
         sample_x = random.random()
         sample_y = random.random()
         sample_x = sample_x*(b-a) + a
         sample_y = sample_y*(b-a) + a
         result = mandelbrot(sample_x, sample_y, s)
-        samplesx.append(sample_x)
-        samplesy.append(sample_y)
+        # samplesx.append(sample_x)
+        # samplesy.append(sample_y)
         if result == s:
-            colors.append("g")
+            # colors.append("g")
             accept += 1
-        else:
-            colors.append("r")
-    plt.scatter(samplesy,samplesx, color = colors)
-    plt.show()
+        # else:
+            # colors.append("r")
+    # plt.scatter(samplesy,samplesx, color = colors)
+    # plt.show()
     return accept*(b-a)**2/N
 
-print(mc_integrate(-1.5, 1, 100000, 2500))
+# print(mc_integrate(-1.5, 1, 100000, 2500))
+
+iters = np.arange(1, 1001)
+areas = np.zeros(1000)
+errors = np.zeros(1000)
+area_i = mc_integrate(-2, 2, 1000, 1000)
+
+for i in range(1,1001):
+    areas[i-1] = mc_integrate(-2, 2, i, 1000)
+    errors[i - 1] = areas[i - 1] - area_i
+
+plt.plot(iters, errors)
+plt.axhline(y=0, color='r', linestyle='--')
+plt.xlabel("j")
+plt.ylabel("A_j,s - A_i,s")
+plt.show()
