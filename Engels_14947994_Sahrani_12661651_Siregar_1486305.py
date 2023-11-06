@@ -54,38 +54,38 @@ def get_mandelbrot(x, y, matrix, max_iteration):
 # plt.show()
 
 @njit(parallel=True)
-def mc_integrate(a, b, N, s):
+def mc_integrate(lower_bound, upper_bound, N_samples, num_of_iterations):
     accept = 0
-    for i in prange(N):
+    for i in prange(N_samples):
         sample_x = random.random()
         sample_y = random.random()
-        sample_x = sample_x*(b-a) + a
-        sample_y = sample_y*(b-a) + a
-        result = mandelbrot(sample_x, sample_y, s)
-        if result == s:
+        sample_x = sample_x*(upper_bound-lower_bound) + lower_bound
+        sample_y = sample_y*(upper_bound-lower_bound) + lower_bound
+        result = mandelbrot(sample_x, sample_y, num_of_iterations)
+        if result == num_of_iterations:
             accept += 1
-    return accept*(b-a)**2/N
+    return accept*(upper_bound-lower_bound)**2/N_samples
 
 
-def hyper_cude_integration(a, b, N, s):
+def hypercube_integration(lower_bound, upper_bound, N_samples, num_of_iterations):
     dimensions = 2
-    samples = np.random.uniform(size=(N, dimensions))
-    tiles = np.tile(np.arange(1, N+1), (dimensions, 1))
+    samples = np.random.uniform(size=(N_samples, dimensions))
+    tiles = np.tile(np.arange(1, N_samples+1), (dimensions, 1))
     for i in range(tiles.shape[0]):
         np.random.shuffle(tiles[i, :])
     tiles = tiles.T
-    samples = (tiles-samples)/N
-    samples = samples * (b-a) + a
+    samples = (tiles-samples)/N_samples
+    samples = samples * (upper_bound-lower_bound) + lower_bound
     accept = 0
     for i in samples:
-        result = mandelbrot(i[0], i[1], s)
-        if result == s:
+        result = mandelbrot(i[0], i[1], num_of_iterations)
+        if result == num_of_iterations:
             accept += 1
-    return accept*(b-a)**2/N
+    return accept*(upper_bound-lower_bound)**2/N_samples
 
 
 samples_sizes = [4, 5, 6, 7]
 for i in samples_sizes:
-    hyper = hyper_cude_integration(-1.5, 1, 10**i, 1000)
+    hyper = hypercube_integration(-1.5, 1, 10**i, 1000)
     uniform = mc_integrate(-1.5, 1, 10**i, 1000)
     print(f"Estimate standard uniform sampling: {uniform} \t latin hypercube sampling: {hyper} \t sample size: {10**i}")
