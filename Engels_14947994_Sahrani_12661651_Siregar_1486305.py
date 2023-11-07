@@ -56,10 +56,7 @@ def get_mandelbrot(x, y, matrix, max_iteration):
 @njit(parallel=True)
 def mc_integrate(lower_bound, upper_bound, N_samples, num_of_iterations):
     accept = 0
-    samplesx = []
-    samplesy = []
-    colors = []
-    for i in prange(N):
+    for i in prange(N_samples):
         sample_x = random.random()
         sample_y = random.random()
         sample_x = sample_x*(upper_bound-lower_bound) + lower_bound
@@ -87,8 +84,24 @@ def hypercube_integration(lower_bound, upper_bound, N_samples, num_of_iterations
     return accept*(upper_bound-lower_bound)**2/N_samples
 
 
-samples_sizes = [4, 5, 6, 7]
-for i in samples_sizes:
-    hyper = hypercube_integration(-1.5, 1, 10**i, 1000)
-    uniform = mc_integrate(-1.5, 1, 10**i, 1000)
-    print(f"Estimate standard uniform sampling: {uniform} \t latin hypercube sampling: {hyper} \t sample size: {10**i}")
+# samples_sizes = [4, 5, 6, 7]
+# for i in samples_sizes:
+#     hyper = hypercube_integration(-1.5, 1, 10**i, 1000)
+#     uniform = mc_integrate(-1.5, 1, 10**i, 1000)
+#     print(f"Estimate standard uniform sampling: {uniform} \t latin hypercube sampling: {hyper} \t sample size: {10**i}")
+
+#Plotting Convergence
+iters = np.arange(1, 1001)
+areas = np.zeros(1000)
+errors = np.zeros(1000)
+area_i = mc_integrate(-2, 2, 1000, 1000)
+
+for i in range(1,1001):
+    areas[i-1] = mc_integrate(-2, 2, i, 1000)
+    errors[i - 1] = areas[i - 1] - area_i
+
+plt.scatter(iters, errors)
+plt.axhline(y=0, color='r', linestyle='--')
+plt.xlabel("j")
+plt.ylabel("A_j,s - A_i,s")
+plt.show()
