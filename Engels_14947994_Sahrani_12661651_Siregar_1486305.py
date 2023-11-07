@@ -32,8 +32,8 @@ def mandelbrot(x, y, max_iteration):
     return iteration
 
 
-x = np.linspace(-2, 0.47, 2000)
-y = np.linspace(-1.12, 1.12, 2000)
+x = np.linspace(-2, 0.47, 1000)
+y = np.linspace(-1.12, 1.12, 1000)
 values = np.ndarray((x.shape[0], y.shape[0]))
 
 
@@ -53,42 +53,42 @@ def get_mandelbrot(x, y, matrix, max_iteration):
 # plt.colorbar()
 # plt.show()
 
-# @njit(parallel=True)
-def mc_integrate(a, b, N, s):
+@njit(parallel=True)
+def mc_integrate(lower_bound, upper_bound, N_samples, num_of_iterations):
     accept = 0
-    # samplesx = []
-    # samplesy = []
-    # colors = []
+    samplesx = []
+    samplesy = []
+    colors = []
     for i in prange(N):
         sample_x = random.random()
         sample_y = random.random()
-        sample_x = sample_x*(b-a) + a
-        sample_y = sample_y*(b-a) + a
-        result = mandelbrot(sample_x, sample_y, s)
-        # samplesx.append(sample_x)
-        # samplesy.append(sample_y)
-        if result == s:
-            # colors.append("g")
+        sample_x = sample_x*(upper_bound-lower_bound) + lower_bound
+        sample_y = sample_y*(upper_bound-lower_bound) + lower_bound
+        result = mandelbrot(sample_x, sample_y, num_of_iterations)
+        if result == num_of_iterations:
             accept += 1
-        # else:
-            # colors.append("r")
-    # plt.scatter(samplesy,samplesx, color = colors)
-    # plt.show()
-    return accept*(b-a)**2/N
+    return accept*(upper_bound-lower_bound)**2/N_samples
 
-# print(mc_integrate(-1.5, 1, 100000, 2500))
 
-iters = np.arange(1, 1001)
-areas = np.zeros(1000)
-errors = np.zeros(1000)
-area_i = mc_integrate(-2, 2, 1000, 1000)
+def hypercube_integration(lower_bound, upper_bound, N_samples, num_of_iterations):
+    dimensions = 2
+    samples = np.random.uniform(size=(N_samples, dimensions))
+    tiles = np.tile(np.arange(1, N_samples+1), (dimensions, 1))
+    for i in range(tiles.shape[0]):
+        np.random.shuffle(tiles[i, :])
+    tiles = tiles.T
+    samples = (tiles-samples)/N_samples
+    samples = samples * (upper_bound-lower_bound) + lower_bound
+    accept = 0
+    for i in samples:
+        result = mandelbrot(i[0], i[1], num_of_iterations)
+        if result == num_of_iterations:
+            accept += 1
+    return accept*(upper_bound-lower_bound)**2/N_samples
 
-for i in range(1,1001):
-    areas[i-1] = mc_integrate(-2, 2, i, 1000)
-    errors[i - 1] = areas[i - 1] - area_i
 
-plt.plot(iters, errors)
-plt.axhline(y=0, color='r', linestyle='--')
-plt.xlabel("j")
-plt.ylabel("A_j,s - A_i,s")
-plt.show()
+samples_sizes = [4, 5, 6, 7]
+for i in samples_sizes:
+    hyper = hypercube_integration(-1.5, 1, 10**i, 1000)
+    uniform = mc_integrate(-1.5, 1, 10**i, 1000)
+    print(f"Estimate standard uniform sampling: {uniform} \t latin hypercube sampling: {hyper} \t sample size: {10**i}")
