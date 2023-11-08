@@ -113,21 +113,22 @@ def plot_convergence(a, b, N_iterations, N_samples):
 
 def mc_integrate_ellipse(lower_bound, upper_bound, N_samples, num_of_iterations):
     
-    center_x = (upper_bound + lower_bound)/2
-    center_y = (upper_bound + lower_bound)/2
+    center_x = (lower_bound + upper_bound)/2
+    center_y = (lower_bound + upper_bound)/2
     major_axis = upper_bound - lower_bound
     minor_axis = upper_bound - lower_bound
     
     accept = 0
     for i in prange(N_samples):
         sample_x = random.uniform(center_x - major_axis/2, center_x + major_axis/2)
-        sample_y = random.uniform(0, center_y + minor_axis/2)
-        result = mandelbrot(sample_x, sample_y, num_of_iterations)
-        if result == num_of_iterations:
-            accept += 1
+        sample_y = random.uniform(center_y - minor_axis/2, center_y + minor_axis/2)
+        if ((sample_x - center_x)/major_axis/2)**2 + ((sample_y - center_y)/minor_axis/2)**2 <= 1:
+            result = mandelbrot(sample_x, sample_y, num_of_iterations)
+            if result == num_of_iterations:
+                accept += 1
             
-    ellipse_area = (np.pi * major_axis/2 * minor_axis/2)/2
+    ellipse_area = np.pi * major_axis/2 * minor_axis/2
         
-    return (accept*ellipse_area/N_samples)*2
+    return accept*ellipse_area/N_samples
 
-print(mc_integrate_ellipse(-2, 2, 1000, 1000))
+print(mc_integrate_ellipse(-6, 6, 1000, 1000))
