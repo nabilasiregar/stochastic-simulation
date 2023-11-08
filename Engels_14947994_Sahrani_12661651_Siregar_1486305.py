@@ -126,7 +126,7 @@ def mc_integrate_ellipse(lower_bound, upper_bound, N_samples, num_of_iterations)
         if result == num_of_iterations:
             accept += 1
             
-        ellipse_area = (np.pi * major_axis/2 * minor_axis/2)/2
+    ellipse_area = (np.pi * major_axis/2 * minor_axis/2)/2
         
     return (accept*ellipse_area/N_samples)*2
 
