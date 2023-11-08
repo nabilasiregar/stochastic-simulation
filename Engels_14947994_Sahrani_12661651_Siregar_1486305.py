@@ -89,3 +89,24 @@ for i in samples_sizes:
     hyper = hypercube_integration(-1.5, 1, 10**i, 1000)
     uniform = mc_integrate(-1.5, 1, 10**i, 1000)
     print(f"Estimate standard uniform sampling: {uniform} \t latin hypercube sampling: {hyper} \t sample size: {10**i}")
+
+#Plotting Convergence
+
+def plot_convergence(a, b, N_iterations, N_samples):
+    iters = np.arange(1, N_iterations + 1)
+    areas = np.zeros(N_iterations)
+    errors = np.zeros(N_iterations)
+    area_i = mc_integrate(a, b, N_iterations, N_samples)
+
+    for i in range(1,N_iterations):
+        areas[i-1] = mc_integrate(a, b, i, N_iterations)
+        errors[i - 1] = areas[i - 1] - area_i
+
+    plt.scatter(iters, errors)
+    plt.axhline(y=0, color='r', linestyle='--')
+    plt.xlabel("j")
+    plt.ylabel("A_j,s - A_i,s")
+    plt.title("Absolute Error in Mandelbrot Integration")
+    plt.show()
+    
+plot_convergence(-2, 2, 1000, 1000)
