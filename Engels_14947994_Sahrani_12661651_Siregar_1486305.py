@@ -84,11 +84,11 @@ def hypercube_integration(lower_bound, upper_bound, N_samples, num_of_iterations
     return accept*(upper_bound-lower_bound)**2/N_samples
 
 
-# samples_sizes = [4, 5, 6, 7]
-# for i in samples_sizes:
-#     hyper = hypercube_integration(-1.5, 1, 10**i, 1000)
-#     uniform = mc_integrate(-1.5, 1, 10**i, 1000)
-#     print(f"Estimate standard uniform sampling: {uniform} \t latin hypercube sampling: {hyper} \t sample size: {10**i}")
+samples_sizes = [4, 5, 6, 7]
+for i in samples_sizes:
+    hyper = hypercube_integration(-1.5, 1, 10**i, 1000)
+    uniform = mc_integrate(-1.5, 1, 10**i, 1000)
+    print(f"Estimate standard uniform sampling: {uniform} \t latin hypercube sampling: {hyper} \t sample size: {10**i}")
 
 #Plotting Convergence
 
