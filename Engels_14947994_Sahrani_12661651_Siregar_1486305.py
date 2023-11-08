@@ -84,11 +84,11 @@ def hypercube_integration(lower_bound, upper_bound, N_samples, num_of_iterations
     return accept*(upper_bound-lower_bound)**2/N_samples
 
 
-samples_sizes = [4, 5, 6, 7]
-for i in samples_sizes:
-    hyper = hypercube_integration(-1.5, 1, 10**i, 1000)
-    uniform = mc_integrate(-1.5, 1, 10**i, 1000)
-    print(f"Estimate standard uniform sampling: {uniform} \t latin hypercube sampling: {hyper} \t sample size: {10**i}")
+# samples_sizes = [4, 5, 6, 7]
+# for i in samples_sizes:
+#     hyper = hypercube_integration(-1.5, 1, 10**i, 1000)
+#     uniform = mc_integrate(-1.5, 1, 10**i, 1000)
+#     print(f"Estimate standard uniform sampling: {uniform} \t latin hypercube sampling: {hyper} \t sample size: {10**i}")
 
 #Plotting Convergence
 
@@ -109,4 +109,25 @@ def plot_convergence(a, b, N_iterations, N_samples):
     plt.title("Absolute Error in Mandelbrot Integration")
     plt.show()
     
-plot_convergence(-2, 2, 1000, 1000)
+#plot_convergence(-2, 2, 1000, 1000)
+
+def mc_integrate_ellipse(lower_bound, upper_bound, N_samples, num_of_iterations):
+    
+    center_x = (upper_bound + lower_bound)/2
+    center_y = (upper_bound + lower_bound)/2
+    major_axis = upper_bound - lower_bound
+    minor_axis = upper_bound - lower_bound
+    
+    accept = 0
+    for i in prange(N_samples):
+        sample_x = random.uniform(center_x - major_axis/2, center_x + major_axis/2)
+        sample_y = random.uniform(0, center_y + minor_axis/2)
+        result = mandelbrot(sample_x, sample_y, num_of_iterations)
+        if result == num_of_iterations:
+            accept += 1
+            
+        ellipse_area = (np.pi * major_axis/2 * minor_axis/2)/2
+        
+    return (accept*ellipse_area/N_samples)*2
+
+print(mc_integrate_ellipse(-2, 2, 1000, 1000))
