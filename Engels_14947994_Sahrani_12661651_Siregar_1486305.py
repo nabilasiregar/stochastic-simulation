@@ -5,7 +5,7 @@ import random
 from matplotlib.colors import LinearSegmentedColormap
 from numba import njit, prange
 
-# Mandelbrot Set Generation
+# Pretty Colors!
 
 palette = {
     "green": (139, 191, 159),
@@ -23,6 +23,9 @@ color_stops = [i / (len(colors) - 1) for i in range(len(colors))]
 cmap = LinearSegmentedColormap.from_list(
     "custom_gradient", list(zip(color_stops, colors)))
 
+
+
+# Mandelbrot Set Generation
 
 @njit
 def mandelbrot(x, y, max_iteration):
@@ -56,6 +59,8 @@ def get_mandelbrot(x, y, matrix, max_iteration):
 # plt.colorbar()
 # plt.show()
 
+
+
 # Sampling Techniques
 
 def uniform_square(lower_bound, upper_bound, N_samples):
@@ -68,20 +73,8 @@ def uniform_square(lower_bound, upper_bound, N_samples):
         samples[i, 0] = sample_x
         samples[i, 1] = sample_y
     return samples
+   
     
-
-def latin_hypercube(lower_bound, upper_bound, N_samples):
-    dimensions = 2
-    samples = np.random.uniform(size=(N_samples, dimensions))
-    tiles = np.tile(np.arange(1, N_samples+1), (dimensions, 1))
-    for i in range(tiles.shape[0]):
-        np.random.shuffle(tiles[i, :])
-    tiles = tiles.T
-    samples = (tiles-samples)/N_samples
-    samples = samples * (upper_bound-lower_bound) + lower_bound
-    return samples
-
-
 def uniform_circle(lower_bound, upper_bound, N_samples):
     center_x = (lower_bound + upper_bound)/2
     center_y = (lower_bound + upper_bound)/2
@@ -97,11 +90,55 @@ def uniform_circle(lower_bound, upper_bound, N_samples):
         samples[i, 1] = sample_y
     
     return samples
+
+
+def latin_hypercube(lower_bound, upper_bound, N_samples):
+    dimensions = 2
+    samples = np.random.uniform(size=(N_samples, dimensions))
+    tiles = np.tile(np.arange(1, N_samples+1), (dimensions, 1))
+    for i in range(tiles.shape[0]):
+        np.random.shuffle(tiles[i, :])
+    tiles = tiles.T
+    samples = (tiles-samples)/N_samples
+    samples = samples * (upper_bound-lower_bound) + lower_bound
+    return samples
+
+
+def orthogonal(lower_bound, upper_bound, N_samples):
+    if int(np.sqrt(N_samples)) ** 2 != N_samples:
+        raise ValueError("N must be a perfect square.")
     
+    x_values = []
+    y_values = []
+    size = int(np.sqrt(N_samples))
+    samples = np.empty((size, 2))
+    
+    x_bins = np.array(np.split(np.linspace(0, size, N_samples), size))
+    y_bins = np.array(np.split(np.linspace(0, size, N_samples), size))
+    available_rows = list(range(size))
+    available_cols = list(range(size))
+
+    for _ in range(size):
+        i = np.random.choice(available_rows)
+        j = np.random.choice(available_cols)
+        norm_x = (x_bins[i][j] + np.random.uniform())/(size + 1)
+        norm_y = (y_bins[j][i] + np.random.uniform())/(size + 1)
+        samples[_, 0] = norm_x * (upper_bound-lower_bound) + lower_bound
+        samples[_, 1] = norm_y * (upper_bound-lower_bound) + lower_bound
+        # x_values.append(norm_x * (b-a) +a)
+        # y_values.append(norm_y * (b-a) +a)
+
+        available_rows.remove(i)
+        available_cols.remove(j)
+    
+    return samples
+
+
 
 # Monte Carlo Integration
 
 def mc_integrate(lower_bound, upper_bound, N_samples, N_iterations, shape, samples):
+    #Note: if you use orthogonal sampling, remember to input N_samples = sqrt(N_samples). 
     accept = 0
     for i in samples:
         result = mandelbrot(i[0], i[1], N_iterations)
@@ -113,11 +150,40 @@ def mc_integrate(lower_bound, upper_bound, N_samples, N_iterations, shape, sampl
         diameter = upper_bound - lower_bound
         circle_area = np.pi * (np.sqrt(diameter/2))**2
         return accept * circle_area/ N_samples
+
+samples_unif_square = uniform_square(-2, 2, 1000000)
+samples_unif_circle = uniform_circle(-2, 2, 1000000)
+samples_lhc = latin_hypercube(-2, 2, 1000000)
+samples_ortho = orthogonal(-2, 2, 1000000)
+print("Area with Uniform Sampling over a Square: " + str(mc_integrate(-2, 2, 1000000, 1000, "square", samples_unif_square)))
+print(f"Area with Uniform Sampling over a Circle: " + str(mc_integrate(-2, 2, 1000000, 1000, "circle", samples_unif_circle)))
+print(f"Area with Latin Hypercube Sampling over a Square: " + str(mc_integrate(-2, 2, 1000000, 1000, "square", samples_lhc)))
+print(f"Area with Orthogonal Sampling over a Square: " + str(mc_integrate(-2, 2, 1000, 1000, "square", samples_ortho)))
+
+
+
+
+#Plotting Convergence
+
+def plot_convergence(lower_bound, upper_bound, N_samples, N_iterations):
+    iters = np.arange(1, N_iterations + 1)
+    areas = np.zeros(N_iterations)
+    errors = np.zeros(N_iterations)
+    area_i = mc_integrate(lower_bound, upper_bound, N_samples, N_iterations)
+
+    for i in range(1, N_iterations):
+        areas[i-1] = mc_integrate(lower_bound, upper_bound, i, N_iterations)
+        errors[i - 1] = areas[i - 1] - area_i
+
+    plt.scatter(iters, errors)
+    plt.axhline(y=0, color='r', linestyle='--')
+    plt.xlabel("j")
+    plt.ylabel("A_j,s - A_i,s")
+    plt.title("Absolute Error in Mandelbrot Integration")
+    plt.show()
     
-samples = uniform_circle(-2, 2, 10000)
-print(mc_integrate(-2, 2, 10000, 1000, "circle", samples))
-        
-        
+#plot_convergence(-2, 2, 1000, 1000)
+      
 
 
 
@@ -158,27 +224,6 @@ def hypercube_integration(lower_bound, upper_bound, N_samples, num_of_iterations
 #     uniform = mc_integrate(-1.5, 1, 10**i, 1000)
 #     print(f"Estimate standard uniform sampling: {uniform} \t latin hypercube sampling: {hyper} \t sample size: {10**i}")
 
-#Plotting Convergence
-
-def plot_convergence(a, b, N_iterations, N_samples):
-    iters = np.arange(1, N_iterations + 1)
-    areas = np.zeros(N_iterations)
-    errors = np.zeros(N_iterations)
-    area_i = mc_integrate(a, b, N_iterations, N_samples)
-
-    for i in range(1,N_iterations):
-        areas[i-1] = mc_integrate(a, b, i, N_iterations)
-        errors[i - 1] = areas[i - 1] - area_i
-
-    plt.scatter(iters, errors)
-    plt.axhline(y=0, color='r', linestyle='--')
-    plt.xlabel("j")
-    plt.ylabel("A_j,s - A_i,s")
-    plt.title("Absolute Error in Mandelbrot Integration")
-    plt.show()
-    
-#plot_convergence(-2, 2, 1000, 1000)
-
 def mc_integrate_circle(lower_bound, upper_bound, N_samples, num_of_iterations):
     
     center_x = (lower_bound + upper_bound)/2
@@ -212,4 +257,5 @@ def mc_integrate_circle(lower_bound, upper_bound, N_samples, num_of_iterations):
     circle_area = np.pi * (np.sqrt(diameter/2))**2
         
     return accept * circle_area/ N_samples
+  
   
