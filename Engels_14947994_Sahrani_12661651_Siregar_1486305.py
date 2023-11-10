@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import random
 from matplotlib.colors import LinearSegmentedColormap
 from numba import njit, prange
+import pdb
 palette = {
     "green": (139, 191, 159),
     "blue": (131, 188, 255),
@@ -111,35 +112,38 @@ def plot_convergence(a, b, N_iterations, N_samples):
     
 #plot_convergence(-2, 2, 1000, 1000)
 
-def mc_integrate_ellipse(lower_bound, upper_bound, N_samples, num_of_iterations):
+def mc_integrate_circle(lower_bound, upper_bound, N_samples, num_of_iterations):
     
     center_x = (lower_bound + upper_bound)/2
     center_y = (lower_bound + upper_bound)/2
-    major_axis = upper_bound - lower_bound
-    minor_axis = upper_bound - lower_bound
+    diameter = upper_bound - lower_bound
     
     accept = 0
     x = []
     y = []
     c = []
     for i in prange(N_samples):
-        radius = random.uniform(0, major_axis/2)
-        theta = random.uniform(0, 2*np.pi)
-        sample_x = np.sqrt(radius) * np.cos(theta)
-        sample_y = np.sqrt(radius) * np.sin(theta)
-        #if ((sample_x - center_x)/major_axis/2)**2 + ((sample_y - center_y)/minor_axis/2)**2 <= 1:
+        radius = random.uniform(0, diameter/2)
+        theta = random.uniform(0, 2 * np.pi)
+        sample_x = center_x + diameter/2 * np.sqrt(radius) * np.cos(theta)
+        sample_y = center_y + diameter/2 * np.sqrt(radius) * np.sin(theta)
+
         x.append(sample_x)
         y.append(sample_y)
+        
         result = mandelbrot(sample_x, sample_y, num_of_iterations)
         if result == num_of_iterations:
             accept += 1
             c.append("g")
         else:
             c.append("r")
+    
+    
     plt.scatter(x,y,color=c, s=2)
     plt.show()
             
-    ellipse_area = np.pi * (major_axis/2)**2 
+    circle_area = np.pi * (diameter/2)**2
         
-    return accept*ellipse_area/N_samples
+    return accept * circle_area/ N_samples
 
+print(mc_integrate_circle(-2, 2, 100000, 1000))   
