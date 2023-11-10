@@ -4,7 +4,9 @@ import matplotlib.pyplot as plt
 import random
 from matplotlib.colors import LinearSegmentedColormap
 from numba import njit, prange
-import pdb
+
+# Mandelbrot Set Generation
+
 palette = {
     "green": (139, 191, 159),
     "blue": (131, 188, 255),
@@ -54,18 +56,83 @@ def get_mandelbrot(x, y, matrix, max_iteration):
 # plt.colorbar()
 # plt.show()
 
-@njit(parallel=True)
-def mc_integrate(lower_bound, upper_bound, N_samples, num_of_iterations):
-    accept = 0
+# Sampling Techniques
+
+def uniform_square(lower_bound, upper_bound, N_samples):
+    samples = np.empty((N_samples, 2))
     for i in prange(N_samples):
         sample_x = random.random()
         sample_y = random.random()
         sample_x = sample_x*(upper_bound-lower_bound) + lower_bound
         sample_y = sample_y*(upper_bound-lower_bound) + lower_bound
-        result = mandelbrot(sample_x, sample_y, num_of_iterations)
-        if result == num_of_iterations:
+        samples[i, 0] = sample_x
+        samples[i, 1] = sample_y
+    return samples
+    
+
+def latin_hypercube(lower_bound, upper_bound, N_samples):
+    dimensions = 2
+    samples = np.random.uniform(size=(N_samples, dimensions))
+    tiles = np.tile(np.arange(1, N_samples+1), (dimensions, 1))
+    for i in range(tiles.shape[0]):
+        np.random.shuffle(tiles[i, :])
+    tiles = tiles.T
+    samples = (tiles-samples)/N_samples
+    samples = samples * (upper_bound-lower_bound) + lower_bound
+    return samples
+
+
+def uniform_circle(lower_bound, upper_bound, N_samples):
+    center_x = (lower_bound + upper_bound)/2
+    center_y = (lower_bound + upper_bound)/2
+    diameter = upper_bound - lower_bound
+    samples = np.empty((N_samples, 2))
+    
+    for i in prange(N_samples):
+        radius = random.uniform(0, diameter/2)
+        theta = random.uniform(0, 2 * np.pi)
+        sample_x = (center_x + np.sqrt(radius) * np.cos(theta))
+        sample_y = (center_y + np.sqrt(radius) * np.sin(theta))
+        samples[i, 0] = sample_x
+        samples[i, 1] = sample_y
+    
+    return samples
+    
+
+# Monte Carlo Integration
+
+def mc_integrate(lower_bound, upper_bound, N_samples, N_iterations, shape, samples):
+    accept = 0
+    for i in samples:
+        result = mandelbrot(i[0], i[1], N_iterations)
+        if result == N_iterations:
             accept += 1
-    return accept*(upper_bound-lower_bound)**2/N_samples
+    if shape == "square":
+        return accept*(upper_bound-lower_bound)**2/N_samples
+    if shape == "circle":
+        diameter = upper_bound - lower_bound
+        circle_area = np.pi * (np.sqrt(diameter/2))**2
+        return accept * circle_area/ N_samples
+    
+samples = uniform_circle(-2, 2, 10000)
+print(mc_integrate(-2, 2, 10000, 1000, "circle", samples))
+        
+        
+
+
+
+@njit(parallel=True)
+# def mc_integrate(lower_bound, upper_bound, N_samples, num_of_iterations):
+#     accept = 0
+#     for i in prange(N_samples):
+#         sample_x = random.random()
+#         sample_y = random.random()
+#         sample_x = sample_x*(upper_bound-lower_bound) + lower_bound
+#         sample_y = sample_y*(upper_bound-lower_bound) + lower_bound
+#         result = mandelbrot(sample_x, sample_y, num_of_iterations)
+#         if result == num_of_iterations:
+#             accept += 1
+#     return accept*(upper_bound-lower_bound)**2/N_samples
 
 
 def hypercube_integration(lower_bound, upper_bound, N_samples, num_of_iterations):
@@ -125,9 +192,9 @@ def mc_integrate_circle(lower_bound, upper_bound, N_samples, num_of_iterations):
     for i in prange(N_samples):
         radius = random.uniform(0, diameter/2)
         theta = random.uniform(0, 2 * np.pi)
-        sample_x = center_x + diameter/2 * np.sqrt(radius) * np.cos(theta)
-        sample_y = center_y + diameter/2 * np.sqrt(radius) * np.sin(theta)
-
+        sample_x = (center_x + np.sqrt(radius) * np.cos(theta))
+        sample_y = (center_y + np.sqrt(radius) * np.sin(theta))
+    
         x.append(sample_x)
         y.append(sample_y)
         
@@ -142,8 +209,7 @@ def mc_integrate_circle(lower_bound, upper_bound, N_samples, num_of_iterations):
     plt.scatter(x,y,color=c, s=2)
     plt.show()
             
-    circle_area = np.pi * (diameter/2)**2
+    circle_area = np.pi * (np.sqrt(diameter/2))**2
         
     return accept * circle_area/ N_samples
-
-print(mc_integrate_circle(-2, 2, 100000, 1000))   
+  
