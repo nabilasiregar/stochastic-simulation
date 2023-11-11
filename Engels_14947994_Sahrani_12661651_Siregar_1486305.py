@@ -121,8 +121,10 @@ def orthogonal(lower_bound, upper_bound, N_samples):
         j = np.random.choice(available_cols)
         norm_x = (x_bins[i][j] + np.random.uniform())/(size + 1)
         norm_y = (y_bins[j][i] + np.random.uniform())/(size + 1)
-        samples[_, 0] = norm_x * (upper_bound-lower_bound) + lower_bound
-        samples[_, 1] = norm_y * (upper_bound-lower_bound) + lower_bound
+        samples[_, 0] = norm_x * ( upper_bound - lower_bound) + lower_bound
+        samples[_, 1] = norm_y * ( upper_bound - lower_bound) + lower_bound
+        # x_values.append(norm_x * (b-a) +a)
+        # y_values.append(norm_y * (b-a) +a)
 
         available_rows.remove(i)
         available_cols.remove(j)
