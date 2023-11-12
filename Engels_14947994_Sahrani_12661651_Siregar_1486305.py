@@ -83,7 +83,7 @@ def uniform_circle(lower_bound, upper_bound, N_samples):
     
     for i in prange(N_samples):
         radius = random.uniform(0, diameter/2)
-        theta = random.uniform(0, 2 * np.pi)
+        theta = random.uniform(0, 2*np.pi)
         sample_x = (center_x + np.sqrt(radius) * np.cos(theta))
         sample_y = (center_y + np.sqrt(radius) * np.sin(theta))
         samples[i, 0] = sample_x
@@ -156,6 +156,13 @@ print(f"Area with Uniform Sampling over a Circle: " + str(mc_integrate(-2, 2, 10
 print(f"Area with Latin Hypercube Sampling over a Square: " + str(mc_integrate(-2, 2, 1000000, 1000, "square", samples_lhc)))
 print(f"Area with Orthogonal Sampling over a Square: " + str(mc_integrate(-2, 2, 1000, 1000, "square", samples_ortho)))
 
+#Experimenting with Sobol Sampling
+from scipy.stats import qmc
+sampler = qmc.Sobol(d=2)
+upper_bound = 2
+lower_bound = -2
+samples_sobol = sampler.random_base2(m=10) * ( upper_bound - lower_bound) + lower_bound
+print("Area with Sobol Sampling over a Square: " + str(mc_integrate(-2, 2, 1024, 1000, "square", samples_sobol)))
 
 
 
