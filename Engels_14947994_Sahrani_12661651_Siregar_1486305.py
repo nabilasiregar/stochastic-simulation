@@ -164,4 +164,4 @@ def plot_convergence(lower_bound, upper_bound, N_samples, N_iterations):
     plt.title("Absolute Error in Mandelbrot Integration")
     plt.savefig('assets/convergence.png')
     
-plot_convergence(-2, 2, 1000, 1000)
+# plot_convergence(-2, 2, 1000, 1000)
