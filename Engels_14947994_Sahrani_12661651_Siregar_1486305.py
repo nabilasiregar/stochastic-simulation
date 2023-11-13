@@ -52,12 +52,12 @@ def visualize_mandelbrot(x, y, matrix, max_iteration):
     return matrix
 
 max_iterations = 1000
-output = visualize_mandelbrot(x, y, values, max_iterations)
-plt.matshow(output, cmap=cmap)
-plt.ylabel("Real Numbers")
-plt.xlabel("Imaginary Numbers")
-plt.colorbar()
-plt.savefig('./assets/mandelbrot.png')
+# output = visualize_mandelbrot(x, y, values, max_iterations)
+# plt.matshow(output, cmap=cmap)
+# plt.ylabel("Real Numbers")
+# plt.xlabel("Imaginary Numbers")
+# plt.colorbar()
+# plt.savefig('./assets/mandelbrot.png')
 
 # Sampling Techniques
 def uniform_square(lower_bound, upper_bound, N_samples):
@@ -142,10 +142,16 @@ samples_unif_square = uniform_square(-2, 2, 1000000)
 samples_unif_circle = uniform_circle(-2, 2, 1000000)
 samples_lhc = latin_hypercube(-2, 2, 1000000)
 samples_ortho = orthogonal(-2, 2, 1000000)
-print("Area with Uniform Sampling over a Square: " + str(monte_carlo_integration(-2, 2, 1000000, 1000, "square", samples_unif_square)))
-print(f"Area with Uniform Sampling over a Circle: " + str(monte_carlo_integration(-2, 2, 1000000, 1000, "circle", samples_unif_circle)))
-print(f"Area with Latin Hypercube Sampling over a Square: " + str(monte_carlo_integration(-2, 2, 1000000, 1000, "square", samples_lhc)))
-print(f"Area with Orthogonal Sampling over a Square: " + str(monte_carlo_integration(-2, 2, 1000, 1000, "square", samples_ortho)))
+
+uniform_square_results = monte_carlo_integration(-2, 2, 1000000, 1000, "square", samples_unif_square)
+uniform_circle_results = monte_carlo_integration(-2, 2, 1000000, 1000, "circle", samples_unif_circle)
+lhc_results = monte_carlo_integration(-2, 2, 1000000, 1000, "square", samples_lhc)
+orthogonal_results = monte_carlo_integration(-2, 2, 1000, 1000, "square", samples_ortho)
+
+print("Area with Uniform Sampling over a Square: " + str(uniform_square_results))
+print(f"Area with Uniform Sampling over a Circle: " + str(uniform_circle_results))
+print(f"Area with Latin Hypercube Sampling over a Square: " + str(lhc_results))
+print(f"Area with Orthogonal Sampling over a Square: " + str(orthogonal_results))
 
 def plot_convergence(lower_bound, upper_bound, N_samples, N_iterations):
     iters = np.arange(1, N_iterations + 1)
@@ -165,3 +171,25 @@ def plot_convergence(lower_bound, upper_bound, N_samples, N_iterations):
     plt.savefig('assets/convergence.png')
     
 # plot_convergence(-2, 2, 1000, 1000)
+
+def plot_probability_density_function(samples_list, labels, bins=50):
+    for samples, label in zip(samples_list, labels):
+
+        x_values = samples[:, 0]
+        hist, bin_edges = np.histogram(x_values, bins=bins, density=True)
+
+        # Calculate the bin centers from the bin edges
+        bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
+
+        plt.plot(bin_centers, hist, label=label)
+
+        plt.xlabel('X coordinate')
+        plt.ylabel('Probability Density')
+        plt.title('Probability Density Functions by Sampling Method')
+        plt.legend()
+        plt.savefig('./assets/prob_density_function.png')
+
+plot_probability_density_function(
+    [samples_unif_square, samples_unif_circle, samples_lhc, samples_ortho],
+    ['Uniform Square', 'Uniform Circle', 'Latin Hypercube', 'Orthogonal']
+)
