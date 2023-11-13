@@ -45,19 +45,11 @@ y = np.linspace(-1.12, 1.12, 1000)
 values = np.ndarray((x.shape[0], y.shape[0]))
 
 @njit(parallel=True)
-def visualize_mandelbrot(x, y, matrix, max_iteration):
+def mandelbrot(x, y, matrix, max_iteration):
     for i in prange(matrix.shape[0]):
         for j in prange(matrix.shape[1]):
             matrix[i, j] = get_mandelbrot_set(x[i], y[j], max_iteration)
     return matrix
-
-max_iterations = 1000
-# output = visualize_mandelbrot(x, y, values, max_iterations)
-# plt.matshow(output, cmap=cmap)
-# plt.ylabel("Real Numbers")
-# plt.xlabel("Imaginary Numbers")
-# plt.colorbar()
-# plt.savefig('./assets/mandelbrot.png')
 
 # Sampling Techniques
 def uniform_square(lower_bound, upper_bound, N_samples):
@@ -152,6 +144,15 @@ print("Area with Uniform Sampling over a Square: " + str(uniform_square_results)
 print(f"Area with Uniform Sampling over a Circle: " + str(uniform_circle_results))
 print(f"Area with Latin Hypercube Sampling over a Square: " + str(lhc_results))
 print(f"Area with Orthogonal Sampling over a Square: " + str(orthogonal_results))
+
+def visualize_mandelbrot(output):
+    plt.matshow(output, cmap=cmap)
+    plt.ylabel("Real Numbers")
+    plt.xlabel("Imaginary Numbers")
+    plt.colorbar()
+    plt.savefig('./assets/mandelbrot.png')
+
+visualize_mandelbrot(mandelbrot(x, y, values, 1000))
 
 def plot_convergence(lower_bound, upper_bound, N_samples, N_iterations):
     iters = np.arange(1, N_iterations + 1)
