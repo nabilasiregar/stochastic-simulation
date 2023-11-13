@@ -45,19 +45,21 @@ y = np.linspace(-1.12, 1.12, 1000)
 values = np.ndarray((x.shape[0], y.shape[0]))
 
 @njit(parallel=True)
-def visualize_mandelbrot(x, y, matrix, max_iteration):
+def mandelbrot(x, y, matrix, max_iteration):
     for i in prange(matrix.shape[0]):
         for j in prange(matrix.shape[1]):
             matrix[i, j] = get_mandelbrot_set(x[i], y[j], max_iteration)
     return matrix
 
-max_iterations = 1000
-output = visualize_mandelbrot(x, y, values, max_iterations)
-plt.matshow(output, cmap=cmap)
-plt.ylabel("Real Numbers")
-plt.xlabel("Imaginary Numbers")
-plt.colorbar()
-plt.savefig('./assets/mandelbrot.png')
+def visualize_mandelbrot(output):
+    plt.matshow(output, cmap=cmap)
+    plt.ylabel("Real Numbers")
+    plt.xlabel("Imaginary Numbers")
+    plt.colorbar()
+    plt.savefig('./assets/mandelbrot.png')
+    plt.close()
+
+visualize_mandelbrot(mandelbrot(x, y, values, 1000))
 
 # Sampling Techniques
 def uniform_square(lower_bound, upper_bound, N_samples):
@@ -142,26 +144,52 @@ samples_unif_square = uniform_square(-2, 2, 1000000)
 samples_unif_circle = uniform_circle(-2, 2, 1000000)
 samples_lhc = latin_hypercube(-2, 2, 1000000)
 samples_ortho = orthogonal(-2, 2, 1000000)
-print("Area with Uniform Sampling over a Square: " + str(monte_carlo_integration(-2, 2, 1000000, 1000, "square", samples_unif_square)))
-print(f"Area with Uniform Sampling over a Circle: " + str(monte_carlo_integration(-2, 2, 1000000, 1000, "circle", samples_unif_circle)))
-print(f"Area with Latin Hypercube Sampling over a Square: " + str(monte_carlo_integration(-2, 2, 1000000, 1000, "square", samples_lhc)))
-print(f"Area with Orthogonal Sampling over a Square: " + str(monte_carlo_integration(-2, 2, 1000, 1000, "square", samples_ortho)))
 
-def plot_convergence(lower_bound, upper_bound, N_samples, N_iterations):
-    iters = np.arange(1, N_iterations + 1)
-    areas = np.zeros(N_iterations)
-    errors = np.zeros(N_iterations)
-    area_i = monte_carlo_integration(lower_bound, upper_bound, N_samples, N_iterations)
+uniform_square_results = monte_carlo_integration(-2, 2, 1000000, 1000, "square", samples_unif_square)
+uniform_circle_results = monte_carlo_integration(-2, 2, 1000000, 1000, "circle", samples_unif_circle)
+lhc_results = monte_carlo_integration(-2, 2, 1000000, 1000, "square", samples_lhc)
+orthogonal_results = monte_carlo_integration(-2, 2, 1000, 1000, "square", samples_ortho)
 
-    for i in range(1, N_iterations):
-        areas[i-1] = monte_carlo_integration(lower_bound, upper_bound, i, N_iterations)
-        errors[i - 1] = areas[i - 1] - area_i
+print("Area with Uniform Sampling over a Square: " + str(uniform_square_results))
+print(f"Area with Uniform Sampling over a Circle: " + str(uniform_circle_results))
+print(f"Area with Latin Hypercube Sampling over a Square: " + str(lhc_results))
+print(f"Area with Orthogonal Sampling over a Square: " + str(orthogonal_results))
 
-    plt.scatter(iters, errors)
-    plt.axhline(y=0, color='r', linestyle='--')
+def plot_convergence(lower_bound, upper_bound, N_samples, N_iterations, sampling_methods_info, start_iter=1, x_max=None, y_max=None):
+    plt.figure(figsize=(10, 6))
+
+    reference_areas = {}
+    for sampling_function, label, shape in sampling_methods_info:
+        samples = sampling_function(lower_bound, upper_bound, N_samples)
+        reference_areas[label] = monte_carlo_integration(lower_bound, upper_bound, N_samples, N_iterations, shape, samples)
+
+    for (sampling_function, label, shape), color in zip(sampling_methods_info, normalized_palette.values()):
+        iters = np.arange(start_iter, N_iterations + 1)
+        errors = []
+
+        for i in iters:
+            samples = sampling_function(lower_bound, upper_bound, N_samples)
+            estimated_area = monte_carlo_integration(lower_bound, upper_bound, N_samples, i, shape, samples)
+            error = estimated_area - reference_areas[label]
+            errors.append(error)
+              # plt.plot(iters, errors, label=label)
+        plt.scatter(iters, errors, color=color, label=label, s=5)
+
     plt.xlabel("j")
     plt.ylabel("A_j,s - A_i,s")
-    plt.title("Absolute Error in Mandelbrot Integration")
-    plt.savefig('assets/convergence.png')
-    
-# plot_convergence(-2, 2, 1000, 1000)
+    plt.title("Convergence of Monte Carlo Estimates by Sampling Method")
+    plt.legend()
+
+    if x_max is not None:
+        plt.xlim(0, x_max)
+    if y_max is not None:
+        plt.ylim(0, y_max)
+
+    plt.savefig('./assets/convergence.png')
+
+sampling_methods_info = [
+    (uniform_square, 'Uniform Square', 'square'),
+    (uniform_circle, 'Uniform Circle', 'circle'),
+    (latin_hypercube, 'Latin Hypercube', 'square')
+]
+plot_convergence(-2, 2, 10000, 1000, sampling_methods_info, start_iter=3, x_max=200)
