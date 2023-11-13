@@ -89,12 +89,14 @@ def uniform_circle(lower_bound, upper_bound, N_samples):
     
     return samples
 
-def latin_hypercube(lower_bound, upper_bound, N_samples):
+
+def hyper_cube_integration(a, b, N, s):
     dimensions = 2
     samples = np.random.uniform(size=(N_samples, dimensions))
     tiles = np.tile(np.arange(1, N_samples+1), (dimensions, 1))
     for i in range(tiles.shape[0]):
         np.random.shuffle(tiles[i, :])
+    print(tiles)
     tiles = tiles.T
     samples = (tiles - samples) / N_samples
     samples = samples * (upper_bound - lower_bound) + lower_bound
@@ -140,15 +142,31 @@ def monte_carlo_integration(lower_bound, upper_bound, N_samples, N_iterations, s
         circle_area = np.pi * (np.sqrt(diameter/2)) ** 2
         return accept * circle_area / N_samples
 
-samples_unif_square = uniform_square(-2, 2, 1000000)
-samples_unif_circle = uniform_circle(-2, 2, 1000000)
-samples_lhc = latin_hypercube(-2, 2, 1000000)
-samples_ortho = orthogonal(-2, 2, 1000000)
+def orthogonal_integration(a, b, N, s):
+    x_values = []
+    y_values = []
+    x_bins = np.array(np.split(np.linspace(a, b, N), np.sqrt(N)))
+    y_bins = np.array(np.split(np.linspace(a, b, N), np.sqrt(N)))
 
-uniform_square_results = monte_carlo_integration(-2, 2, 1000000, 1000, "square", samples_unif_square)
-uniform_circle_results = monte_carlo_integration(-2, 2, 1000000, 1000, "circle", samples_unif_circle)
-lhc_results = monte_carlo_integration(-2, 2, 1000000, 1000, "square", samples_lhc)
-orthogonal_results = monte_carlo_integration(-2, 2, 1000, 1000, "square", samples_ortho)
+    for i in range(x_bins.shape[0]):
+        np.random.shuffle(x_bins[i,:])
+        np.random.shuffle(y_bins[i,:])
+
+    for i in range(x_bins.shape[0]):
+        for j in range(x_bins.shape[1]):
+            x_values.append(x_bins[i].pop()  + np.random.uniform())
+            y_values.append(x_bins[i].pop()  + np.random.uniform())
+    return x_values, y_values 
+
+
+# samples_sizes = [4, 5, 6, 7]
+# for i in samples_sizes:
+#     hyper = hyper_cube_integration(-1.5, 1, 10**i, 1000)
+#     uniform = mc_integrate(-1.5, 1, 10**i, 1000)
+#     print(f"Estimate standard uniform sampling: {uniform} \t latin hypercube sampling: {hyper} \t sample size: {10**i}")
+x,y = orthogonal_integration(0,3,16,1)
+plt.plot(x,y)
+plt.show()
 
 print("Area with Uniform Sampling over a Square: " + str(uniform_square_results))
 print(f"Area with Uniform Sampling over a Circle: " + str(uniform_circle_results))
