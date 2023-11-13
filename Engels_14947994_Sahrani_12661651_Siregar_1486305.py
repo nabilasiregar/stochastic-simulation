@@ -161,7 +161,14 @@ def plot_convergence(lower_bound, upper_bound, N_samples, N_iterations, sampling
 
     for sampling_function, label, shape in sampling_methods:
         areas = np.zeros(N_iterations)
-        samples = sampling_function(lower_bound, upper_bound, N_samples)
+
+        if sampling_function == orthogonal:
+            actual_samples = int(np.sqrt(N_samples))
+        else:
+            actual_samples = N_samples
+
+        samples = sampling_function(lower_bound, upper_bound, actual_samples)
+
         area_i = monte_carlo_integration(lower_bound, upper_bound, N_samples, N_iterations, shape, samples)
 
         for i in iters:
@@ -185,71 +192,3 @@ sampling_methods_info = [
       # (orthogonal, 'Orthogonal', 'square')
 ]
 plot_convergence(-2, 2, 1000, 1000, sampling_methods_info)
-
-# def plot_convergence(lower_bound, upper_bound, N_samples, N_iterations, sampling_methods_info):
-#     iters = np.arange(1, N_iterations + 1)
-#     plt.figure(figsize=(10, 6))
-
-#     for sampling_function, label, shape in sampling_methods_info:
-#         estimates = []
-
-#         if sampling_function == orthogonal:
-#             actual_samples = int(np.sqrt(N_samples))
-
-#         else:
-#             actual_samples = N_samples
-
-#         samples = sampling_function(lower_bound, upper_bound, actual_samples)
-
-#         for i in iters:
-#             # To ensure the number of iterations is also a perfect square
-#             if sampling_function == orthogonal and i != 1:
-#                 iter_adjusted = int(np.sqrt(i))
-#                 if iter_adjusted**2 != i:
-#                     continue  # Skip iterations that are not perfect squares
-#                 i = iter_adjusted
-
-#             estimate = monte_carlo_integration(lower_bound, upper_bound, actual_samples, i, shape, samples)
-#             estimates.append(estimate)
-
-#         plt.plot(iters, estimates, label=label)
-
-#     plt.xlabel('Number of Iterations (i)')
-#     plt.ylabel('Estimated Area (A_i,s)')
-#     plt.title('Convergence of Estimated Area with Increasing Iterations')
-#     plt.legend()
-#     plt.grid(True)
-#     plt.savefig('./assets/convergence.png')
-#     plt.close()
-
-# sampling_methods_info = [
-#     (uniform_square, 'Uniform Square', 'square'),
-#     (uniform_circle, 'Uniform Circle', 'circle'),
-#     (latin_hypercube, 'Latin Hypercube', 'square')
-# ]
-
-# plot_convergence(-2, 2, 1000, 1000, sampling_methods_info)
-
-def plot_probability_density(samples_list, labels, bins=50):
-    for samples, label in zip(samples_list, labels):
-
-        x_values = samples[:, 0]
-        hist, bin_edges = np.histogram(x_values, bins=bins, density=True)
-
-        # Calculate the bin centers from the bin edges
-        bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
-
-        plt.plot(bin_centers, hist, label=label)
-
-        plt.xlabel('X coordinate')
-        plt.ylabel('Probability Density')
-        plt.title('Probability Density Functions by Sampling Method')
-        plt.legend()
-        plt.savefig('./assets/probability_density.png')
-    
-    plt.close()
-
-plot_probability_density(
-    [samples_unif_square, samples_unif_circle, samples_lhc, samples_ortho],
-    ['Uniform Square', 'Uniform Circle', 'Latin Hypercube', 'Orthogonal']
-)
