@@ -155,25 +155,80 @@ def visualize_mandelbrot(output):
 
 visualize_mandelbrot(mandelbrot(x, y, values, 1000))
 
-def plot_convergence(lower_bound, upper_bound, N_samples, N_iterations):
+def plot_convergence(lower_bound, upper_bound, N_samples, N_iterations, sampling_methods):
+    plt.figure(figsize=(10, 6))
     iters = np.arange(1, N_iterations + 1)
-    areas = np.zeros(N_iterations)
-    errors = np.zeros(N_iterations)
-    area_i = monte_carlo_integration(lower_bound, upper_bound, N_samples, N_iterations)
 
-    for i in range(1, N_iterations):
-        areas[i-1] = monte_carlo_integration(lower_bound, upper_bound, i, N_iterations)
-        errors[i - 1] = areas[i - 1] - area_i
+    for sampling_function, label, shape in sampling_methods:
+        areas = np.zeros(N_iterations)
+        samples = sampling_function(lower_bound, upper_bound, N_samples)
+        area_i = monte_carlo_integration(lower_bound, upper_bound, N_samples, N_iterations, shape, samples)
 
-    plt.scatter(iters, errors)
-    plt.axhline(y=0, color='r', linestyle='--')
+        for i in iters:
+            areas[i - 1] = monte_carlo_integration(lower_bound, upper_bound, N_samples, i, shape, samples)
+            errors = np.abs(areas - area_i)
+        
+        plt.plot(iters, errors, label=f'{label}')
+
+    plt.axhline(y=0, color='r', linestyle='--', label='Zero Absolute Error')
     plt.xlabel("j")
     plt.ylabel("A_j,s - A_i,s")
+    plt.legend()
     plt.title("Absolute Error in Mandelbrot Integration")
-    plt.savefig('assets/convergence.png')
+    plt.savefig('./assets/convergence.png')
     plt.close()
-    
-# plot_convergence(-2, 2, 1000, 1000)
+
+sampling_methods_info = [
+    (uniform_square, 'Uniform Square', 'square'),
+    (uniform_circle, 'Uniform Circle', 'circle'),
+    (latin_hypercube, 'Latin Hypercube', 'square')
+      # (orthogonal, 'Orthogonal', 'square')
+]
+plot_convergence(-2, 2, 1000, 1000, sampling_methods_info)
+
+# def plot_convergence(lower_bound, upper_bound, N_samples, N_iterations, sampling_methods_info):
+#     iters = np.arange(1, N_iterations + 1)
+#     plt.figure(figsize=(10, 6))
+
+#     for sampling_function, label, shape in sampling_methods_info:
+#         estimates = []
+
+#         if sampling_function == orthogonal:
+#             actual_samples = int(np.sqrt(N_samples))
+
+#         else:
+#             actual_samples = N_samples
+
+#         samples = sampling_function(lower_bound, upper_bound, actual_samples)
+
+#         for i in iters:
+#             # To ensure the number of iterations is also a perfect square
+#             if sampling_function == orthogonal and i != 1:
+#                 iter_adjusted = int(np.sqrt(i))
+#                 if iter_adjusted**2 != i:
+#                     continue  # Skip iterations that are not perfect squares
+#                 i = iter_adjusted
+
+#             estimate = monte_carlo_integration(lower_bound, upper_bound, actual_samples, i, shape, samples)
+#             estimates.append(estimate)
+
+#         plt.plot(iters, estimates, label=label)
+
+#     plt.xlabel('Number of Iterations (i)')
+#     plt.ylabel('Estimated Area (A_i,s)')
+#     plt.title('Convergence of Estimated Area with Increasing Iterations')
+#     plt.legend()
+#     plt.grid(True)
+#     plt.savefig('./assets/convergence.png')
+#     plt.close()
+
+# sampling_methods_info = [
+#     (uniform_square, 'Uniform Square', 'square'),
+#     (uniform_circle, 'Uniform Circle', 'circle'),
+#     (latin_hypercube, 'Latin Hypercube', 'square')
+# ]
+
+# plot_convergence(-2, 2, 1000, 1000, sampling_methods_info)
 
 def plot_probability_density(samples_list, labels, bins=50):
     for samples, label in zip(samples_list, labels):
