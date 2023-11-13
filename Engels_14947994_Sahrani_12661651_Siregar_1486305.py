@@ -151,6 +151,7 @@ def visualize_mandelbrot(output):
     plt.xlabel("Imaginary Numbers")
     plt.colorbar()
     plt.savefig('./assets/mandelbrot.png')
+    plt.close()
 
 visualize_mandelbrot(mandelbrot(x, y, values, 1000))
 
@@ -170,6 +171,7 @@ def plot_convergence(lower_bound, upper_bound, N_samples, N_iterations):
     plt.ylabel("A_j,s - A_i,s")
     plt.title("Absolute Error in Mandelbrot Integration")
     plt.savefig('assets/convergence.png')
+    plt.close()
     
 # plot_convergence(-2, 2, 1000, 1000)
 
@@ -189,6 +191,8 @@ def plot_probability_density(samples_list, labels, bins=50):
         plt.title('Probability Density Functions by Sampling Method')
         plt.legend()
         plt.savefig('./assets/probability_density.png')
+    
+    plt.close()
 
 plot_probability_density(
     [samples_unif_square, samples_unif_circle, samples_lhc, samples_ortho],
