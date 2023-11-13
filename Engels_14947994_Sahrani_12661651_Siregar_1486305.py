@@ -173,7 +173,7 @@ def plot_convergence(lower_bound, upper_bound, N_samples, N_iterations):
     
 # plot_convergence(-2, 2, 1000, 1000)
 
-def plot_probability_density_function(samples_list, labels, bins=50):
+def plot_probability_density(samples_list, labels, bins=50):
     for samples, label in zip(samples_list, labels):
 
         x_values = samples[:, 0]
@@ -188,9 +188,9 @@ def plot_probability_density_function(samples_list, labels, bins=50):
         plt.ylabel('Probability Density')
         plt.title('Probability Density Functions by Sampling Method')
         plt.legend()
-        plt.savefig('./assets/prob_density_function.png')
+        plt.savefig('./assets/probability_density.png')
 
-plot_probability_density_function(
+plot_probability_density(
     [samples_unif_square, samples_unif_circle, samples_lhc, samples_ortho],
     ['Uniform Square', 'Uniform Circle', 'Latin Hypercube', 'Orthogonal']
 )
