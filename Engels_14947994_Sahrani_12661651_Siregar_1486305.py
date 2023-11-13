@@ -155,40 +155,41 @@ print(f"Area with Uniform Sampling over a Circle: " + str(uniform_circle_results
 print(f"Area with Latin Hypercube Sampling over a Square: " + str(lhc_results))
 print(f"Area with Orthogonal Sampling over a Square: " + str(orthogonal_results))
 
-def plot_convergence(lower_bound, upper_bound, N_samples, N_iterations, sampling_methods):
+def plot_convergence(lower_bound, upper_bound, N_samples, N_iterations, sampling_methods_info, start_iter=1, x_max=None, y_max=None):
     plt.figure(figsize=(10, 6))
-    iters = np.arange(1, N_iterations + 1)
 
-    for sampling_function, label, shape in sampling_methods:
-        areas = np.zeros(N_iterations)
+    reference_areas = {}
+    for sampling_function, label, shape in sampling_methods_info:
+        samples = sampling_function(lower_bound, upper_bound, N_samples)
+        reference_areas[label] = monte_carlo_integration(lower_bound, upper_bound, N_samples, N_iterations, shape, samples)
 
-        if sampling_function == orthogonal:
-            actual_samples = int(np.sqrt(N_samples))
-        else:
-            actual_samples = N_samples
-
-        samples = sampling_function(lower_bound, upper_bound, actual_samples)
-
-        area_i = monte_carlo_integration(lower_bound, upper_bound, N_samples, N_iterations, shape, samples)
+    for (sampling_function, label, shape), color in zip(sampling_methods_info, normalized_palette.values()):
+        iters = np.arange(start_iter, N_iterations + 1)
+        errors = []
 
         for i in iters:
-            areas[i - 1] = monte_carlo_integration(lower_bound, upper_bound, N_samples, i, shape, samples)
-            errors = np.abs(areas - area_i)
-        
-        plt.plot(iters, errors, label=f'{label}')
+            samples = sampling_function(lower_bound, upper_bound, N_samples)
+            estimated_area = monte_carlo_integration(lower_bound, upper_bound, N_samples, i, shape, samples)
+            error = estimated_area - reference_areas[label]
+            errors.append(error)
+              # plt.plot(iters, errors, label=label)
+        plt.scatter(iters, errors, color=color, label=label, s=5)
 
-    plt.axhline(y=0, color='r', linestyle='--', label='Zero Absolute Error')
     plt.xlabel("j")
     plt.ylabel("A_j,s - A_i,s")
+    plt.title("Convergence of Monte Carlo Estimates by Sampling Method")
     plt.legend()
-    plt.title("Absolute Error in Mandelbrot Integration")
+
+    if x_max is not None:
+        plt.xlim(0, x_max)
+    if y_max is not None:
+        plt.ylim(0, y_max)
+
     plt.savefig('./assets/convergence.png')
-    plt.close()
 
 sampling_methods_info = [
     (uniform_square, 'Uniform Square', 'square'),
     (uniform_circle, 'Uniform Circle', 'circle'),
     (latin_hypercube, 'Latin Hypercube', 'square')
-      # (orthogonal, 'Orthogonal', 'square')
 ]
-plot_convergence(-2, 2, 1000, 1000, sampling_methods_info)
+plot_convergence(-2, 2, 10000, 1000, sampling_methods_info, start_iter=3, x_max=200)
