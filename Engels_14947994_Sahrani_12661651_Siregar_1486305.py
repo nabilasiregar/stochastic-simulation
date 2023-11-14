@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import random
 from matplotlib.colors import LinearSegmentedColormap
 from numba import njit, prange
+import scipy.stats as stats
 
 filepath = './'
 
@@ -170,14 +171,14 @@ uniform_square_results = monte_carlo_integration(
 uniform_circle_results = monte_carlo_integration(
     -2, 2,  1000, "circle", samples_unif_circle)
 lhc_results = monte_carlo_integration(-2,
-    2, 1000, "square", samples_lhc)
+                                      2, 1000, "square", samples_lhc)
 orthogonal_results = monte_carlo_integration(
     -2, 2, 1000, "square", samples_ortho)
 
-print("Area with Uniform Sampling over a Square: " + str(uniform_square_results))
-print(f"Area with Uniform Sampling over a Circle: " + str(uniform_circle_results))
-print(f"Area with Latin Hypercube Sampling over a Square: " + str(lhc_results))
-print(f"Area with Orthogonal Sampling over a Square: " + str(orthogonal_results))
+# print("Area with Uniform Sampling over a Square: " + str(uniform_square_results))
+# print(f"Area with Uniform Sampling over a Circle: " + str(uniform_circle_results))
+# print(f"Area with Latin Hypercube Sampling over a Square: " + str(lhc_results))
+# print(f"Area with Orthogonal Sampling over a Square: " + str(orthogonal_results))
 
 
 def plot_convergence(lower_bound, upper_bound, N_samples, N_iterations, sampling_methods_info, start_iter=1, x_max=None, y_max=None):
@@ -215,10 +216,24 @@ def plot_convergence(lower_bound, upper_bound, N_samples, N_iterations, sampling
     plt.savefig('./assets/convergence.png')
 
 
+def point_estimate(samples, alpha):
+    est_mean = np.mean(samples)
+    est_std = np.std(samples, ddof=1)
+    standard_error = est_std / np.sqrt(len(samples))
+    df = len(samples)-1
+
+    conf_interval = stats.t.interval(
+        1-alpha, df, loc=est_mean, scale=standard_error)
+    return conf_interval
+
+
 sampling_methods_info = [
     (uniform_square, 'Uniform Square', 'square'),
     (uniform_circle, 'Uniform Circle', 'circle'),
     (latin_hypercube, 'Latin Hypercube', 'square')
 ]
-plot_convergence(-2, 2, 10000, 1000, sampling_methods_info,
-                 start_iter=3, x_max=200)
+# plot_convergence(-2, 2, 10000, 1000, sampling_methods_info,
+#                  start_iter=3, x_max=200)
+
+data = [monte_carlo_integration(-2, 2, 250, "square", orthogonal(-2, 2, 10**4)) for _ in range(100)]
+print(point_estimate(data, 0.1))
