@@ -174,7 +174,7 @@ print(f"Area with Orthogonal Sampling over a Square: " + str(orthogonal_results)
 
 
 def plot_convergence(lower_bound, upper_bound, N_samples, N_iterations, sampling_methods_info, start_iter=1, x_max=None, y_max=None):
-    plt.figure(figsize=(10, 6))
+    plt.figure(figsize=(10, 8))
 
     reference_areas = {}
     for sampling_function, label, shape in sampling_methods_info:
@@ -202,10 +202,12 @@ def plot_convergence(lower_bound, upper_bound, N_samples, N_iterations, sampling
             errors.append(error)
         plt.scatter(iters, errors, color=color, label=label, s=5)
 
-    plt.xlabel("j")
-    plt.ylabel("A_j,s - A_i,s")
-    plt.title("Convergence of Monte Carlo Estimates by Sampling Method")
-    plt.legend()
+    plt.xlabel("j", fontsize = 16)
+    plt.xticks(fontsize = 14)
+    plt.ylabel("A_j,s - A_i,s", fontsize = 16)
+    plt.yticks(fontsize = 14)
+    plt.title("Convergence of Monte Carlo Estimates by Sampling Method", fontsize = 18)
+    plt.legend(fontsize = 16)
 
     if x_max is not None:
         plt.xlim(0, x_max)
@@ -225,3 +227,4 @@ sampling_methods_info = [
 print("Plotting convergence... Please wait")
 plot_convergence(-2, 2, 10000, 1000, sampling_methods_info,
                  start_iter=3, x_max=200)
+print("Finished plotting, please check assets folder")
