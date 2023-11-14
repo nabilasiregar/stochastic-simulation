@@ -10,9 +10,7 @@ filepath = './'
 
 if not os.path.exists(os.path.join(filepath, 'assets')):
     os.makedirs(os.path.join(filepath, 'assets'))
-    print("'assets' folder has been created in the specified filepath.")
-else:
-    print("'assets' folder already exists in the specified filepath.")
+    print("'assets' folder has been created to store plots and figures")
 
 palette = {
     "green": (139, 191, 159),
@@ -63,12 +61,9 @@ def visualize_mandelbrot(output):
     plt.savefig('./assets/mandelbrot.png')
     plt.close()
 
-
 visualize_mandelbrot(mandelbrot(x, y, values, 1000))
 
 # Sampling Techniques
-
-
 def uniform_square(lower_bound, upper_bound, N_samples):
     samples = np.empty((N_samples, 2))
     for i in prange(N_samples):
@@ -117,12 +112,10 @@ def orthogonal(lower_bound, upper_bound, N_samples):
         raise ValueError("N must be a perfect square!")
 
     samples = np.empty((N_samples, 2))
-    step = (upper_bound-lower_bound)/N_samples
+    step = (upper_bound - lower_bound) / N_samples
 
-    x_bins = np.array(np.split(np.linspace(
-        lower_bound, upper_bound, N_samples), size))
-    y_bins = np.array(np.split(np.linspace(
-        lower_bound, upper_bound, N_samples), size))
+    x_bins = np.array(np.split(np.linspace(lower_bound, upper_bound, N_samples), size))
+    y_bins = np.array(np.split(np.linspace(lower_bound, upper_bound, N_samples), size))
     available_rows = [list(range(size)) for _ in range(size)]
     available_cols = [list(range(size)) for _ in range(size)]
 
@@ -186,20 +179,27 @@ def plot_convergence(lower_bound, upper_bound, N_samples, N_iterations, sampling
     reference_areas = {}
     for sampling_function, label, shape in sampling_methods_info:
         samples = sampling_function(lower_bound, upper_bound, N_samples)
-        reference_areas[label] = monte_carlo_integration(
-            lower_bound, upper_bound, N_samples, N_iterations, shape, samples)
+        reference_areas[label] = monte_carlo_integration(lower_bound, upper_bound, N_iterations, shape, samples)
 
-    for (sampling_function, label, shape), color in zip(sampling_methods_info, normalized_palette.values()):
+    for (sampling_function, label, shape) in sampling_methods_info:
+        match label:
+            case 'Uniform Square':
+                color = colors[0]
+            case 'Uniform Circle':
+                color = colors[1]
+            case 'Latin Hypercube':
+                color = colors[2]
+            case 'Orthogonal':
+                color = colors[-1]
+
         iters = np.arange(start_iter, N_iterations + 1)
         errors = []
 
         for i in iters:
             samples = sampling_function(lower_bound, upper_bound, N_samples)
-            estimated_area = monte_carlo_integration(
-                lower_bound, upper_bound, N_samples, i, shape, samples)
+            estimated_area = monte_carlo_integration(lower_bound, upper_bound, i, shape, samples)
             error = estimated_area - reference_areas[label]
             errors.append(error)
-            # plt.plot(iters, errors, label=label)
         plt.scatter(iters, errors, color=color, label=label, s=5)
 
     plt.xlabel("j")
@@ -218,7 +218,10 @@ def plot_convergence(lower_bound, upper_bound, N_samples, N_iterations, sampling
 sampling_methods_info = [
     (uniform_square, 'Uniform Square', 'square'),
     (uniform_circle, 'Uniform Circle', 'circle'),
-    (latin_hypercube, 'Latin Hypercube', 'square')
+    (latin_hypercube, 'Latin Hypercube', 'square'),
+    (orthogonal, 'Orthogonal', 'square')
 ]
+
+print("Plotting convergence... Please wait")
 plot_convergence(-2, 2, 10000, 1000, sampling_methods_info,
                  start_iter=3, x_max=200)
