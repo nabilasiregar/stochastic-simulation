@@ -261,9 +261,9 @@ def data_stats(filename, alpha):
     for i in range(len(stds)):
         standard_error = stds[i]/ 10
         df = 99
-        conf_interval = stats.t.interval(1-alpha, df, means[i], scale=standard_error)
-        print(f"{methods[i]} Confidence Interval: {conf_interval}")
-        plt.errorbar(x=i, y=means[i], yerr=(conf_interval[1] - means[i]), fmt='o', label=methods[i])
+        confidence_interval = stats.t.interval(1-alpha, df, means[i], scale=standard_error)
+        print(f"{methods[i]} Confidence Interval: {confidence_interval}")
+        plt.errorbar(x=i, y=means[i], yerr=(confidence_interval[1] - means[i]), fmt='o', label=methods[i])
 
     plt.xticks(range(len(means)), [methods[i] for i in range(len(means))])
     plt.ylabel('Area')
@@ -275,7 +275,6 @@ def data_stats(filename, alpha):
     var_latin_hypercube = np.var(latin_hypercube_data.loc[:,"area"])
     var_orthogonal = np.var(orthogonal_data.loc[:,"area"])
     
-    anova_result = stats.f_oneway(means)
     
     print()
     print("Variance Uniform Sampling over Square: " + str(var_uniform_square))
@@ -283,6 +282,6 @@ def data_stats(filename, alpha):
     print("Variance Latin Hypercube over Square: " + str(var_latin_hypercube))
     print("Variance Orthogonal Sampling over Square: " + str(var_orthogonal))
     print()
-    print(anova_result)
+
     
 data_stats("mandelbrot_estimations.csv", 0.01)
