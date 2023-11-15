@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 import cmath
 import os
 import matplotlib.pyplot as plt
@@ -232,3 +233,25 @@ sampling_methods_info = [
 print("Plotting convergence... Please wait")
 plot_convergence(-2, 2, 10000, 1000, sampling_methods_info,
                  start_iter=3, x_max=200)
+
+
+def data_stats(filename):
+    data = pd.read_csv(filename)
+    uniform_square_data = data.groupby("method").get_group("uniform_square")
+    uniform_circle_data = data.groupby("method").get_group("uniform_circle")
+    latin_hypercube_data = data.groupby("method").get_group("latin_hypercube")
+    orthogonal_data = data.groupby("method").get_group("orthogonal")
+    
+    var_uniform_square = np.var(uniform_square_data.loc[:,"area"])
+    var_uniform_circle = np.var(uniform_circle_data.loc[:,"area"])
+    var_latin_hypercube = np.var(latin_hypercube_data.loc[:,"area"])
+    var_orthogonal = np.var(orthogonal_data.loc[:,"area"])
+    
+    print("Variance Uniform Sampling over Square: " + str(var_uniform_square))
+    print("Variance Uniform Sampling over Circle: " + str(var_uniform_circle))
+    print("Variance Latin Hypercube over Square: " + str(var_latin_hypercube))
+    print("Variance Orthogonal Sampling over Square: " + str(var_orthogonal))
+    
+    
+    
+data_stats("mandelbrot_estimations.csv")
