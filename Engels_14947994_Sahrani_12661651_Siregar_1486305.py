@@ -275,10 +275,14 @@ def data_stats(filename, alpha):
     var_latin_hypercube = np.var(latin_hypercube_data.loc[:,"area"])
     var_orthogonal = np.var(orthogonal_data.loc[:,"area"])
     
+    anova_result = stats.f_oneway(means)
+    
     print()
     print("Variance Uniform Sampling over Square: " + str(var_uniform_square))
     print("Variance Uniform Sampling over Circle: " + str(var_uniform_circle))
     print("Variance Latin Hypercube over Square: " + str(var_latin_hypercube))
     print("Variance Orthogonal Sampling over Square: " + str(var_orthogonal))
+    print()
+    print(anova_result)
     
 data_stats("mandelbrot_estimations.csv", 0.01)

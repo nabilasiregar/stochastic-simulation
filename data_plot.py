@@ -42,12 +42,18 @@ def data_stats(filename, alpha):
     var_uniform_circle = np.var(uniform_circle_data.loc[:,"area"])
     var_latin_hypercube = np.var(latin_hypercube_data.loc[:,"area"])
     var_orthogonal = np.var(orthogonal_data.loc[:,"area"])
-    
+        
     print()
     print("Variance Uniform Sampling over Square: " + str(var_uniform_square))
     print("Variance Uniform Sampling over Circle: " + str(var_uniform_circle))
     print("Variance Latin Hypercube over Square: " + str(var_latin_hypercube))
     print("Variance Orthogonal Sampling over Square: " + str(var_orthogonal))
+    print()
+    method_data_list = [data.groupby("method").get_group(method.lower().replace(" ", "_"))["area"] for method in methods]
+
+    f_statistic, p_value_anova = stats.f_oneway(*method_data_list)
+    print(f"One-way ANOVA p-value: {p_value_anova}")
+
 
 
 data_stats("mandelbrot_estimations.csv", 0.01)
