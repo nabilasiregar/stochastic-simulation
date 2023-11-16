@@ -59,7 +59,7 @@ def visualize_mandelbrot(output):
     plt.matshow(output, extent=(np.min(x), np.max(x), np.min(y), np.max(y)), cmap=cmap, origin = "lower")
     plt.ylabel("Real Numbers")
     plt.xlabel("Imaginary Numbers")
-    plt.xticks(np.linspace(np.min(x), np.max(x), num=5))
+    #plt.xticks(np.linspace(np.min(x), np.max(x), num=5))
     plt.savefig('./assets/mandelbrot.png')
     plt.close()
 
@@ -235,3 +235,39 @@ print("Plotting convergence... Please wait")
 plot_convergence(-2, 2, 10000, 1000, sampling_methods_info,
                  start_iter=3, x_max=200)
 
+def confidence_intervals(filename, alpha):
+    methods = ["Uniform Square", "Uniform Circle", "Latin Hypercube", "Orthogonal"]
+    data = pd.read_csv(filename)
+    
+    uniform_square_data = data.groupby("method").get_group("uniform_square")
+    uniform_circle_data = data.groupby("method").get_group("uniform_circle")
+    latin_hypercube_data = data.groupby("method").get_group("latin_hypercube")
+    orthogonal_data = data.groupby("method").get_group("orthogonal")
+    
+    mean_uniform_square = uniform_square_data["mean_area"].iloc[0]
+    mean_uniform_circle = uniform_circle_data["mean_area"].iloc[0]
+    mean_latin_hypercube = latin_hypercube_data["mean_area"].iloc[0]
+    mean_orthogonal = orthogonal_data["mean_area"].iloc[0]
+    
+    means = [mean_uniform_square, mean_uniform_circle, mean_latin_hypercube, mean_orthogonal]
+    
+    std_uniform_square = np.std(uniform_square_data.loc[:,"area"])
+    std_uniform_circle = np.std(uniform_circle_data.loc[:,"area"])
+    std_latin_hypercube = np.std(latin_hypercube_data.loc[:,"area"])
+    std_orthogonal = np.std(orthogonal_data.loc[:,"area"])
+    
+    stds = [std_uniform_square, std_uniform_circle, std_latin_hypercube, std_orthogonal]
+    
+    for i in range(len(stds)):
+        standard_error = stds[i]/ 10
+        df = 99
+        conf_interval = stats.t.interval(1-alpha, df, means[i], scale=standard_error)
+        print(f"{methods[i]} Confidence Interval: {conf_interval}")
+        plt.errorbar(x=i, y=means[i], yerr=(conf_interval[1] - means[i]), fmt='o', label=methods[i])
+
+    plt.xticks(range(len(means)), [methods[i] for i in range(len(means))])
+    plt.ylabel('Area')
+    plt.title('Confidence Intervals for Mandelbrot Set Area')
+    plt.show()
+
+confidence_intervals("mandelbrot_estimations.csv", 0.01)
