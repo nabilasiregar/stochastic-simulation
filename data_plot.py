@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 from scipy import stats
+import pingouin as pg
 import matplotlib.pyplot as plt
 
 def data_stats(filename, alpha):
@@ -49,11 +50,12 @@ def data_stats(filename, alpha):
     print("Variance Latin Hypercube over Square: " + str(var_latin_hypercube))
     print("Variance Orthogonal Sampling over Square: " + str(var_orthogonal))
     print()
-    method_data_list = [data.groupby("method").get_group(method.lower().replace(" ", "_"))["area"] for method in methods]
 
-    f_statistic, p_value_anova = stats.f_oneway(*method_data_list)
-    print(f"One-way ANOVA p-value: {p_value_anova}")
-
-
+    
+    welch_result = pg.welch_anova(data=data, dv="area", between="method")
+    print(f"Welch's ANOVA statistic: {welch_result['F'][0]}    p-value: {welch_result['p-unc'][0]}")
+    
+    posthoc_result = pg.pairwise_gameshowell(data=data, dv="area", between="method")
+    print(posthoc_result)
 
 data_stats("mandelbrot_estimations.csv", 0.01)

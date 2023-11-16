@@ -282,6 +282,12 @@ def data_stats(filename, alpha):
     print("Variance Latin Hypercube over Square: " + str(var_latin_hypercube))
     print("Variance Orthogonal Sampling over Square: " + str(var_orthogonal))
     print()
+    
+    welch_result = pg.welch_anova(data=data, dv="area", between="method")
+    print(f"Welch's ANOVA statistic: {welch_result['F'][0]}    p-value: {welch_result['p-unc'][0]}")
+    
+    posthoc_result = pg.pairwise_gameshowell(data=data, dv="area", between="method")
+    print(posthoc_result)
 
     
 data_stats("mandelbrot_estimations.csv", 0.01)
