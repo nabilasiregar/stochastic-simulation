@@ -269,5 +269,12 @@ def confidence_intervals(filename, alpha):
     plt.ylabel('Area')
     plt.title('Confidence Intervals for Mandelbrot Set Area')
     plt.show()
+    
+    welch_result = pg.welch_anova(data=data, dv="area", between="method")
+    print(f"Welch's ANOVA statistic: {welch_result['F'][0]}    p-value: {welch_result['p-unc'][0]}")
+    
+    posthoc_result = pg.pairwise_gameshowell(data=data, dv="area", between="method")
+    print(posthoc_result)
+
 
 confidence_intervals("mandelbrot_estimations.csv", 0.01)
