@@ -42,8 +42,8 @@ def get_mandelbrot_set(x, y, max_iteration):
     return iteration
 
 
-x = np.linspace(-2, 0.47, 1000)
-y = np.linspace(-1.12, 1.12, 1000)
+x = np.linspace(-2, 2, 1000)
+y = np.linspace(-2, 2, 1000)
 values = np.ndarray((x.shape[0], y.shape[0]))
 
 
