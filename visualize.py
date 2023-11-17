@@ -2,6 +2,7 @@ from Engels_14947994_Sahrani_12661651_Siregar_1486305 import normalized_palette
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import sys
 
 def plot_sample_size_comparison():
     data = pd.read_csv('./assets/mandelbrot_sample_size_comparison.csv')
@@ -44,3 +45,18 @@ def plot_iterations_comparison():
     plt.ylabel('Estimated Area', fontsize=18)
     plt.yticks(fontsize=16)
     plt.savefig('./assets/comparison_by_iterations')
+
+def choose_plot(plot_type):
+    if plot_type == 'sample_size':
+        plot_sample_size_comparison()
+    elif plot_type == 'iterations':
+        plot_iterations_comparison()
+    else:
+        print('Invalid plot type input')
+
+if __name__ == "__main__":
+    if len(sys.argv) > 1:
+        plot_type = sys.argv[1]
+    else:
+        plot_type = input("Enter the simulation result you want to plot (sample_size or iterations): ")
+    choose_plot(plot_type)
