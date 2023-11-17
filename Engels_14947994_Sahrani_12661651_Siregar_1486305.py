@@ -151,80 +151,81 @@ def monte_carlo_integration(lower_bound, upper_bound, N_iterations, shape, sampl
         diameter = upper_bound - lower_bound
         circle_area = np.pi * (np.sqrt(diameter/2)) ** 2
         return accept * circle_area / N_samples
+    
+if __name__ == "__main__":
+    print('Calculating area...')
+    samples_unif_square = uniform_square(-2, 2, 1000000)
+    samples_unif_circle = uniform_circle(-2, 2, 1000000)
+    samples_lhc = latin_hypercube(-2, 2, 1000000)
+    samples_ortho = orthogonal(-2, 2, 1000000)
 
-print('Calculating area...')
-samples_unif_square = uniform_square(-2, 2, 1000000)
-samples_unif_circle = uniform_circle(-2, 2, 1000000)
-samples_lhc = latin_hypercube(-2, 2, 1000000)
-samples_ortho = orthogonal(-2, 2, 1000000)
+    uniform_square_results = monte_carlo_integration(
+        -2, 2,  1000, "square", samples_unif_square)
+    uniform_circle_results = monte_carlo_integration(
+        -2, 2,  1000, "circle", samples_unif_circle)
+    lhc_results = monte_carlo_integration(-2,
+        2, 1000, "square", samples_lhc)
+    orthogonal_results = monte_carlo_integration(
+        -2, 2, 1000, "square", samples_ortho)
 
-uniform_square_results = monte_carlo_integration(
-    -2, 2,  1000, "square", samples_unif_square)
-uniform_circle_results = monte_carlo_integration(
-    -2, 2,  1000, "circle", samples_unif_circle)
-lhc_results = monte_carlo_integration(-2,
-    2, 1000, "square", samples_lhc)
-orthogonal_results = monte_carlo_integration(
-    -2, 2, 1000, "square", samples_ortho)
+    print("Area with Uniform Sampling over a Square: " + str(uniform_square_results))
+    print("Area with Uniform Sampling over a Circle: " + str(uniform_circle_results))
+    print("Area with Latin Hypercube Sampling over a Square: " + str(lhc_results))
+    print("Area with Orthogonal Sampling over a Square: " + str(orthogonal_results))
 
-print("Area with Uniform Sampling over a Square: " + str(uniform_square_results))
-print("Area with Uniform Sampling over a Circle: " + str(uniform_circle_results))
-print("Area with Latin Hypercube Sampling over a Square: " + str(lhc_results))
-print("Area with Orthogonal Sampling over a Square: " + str(orthogonal_results))
+    def plot_convergence(lower_bound, upper_bound, N_samples, N_iterations, sampling_methods_info, start_j=1, x_max=None, y_max=None):
+        plt.figure(figsize=(10, 8))
 
-def plot_convergence(lower_bound, upper_bound, N_samples, N_iterations, sampling_methods_info, start_j=1, x_max=None, y_max=None):
-    plt.figure(figsize=(10, 8))
-
-    # Ai,s is the reference area with i = 300
-    reference_areas = {}
-    for sampling_function, label, shape in sampling_methods_info:
-        samples = sampling_function(lower_bound, upper_bound, N_samples)
-        reference_areas[label] = monte_carlo_integration(lower_bound, upper_bound, N_iterations, shape, samples)
-
-    for (sampling_function, label, shape) in sampling_methods_info:
-        match label:
-            case 'Uniform Square':
-                color = colors[0]
-            case 'Uniform Circle':
-                color = colors[1]
-            case 'Latin Hypercube':
-                color = colors[2]
-            case 'Orthogonal':
-                color = colors[-1]
-
-        iters = np.arange(start_j, 100 + 1)
-        errors = []
-        # Aj,s is the estimated area with j = 100
-        for j in iters:
+        # Ai,s is the reference area with i = 300
+        reference_areas = {}
+        for sampling_function, label, shape in sampling_methods_info:
             samples = sampling_function(lower_bound, upper_bound, N_samples)
-            estimated_area = monte_carlo_integration(lower_bound, upper_bound, j, shape, samples)
-            error = estimated_area - reference_areas[label]
-            errors.append(error)
+            reference_areas[label] = monte_carlo_integration(lower_bound, upper_bound, N_iterations, shape, samples)
 
-        plt.scatter(iters, errors, color=color, label=label, s=35)
+        for (sampling_function, label, shape) in sampling_methods_info:
+            match label:
+                case 'Uniform Square':
+                    color = colors[0]
+                case 'Uniform Circle':
+                    color = colors[1]
+                case 'Latin Hypercube':
+                    color = colors[2]
+                case 'Orthogonal':
+                    color = colors[-1]
 
-    plt.xlabel("j", fontsize = 18)
-    plt.xticks(fontsize = 16)
-    plt.ylabel("A_j,s - A_i,s", fontsize = 18)
-    plt.yticks(fontsize = 16)
-    plt.title("i = 300, s = 10000", fontsize = 18)
-    plt.legend(fontsize = 16)
+            iters = np.arange(start_j, 100 + 1)
+            errors = []
+            # Aj,s is the estimated area with j = 100
+            for j in iters:
+                samples = sampling_function(lower_bound, upper_bound, N_samples)
+                estimated_area = monte_carlo_integration(lower_bound, upper_bound, j, shape, samples)
+                error = estimated_area - reference_areas[label]
+                errors.append(error)
 
-    if x_max is not None:
-        plt.xlim(0, x_max)
-    if y_max is not None:
-        plt.ylim(0, y_max)
+            plt.scatter(iters, errors, color=color, label=label, s=35)
 
-    plt.savefig('./assets/convergence.png')
+        plt.xlabel("j", fontsize = 18)
+        plt.xticks(fontsize = 16)
+        plt.ylabel("A_j,s - A_i,s", fontsize = 18)
+        plt.yticks(fontsize = 16)
+        plt.title("i = 300, s = 10000", fontsize = 18)
+        plt.legend(fontsize = 16)
+
+        if x_max is not None:
+            plt.xlim(0, x_max)
+        if y_max is not None:
+            plt.ylim(0, y_max)
+
+        plt.savefig('./assets/convergence.png')
 
 
-sampling_methods_info = [
-    (uniform_square, 'Uniform Square', 'square'),
-    (uniform_circle, 'Uniform Circle', 'circle'),
-    (latin_hypercube, 'Latin Hypercube', 'square'),
-    (orthogonal, 'Orthogonal', 'square')
-]
+    sampling_methods_info = [
+        (uniform_square, 'Uniform Square', 'square'),
+        (uniform_circle, 'Uniform Circle', 'circle'),
+        (latin_hypercube, 'Latin Hypercube', 'square'),
+        (orthogonal, 'Orthogonal', 'square')
+    ]
 
-print("Plotting convergence...")
-plot_convergence(-2, 2, 10000, 300, sampling_methods_info, start_j=5)
-print("Finished plotting, please check assets folder.")
+    print("Plotting convergence...")
+    plot_convergence(-2, 2, 10000, 300, sampling_methods_info, start_j=5)
+    print("Finished plotting, please check assets folder.")
