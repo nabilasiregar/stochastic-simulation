@@ -16,7 +16,6 @@ def plot_sample_size_comparison():
 
     plt.figure(figsize=(10, 6))
     for method in mean_areas['method'].unique():
-        pdb.set_trace()
         method_data = mean_areas[mean_areas['method'] == method]
         plt.plot(method_data['sample_size'], method_data['area'],
                 marker='o', label=method, color=method_colors[method])

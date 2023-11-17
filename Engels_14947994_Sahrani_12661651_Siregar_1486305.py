@@ -152,7 +152,7 @@ def monte_carlo_integration(lower_bound, upper_bound, N_iterations, shape, sampl
         circle_area = np.pi * (np.sqrt(diameter/2)) ** 2
         return accept * circle_area / N_samples
 
-
+print('Calculating area...')
 samples_unif_square = uniform_square(-2, 2, 1000000)
 samples_unif_circle = uniform_circle(-2, 2, 1000000)
 samples_lhc = latin_hypercube(-2, 2, 1000000)
@@ -168,14 +168,14 @@ orthogonal_results = monte_carlo_integration(
     -2, 2, 1000, "square", samples_ortho)
 
 print("Area with Uniform Sampling over a Square: " + str(uniform_square_results))
-print(f"Area with Uniform Sampling over a Circle: " + str(uniform_circle_results))
-print(f"Area with Latin Hypercube Sampling over a Square: " + str(lhc_results))
-print(f"Area with Orthogonal Sampling over a Square: " + str(orthogonal_results))
+print("Area with Uniform Sampling over a Circle: " + str(uniform_circle_results))
+print("Area with Latin Hypercube Sampling over a Square: " + str(lhc_results))
+print("Area with Orthogonal Sampling over a Square: " + str(orthogonal_results))
 
-
-def plot_convergence(lower_bound, upper_bound, N_samples, N_iterations, sampling_methods_info, start_iter=1, x_max=None, y_max=None):
+def plot_convergence(lower_bound, upper_bound, N_samples, N_iterations, sampling_methods_info, start_j=1, x_max=None, y_max=None):
     plt.figure(figsize=(10, 8))
 
+    # Ai,s is the reference area with i = 300
     reference_areas = {}
     for sampling_function, label, shape in sampling_methods_info:
         samples = sampling_function(lower_bound, upper_bound, N_samples)
@@ -192,21 +192,22 @@ def plot_convergence(lower_bound, upper_bound, N_samples, N_iterations, sampling
             case 'Orthogonal':
                 color = colors[-1]
 
-        iters = np.arange(start_iter, N_iterations + 1)
+        iters = np.arange(start_j, 100 + 1)
         errors = []
-
-        for i in iters:
+        # Aj,s is the estimated area with j = 100
+        for j in iters:
             samples = sampling_function(lower_bound, upper_bound, N_samples)
-            estimated_area = monte_carlo_integration(lower_bound, upper_bound, i, shape, samples)
+            estimated_area = monte_carlo_integration(lower_bound, upper_bound, j, shape, samples)
             error = estimated_area - reference_areas[label]
             errors.append(error)
-        plt.scatter(iters, errors, color=color, label=label, s=5)
 
-    plt.xlabel("j", fontsize = 16)
-    plt.xticks(fontsize = 14)
-    plt.ylabel("A_j,s - A_i,s", fontsize = 16)
-    plt.yticks(fontsize = 14)
-    plt.title("Convergence of Monte Carlo Estimates by Sampling Method", fontsize = 18)
+        plt.scatter(iters, errors, color=color, label=label, s=35)
+
+    plt.xlabel("j", fontsize = 18)
+    plt.xticks(fontsize = 16)
+    plt.ylabel("A_j,s - A_i,s", fontsize = 18)
+    plt.yticks(fontsize = 16)
+    plt.title("i = 300, s = 10000", fontsize = 18)
     plt.legend(fontsize = 16)
 
     if x_max is not None:
@@ -224,7 +225,6 @@ sampling_methods_info = [
     (orthogonal, 'Orthogonal', 'square')
 ]
 
-print("Plotting convergence... Please wait")
-plot_convergence(-2, 2, 10000, 1000, sampling_methods_info,
-                 start_iter=3, x_max=200)
-print("Finished plotting, please check assets folder")
+print("Plotting convergence...")
+plot_convergence(-2, 2, 10000, 300, sampling_methods_info, start_j=5)
+print("Finished plotting, please check assets folder.")
