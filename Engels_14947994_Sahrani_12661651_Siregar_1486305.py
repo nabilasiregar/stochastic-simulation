@@ -22,6 +22,7 @@ palette = {
     "violet": (89, 52, 79),
     "crayola": (238, 32, 77)
 }
+global cmap
 
 normalized_palette = {key: tuple(val / 255.0 for val in value)
                       for key, value in palette.items()}
@@ -65,7 +66,6 @@ def visualize_mandelbrot(output):
     plt.close()
 
 
-visualize_mandelbrot(mandelbrot(x, y, values, 1000))
 
 # Sampling Techniques
 
@@ -98,6 +98,23 @@ def uniform_circle(lower_bound, upper_bound, N_samples):
 
     return samples
 
+def orthogonal_circle(lower_bound, upper_bound, N_samples):
+    center_x = (lower_bound + upper_bound) / 2
+    center_y = (lower_bound + upper_bound) / 2
+    diameter = upper_bound - lower_bound
+    radius = diameter / 2
+
+    lhd = LatinHypercube(d=2, centered=True)
+    samples = lhd.random(n=N_samples)
+
+    samples = lower_bound + samples * (upper_bound - lower_bound)
+
+    theta = 2 * np.pi * samples[:, 0]
+    r = radius * np.sqrt(samples[:, 1])
+    samples[:, 0] = center_x + r * np.cos(theta)
+    samples[:, 1] = center_y + r * np.sin(theta)
+
+    return samples
 
 def latin_hypercube(lower_bound, upper_bound, N_samples):
     dimensions = 2
@@ -109,7 +126,6 @@ def latin_hypercube(lower_bound, upper_bound, N_samples):
     samples = (tiles - samples) / N_samples
     samples = samples * (upper_bound - lower_bound) + lower_bound
     return samples
-
 
 def orthogonal(lower_bound, upper_bound, N_samples):
     size = int(np.sqrt(N_samples))
@@ -124,26 +140,24 @@ def orthogonal(lower_bound, upper_bound, N_samples):
         lower_bound, upper_bound, N_samples), size))
     y_bins = np.array(np.split(np.linspace(
         lower_bound, upper_bound, N_samples), size))
-    available_rows = [list(range(size)) for _ in range(size)]
-    available_cols = [list(range(size)) for _ in range(size)]
+
+    indices = np.arange(size)
+    np.random.shuffle(indices)
 
     r = 0
-    for col in range(size):
-        for row in range(size):
-            i = np.random.choice(available_cols[col])
-            j = np.random.choice(available_rows[row])
+    for col in indices:
+        for row in indices:
+            i = np.random.choice(size)
+            j = np.random.choice(size)
             norm_x = np.random.uniform(x_bins[col][i], x_bins[col][i] + step)
-            norm_y = np.random.uniform(y_bins[row][j], x_bins[row][j] + step)
+            norm_y = np.random.uniform(y_bins[row][j], y_bins[row][j] + step)
 
             samples[r, 0] = norm_x
             samples[r, 1] = norm_y
 
-            available_cols[col].remove(i)
-            available_rows[row].remove(j)
             r += 1
 
     return samples
-
 
 def monte_carlo_integration(lower_bound, upper_bound, N_iterations, shape, samples):
     # if you use orthogonal sampling, remember to input N_samples = sqrt(N_samples)
@@ -161,24 +175,6 @@ def monte_carlo_integration(lower_bound, upper_bound, N_iterations, shape, sampl
         return accept * circle_area / N_samples
 
 
-samples_unif_square = uniform_square(-2, 2, 1000000)
-samples_unif_circle = uniform_circle(-2, 2, 1000000)
-samples_lhc = latin_hypercube(-2, 2, 1000000)
-samples_ortho = orthogonal(-2, 2, 1000000)
-
-uniform_square_results = monte_carlo_integration(
-    -2, 2,  1000, "square", samples_unif_square)
-uniform_circle_results = monte_carlo_integration(
-    -2, 2,  1000, "circle", samples_unif_circle)
-lhc_results = monte_carlo_integration(-2,
-                                      2, 1000, "square", samples_lhc)
-orthogonal_results = monte_carlo_integration(
-    -2, 2, 1000, "square", samples_ortho)
-
-# print("Area with Uniform Sampling over a Square: " + str(uniform_square_results))
-# print(f"Area with Uniform Sampling over a Circle: " + str(uniform_circle_results))
-# print(f"Area with Latin Hypercube Sampling over a Square: " + str(lhc_results))
-# print(f"Area with Orthogonal Sampling over a Square: " + str(orthogonal_results))
 
 
 def plot_convergence(lower_bound, upper_bound, N_samples, N_iterations, sampling_methods_info, start_iter=1, x_max=None, y_max=None):
@@ -232,8 +228,31 @@ sampling_methods_info = [
     (uniform_circle, 'Uniform Circle', 'circle'),
     (latin_hypercube, 'Latin Hypercube', 'square')
 ]
-# plot_convergence(-2, 2, 10000, 1000, sampling_methods_info,
-#                  start_iter=3, x_max=200)
+def main():
+    # visualize_mandelbrot(mandelbrot(x, y, values, 1000))
+    # samples_unif_square = uniform_square(-2, 2, 1000000)
+    # samples_unif_circle = uniform_circle(-2, 2, 1000000)
+    # samples_lhc = latin_hypercube(-2, 2, 1000000)
+    # samples_ortho = orthogonal(-2, 2, 1000000)
+    #
+    # uniform_square_results = monte_carlo_integration(
+    #     -2, 2,  1000, "square", samples_unif_square)
+    # uniform_circle_results = monte_carlo_integration(
+    #     -2, 2,  1000, "circle", samples_unif_circle)
+    # lhc_results = monte_carlo_integration(-2,
+    #                                       2, 1000, "square", samples_lhc)
+    # orthogonal_results = monte_carlo_integration(
+    #     -2, 2, 1000, "square", samples_ortho)
 
-data = [monte_carlo_integration(-2, 2, 250, "square", orthogonal(-2, 2, 10**4)) for _ in range(100)]
-print(point_estimate(data, 0.1))
+    # print("Area with Uniform Sampling over a Square: " + str(uniform_square_results))
+    # print(f"Area with Uniform Sampling over a Circle: " + str(uniform_circle_results))
+    # print(f"Area with Latin Hypercube Sampling over a Square: " + str(lhc_results))
+    # print(f"Area with Orthogonal Sampling over a Square: " + str(orthogonal_results))
+    # plot_convergence(-2, 2, 10000, 1000, sampling_methods_info,
+    #                  start_iter=3, x_max=200)
+
+    # data = [monte_carlo_integration(-2, 2, 250, "square", orthogonal(-2, 2, 10**4)) for _ in range(100)]
+    # print(point_estimate(data, 0.1))
+
+if __name__ == "__main__":
+    main()

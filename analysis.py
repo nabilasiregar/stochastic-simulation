@@ -1,4 +1,6 @@
 import pandas as pd
+import numpy as np
+from Engels_14947994_Sahrani_12661651_Siregar_1486305 import orthogonal, uniform_square
 import scipy.stats as stats
 
 f = pd.read_csv("mandelbrot_sample_size_comparison.csv", header=0)
@@ -10,7 +12,7 @@ point_estimated = df.groupby(["method", "sample_size"]).aggregate(
     ["mean", "std", "min", "max"])["area"]
 point_estimated["Confidence Interval"] = [stats.t.interval(
     1-alpha, 99, mean, std/33) for mean, std in zip(point_estimated["mean"], point_estimated["std"])]
-# print(point_estimated.to_latex(float_format="%.3f"))
+print(point_estimated.to_latex(float_format="%.3f"))
 print(point_estimated.head(100))
 
 array_like = df.groupby("method")["area"].apply(
@@ -36,3 +38,8 @@ print(
     f"Shapiro-Wilk Test - Group 3: Statistic: {shapiro_stat_group3}, p-value: {shapiro_pvalue_group3}")
 print(
     f"Shapiro-Wilk Test - Group 4: Statistic: {shapiro_stat_group4}, p-value: {shapiro_pvalue_group4}")
+
+# sample = orthogonal(0,1,1000000)[:,0]
+sample = uniform_square(0,1,1000000)[:,0]
+unif_cdf = np.linspace(0,1,1000000)
+print(stats.ks_2samp(sample,unif_cdf))
