@@ -2,10 +2,9 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 from scipy.stats import qmc
-import cmath
-import os
+import random, os, cmath
 import matplotlib.pyplot as plt
-import random
+import pingouin as pg
 from matplotlib.colors import LinearSegmentedColormap
 from numba import njit, prange
 
@@ -172,34 +171,27 @@ def monte_carlo_integration(lower_bound, upper_bound, N_iterations, shape, sampl
         circle_area = np.pi * (np.sqrt(diameter/2)) ** 2
         return accept * circle_area / N_samples
 
-
-samples_unif_square = uniform_square(-2, 2, 1000000)
-samples_unif_circle = uniform_circle(-2, 2, 1000000)
-samples_lhc = latin_hypercube(-2, 2, 1000000)
-samples_ortho = orthogonal(-2, 2, 1000000)
-
-uniform_square_results = monte_carlo_integration(
-    -2, 2,  1000, "square", samples_unif_square)
-uniform_circle_results = monte_carlo_integration(
-    -2, 2,  1000, "circle", samples_unif_circle)
-lhc_results = monte_carlo_integration(-2,
-    2, 1000, "square", samples_lhc)
-orthogonal_results = monte_carlo_integration(
-    -2, 2, 1000, "square", samples_ortho)
-
-print("Area with Uniform Sampling over a Square: " + str(uniform_square_results))
-print(f"Area with Uniform Sampling over a Circle: " + str(uniform_circle_results))
-print(f"Area with Latin Hypercube Sampling over a Square: " + str(lhc_results))
-print(f"Area with Orthogonal Sampling over a Square: " + str(orthogonal_results))
-
-#Experimenting with Sobol Sampling
-sampler = qmc.Sobol(d=2)
-upper_bound = 2
-lower_bound = -2
-samples_sobol = sampler.random_base2(m=10) * ( upper_bound - lower_bound) + lower_bound
-print("Area with Sobol Sampling over a Square: " + str(monte_carlo_integration(-2, 2, 1024, 1000, "square", samples_sobol)))
-
+      
 if __name__ == "__main__":
+    samples_unif_square = uniform_square(-2, 2, 1000000)
+    samples_unif_circle = uniform_circle(-2, 2, 1000000)
+    samples_lhc = latin_hypercube(-2, 2, 1000000)
+    samples_ortho = orthogonal(-2, 2, 1000000)
+
+    uniform_square_results = monte_carlo_integration(
+        -2, 2,  1000, "square", samples_unif_square)
+    uniform_circle_results = monte_carlo_integration(
+        -2, 2,  1000, "circle", samples_unif_circle)
+    lhc_results = monte_carlo_integration(-2,
+        2, 1000, "square", samples_lhc)
+    orthogonal_results = monte_carlo_integration(
+        -2, 2, 1000, "square", samples_ortho)
+
+    print("Area with Uniform Sampling over a Square: " + str(uniform_square_results))
+    print(f"Area with Uniform Sampling over a Circle: " + str(uniform_circle_results))
+    print(f"Area with Latin Hypercube Sampling over a Square: " + str(lhc_results))
+    print(f"Area with Orthogonal Sampling over a Square: " + str(orthogonal_results))
+
     def plot_convergence(lower_bound, upper_bound, N_samples, N_iterations, sampling_methods_info, start_j=1, x_max=None, y_max=None):
         plt.figure(figsize=(10, 8))
 
@@ -244,6 +236,7 @@ if __name__ == "__main__":
             plt.ylim(0, y_max)
 
         plt.savefig('./assets/convergence.png')
+        plt.close()
 
 
     sampling_methods_info = [
@@ -255,7 +248,7 @@ if __name__ == "__main__":
 
     print("Plotting convergence...")
     plot_convergence(-2, 2, 10000, 300, sampling_methods_info, start_j=5)
-    print("Finished plotting, please check assets folder.")
+    print("Finished plotting, please check assets folder.\n")
 
     def confidence_intervals(filename, alpha):
         methods = ["Uniform Square", "Uniform Circle", "Latin Hypercube", "Orthogonal"]
@@ -290,13 +283,19 @@ if __name__ == "__main__":
         plt.xticks(range(len(means)), [methods[i] for i in range(len(means))])
         plt.ylabel('Area')
         plt.title('Confidence Intervals for Mandelbrot Set Area')
-        plt.show()
+        plt.savefig('./assets/confidence_intervals.png')
+        plt.close()
         
         welch_result = pg.welch_anova(data=data, dv="area", between="method")
         print(f"Welch's ANOVA statistic: {welch_result['F'][0]}    p-value: {welch_result['p-unc'][0]}")
         
         posthoc_result = pg.pairwise_gameshowell(data=data, dv="area", between="method")
         print(posthoc_result)
+        sampler = qmc.Sobol(d=2)
+        upper_bound = 2
+        lower_bound = -2
+        samples_sobol = sampler.random_base2(m=10) * ( upper_bound - lower_bound) + lower_bound
+        print("Area with Sobol Sampling over a Square: " + str(monte_carlo_integration(-2, 2, 1024, 1000, "square", samples_sobol)))
 
 
-    confidence_intervals("mandelbrot_estimations.csv", 0.01)
+    confidence_intervals("./assets/mandelbrot_estimations.csv", 0.01)
