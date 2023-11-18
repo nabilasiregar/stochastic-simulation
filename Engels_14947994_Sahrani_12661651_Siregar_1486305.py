@@ -180,101 +180,106 @@ sampler = qmc.Sobol(d=2)
 upper_bound = 2
 lower_bound = -2
 samples_sobol = sampler.random_base2(m=10) * ( upper_bound - lower_bound) + lower_bound
-print("Area with Sobol Sampling over a Square: " + str(mc_integrate(-2, 2, 1024, 1000, "square", samples_sobol)))
+print("Area with Sobol Sampling over a Square: " + str(monte_carlo_integration(-2, 2, 1024, 1000, "square", samples_sobol)))
 
-def plot_convergence(lower_bound, upper_bound, N_samples, N_iterations, sampling_methods_info, start_iter=1, x_max=None, y_max=None):
-    plt.figure(figsize=(10, 6))
+if __name__ == "__main__":
+    def plot_convergence(lower_bound, upper_bound, N_samples, N_iterations, sampling_methods_info, start_j=1, x_max=None, y_max=None):
+        plt.figure(figsize=(10, 8))
 
-    reference_areas = {}
-    for sampling_function, label, shape in sampling_methods_info:
-        samples = sampling_function(lower_bound, upper_bound, N_samples)
-        reference_areas[label] = monte_carlo_integration(lower_bound, upper_bound, N_iterations, shape, samples)
-
-    for (sampling_function, label, shape) in sampling_methods_info:
-        match label:
-            case 'Uniform Square':
-                color = colors[0]
-            case 'Uniform Circle':
-                color = colors[1]
-            case 'Latin Hypercube':
-                color = colors[2]
-            case 'Orthogonal':
-                color = colors[-1]
-
-        iters = np.arange(start_iter, N_iterations + 1)
-        errors = []
-
-        for i in iters:
+        # Ai,s is the reference area with i = 300
+        reference_areas = {}
+        for sampling_function, label, shape in sampling_methods_info:
             samples = sampling_function(lower_bound, upper_bound, N_samples)
-            estimated_area = monte_carlo_integration(lower_bound, upper_bound, i, shape, samples)
-            error = estimated_area - reference_areas[label]
-            errors.append(error)
-        plt.scatter(iters, errors, color=color, label=label, s=5)
+            reference_areas[label] = monte_carlo_integration(lower_bound, upper_bound, N_iterations, shape, samples)
 
-    plt.xlabel("j")
-    plt.ylabel("A_j,s - A_i,s")
-    plt.title("Convergence of Monte Carlo Estimates by Sampling Method")
-    plt.legend()
+        for (sampling_function, label, shape) in sampling_methods_info:
+            match label:
+                case 'Uniform Square':
+                    color = colors[0]
+                case 'Uniform Circle':
+                    color = colors[1]
+                case 'Latin Hypercube':
+                    color = colors[2]
+                case 'Orthogonal':
+                    color = colors[-1]
 
-    if x_max is not None:
-        plt.xlim(0, x_max)
-    if y_max is not None:
-        plt.ylim(0, y_max)
+            iters = np.arange(start_j, 100 + 1)
+            errors = []
+            # Aj,s is the estimated area with j = 100
+            for j in iters:
+                samples = sampling_function(lower_bound, upper_bound, N_samples)
+                estimated_area = monte_carlo_integration(lower_bound, upper_bound, j, shape, samples)
+                error = estimated_area - reference_areas[label]
+                errors.append(error)
 
-    plt.savefig('./assets/convergence.png')
+            plt.scatter(iters, errors, color=color, label=label, s=35)
 
+        plt.xlabel("j", fontsize = 18)
+        plt.xticks(fontsize = 16)
+        plt.ylabel("A_j,s - A_i,s", fontsize = 18)
+        plt.yticks(fontsize = 16)
+        plt.title("i = 300, s = 10000", fontsize = 18)
+        plt.legend(fontsize = 16)
 
-sampling_methods_info = [
-    (uniform_square, 'Uniform Square', 'square'),
-    (uniform_circle, 'Uniform Circle', 'circle'),
-    (latin_hypercube, 'Latin Hypercube', 'square'),
-    (orthogonal, 'Orthogonal', 'square')
-]
+        if x_max is not None:
+            plt.xlim(0, x_max)
+        if y_max is not None:
+            plt.ylim(0, y_max)
 
-print("Plotting convergence... Please wait")
-plot_convergence(-2, 2, 10000, 1000, sampling_methods_info,
-                 start_iter=3, x_max=200)
-
-def confidence_intervals(filename, alpha):
-    methods = ["Uniform Square", "Uniform Circle", "Latin Hypercube", "Orthogonal"]
-    data = pd.read_csv(filename)
-    
-    uniform_square_data = data.groupby("method").get_group("uniform_square")
-    uniform_circle_data = data.groupby("method").get_group("uniform_circle")
-    latin_hypercube_data = data.groupby("method").get_group("latin_hypercube")
-    orthogonal_data = data.groupby("method").get_group("orthogonal")
-    
-    mean_uniform_square = uniform_square_data["mean_area"].iloc[0]
-    mean_uniform_circle = uniform_circle_data["mean_area"].iloc[0]
-    mean_latin_hypercube = latin_hypercube_data["mean_area"].iloc[0]
-    mean_orthogonal = orthogonal_data["mean_area"].iloc[0]
-    
-    means = [mean_uniform_square, mean_uniform_circle, mean_latin_hypercube, mean_orthogonal]
-    
-    std_uniform_square = np.std(uniform_square_data.loc[:,"area"])
-    std_uniform_circle = np.std(uniform_circle_data.loc[:,"area"])
-    std_latin_hypercube = np.std(latin_hypercube_data.loc[:,"area"])
-    std_orthogonal = np.std(orthogonal_data.loc[:,"area"])
-    
-    stds = [std_uniform_square, std_uniform_circle, std_latin_hypercube, std_orthogonal]
-    
-    for i in range(len(stds)):
-        standard_error = stds[i]/ 10
-        df = 99
-        conf_interval = stats.t.interval(1-alpha, df, means[i], scale=standard_error)
-        print(f"{methods[i]} Confidence Interval: {conf_interval}")
-        plt.errorbar(x=i, y=means[i], yerr=(conf_interval[1] - means[i]), fmt='o', label=methods[i])
-
-    plt.xticks(range(len(means)), [methods[i] for i in range(len(means))])
-    plt.ylabel('Area')
-    plt.title('Confidence Intervals for Mandelbrot Set Area')
-    plt.show()
-    
-    welch_result = pg.welch_anova(data=data, dv="area", between="method")
-    print(f"Welch's ANOVA statistic: {welch_result['F'][0]}    p-value: {welch_result['p-unc'][0]}")
-    
-    posthoc_result = pg.pairwise_gameshowell(data=data, dv="area", between="method")
-    print(posthoc_result)
+        plt.savefig('./assets/convergence.png')
 
 
-confidence_intervals("mandelbrot_estimations.csv", 0.01)
+    sampling_methods_info = [
+        (uniform_square, 'Uniform Square', 'square'),
+        (uniform_circle, 'Uniform Circle', 'circle'),
+        (latin_hypercube, 'Latin Hypercube', 'square'),
+        (orthogonal, 'Orthogonal', 'square')
+    ]
+
+    print("Plotting convergence...")
+    plot_convergence(-2, 2, 10000, 300, sampling_methods_info, start_j=5)
+    print("Finished plotting, please check assets folder.")
+
+    def confidence_intervals(filename, alpha):
+        methods = ["Uniform Square", "Uniform Circle", "Latin Hypercube", "Orthogonal"]
+        data = pd.read_csv(filename)
+        
+        uniform_square_data = data.groupby("method").get_group("uniform_square")
+        uniform_circle_data = data.groupby("method").get_group("uniform_circle")
+        latin_hypercube_data = data.groupby("method").get_group("latin_hypercube")
+        orthogonal_data = data.groupby("method").get_group("orthogonal")
+        
+        mean_uniform_square = uniform_square_data["mean_area"].iloc[0]
+        mean_uniform_circle = uniform_circle_data["mean_area"].iloc[0]
+        mean_latin_hypercube = latin_hypercube_data["mean_area"].iloc[0]
+        mean_orthogonal = orthogonal_data["mean_area"].iloc[0]
+        
+        means = [mean_uniform_square, mean_uniform_circle, mean_latin_hypercube, mean_orthogonal]
+        
+        std_uniform_square = np.std(uniform_square_data.loc[:,"area"])
+        std_uniform_circle = np.std(uniform_circle_data.loc[:,"area"])
+        std_latin_hypercube = np.std(latin_hypercube_data.loc[:,"area"])
+        std_orthogonal = np.std(orthogonal_data.loc[:,"area"])
+        
+        stds = [std_uniform_square, std_uniform_circle, std_latin_hypercube, std_orthogonal]
+        
+        for i in range(len(stds)):
+            standard_error = stds[i]/ 10
+            df = 99
+            conf_interval = stats.t.interval(1-alpha, df, means[i], scale=standard_error)
+            print(f"{methods[i]} Confidence Interval: {conf_interval}")
+            plt.errorbar(x=i, y=means[i], yerr=(conf_interval[1] - means[i]), fmt='o', label=methods[i])
+
+        plt.xticks(range(len(means)), [methods[i] for i in range(len(means))])
+        plt.ylabel('Area')
+        plt.title('Confidence Intervals for Mandelbrot Set Area')
+        plt.show()
+        
+        welch_result = pg.welch_anova(data=data, dv="area", between="method")
+        print(f"Welch's ANOVA statistic: {welch_result['F'][0]}    p-value: {welch_result['p-unc'][0]}")
+        
+        posthoc_result = pg.pairwise_gameshowell(data=data, dv="area", between="method")
+        print(posthoc_result)
+
+
+    confidence_intervals("mandelbrot_estimations.csv", 0.01)
