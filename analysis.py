@@ -3,7 +3,7 @@ import numpy as np
 from Engels_14947994_Sahrani_12661651_Siregar_1486305 import orthogonal, uniform_square
 import scipy.stats as stats
 
-f = pd.read_csv("mandelbrot_sample_size_comparison.csv", header=0)
+f = pd.read_csv("./data/mandelbrot_sample_size_comparison.csv", header=0)
 df = pd.DataFrame(f)
 alpha = 0.01
 
