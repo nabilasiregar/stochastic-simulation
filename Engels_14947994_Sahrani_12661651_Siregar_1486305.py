@@ -180,7 +180,7 @@ sampler = qmc.Sobol(d=2)
 upper_bound = 2
 lower_bound = -2
 samples_sobol = sampler.random_base2(m=10) * ( upper_bound - lower_bound) + lower_bound
-print("Area with Sobol Sampling over a Square: " + str(mc_integrate(-2, 2, 1024, 1000, "square", samples_sobol)))
+print("Area with Sobol Sampling over a Square: " + str(monte_carlo_integration(-2, 2, 1024, 1000, "square", samples_sobol)))
 
 def plot_convergence(lower_bound, upper_bound, N_samples, N_iterations, sampling_methods_info, start_iter=1, x_max=None, y_max=None):
     plt.figure(figsize=(10, 6))
