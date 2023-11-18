@@ -1,12 +1,11 @@
-from Engels_14947994_Sahrani_12661651_Siregar_1486305 import normalized_palette, mandelbrot
-import numpy as np
+from Engels_14947994_Sahrani_12661651_Siregar_1486305 import normalized_palette
 import pandas as pd
 import matplotlib.pyplot as plt
-from matplotlib.colors import LinearSegmentedColormap
+import numpy as np
 import sys
 
 def plot_sample_size_comparison():
-    data = pd.read_csv('./assets/mandelbrot_sample_size_comparison_trial1.csv')
+    data = pd.read_csv('./data/mandelbrot_sample_size_comparison.csv')
     mean_areas = data.groupby(['method', 'sample_size'])['area'].mean().reset_index()
 
     method_colors = {
@@ -31,7 +30,7 @@ def plot_sample_size_comparison():
     plt.savefig('./assets/comparison_by_sample_size.png')
 
 def plot_iterations_comparison():
-    data = pd.read_csv('./assets/mandelbrot_iterations_comparison.csv')
+    data = pd.read_csv('./data/mandelbrot_iterations_comparison.csv')
     iteration_counts = [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]
     filtered_data = data[data['iterations'].isin(iteration_counts)]
     mean_areas = filtered_data.groupby('iterations')['area'].mean()
@@ -46,13 +45,6 @@ def plot_iterations_comparison():
     plt.ylabel('Estimated Area', fontsize=18)
     plt.yticks(fontsize=16)
     plt.savefig('./assets/comparison_by_iterations')
-
-def visualize_mandelbrot(output):
-    plt.matshow(output, extent=(np.min(x), np.max(x), np.min(y), np.max(y)), cmap=cmap, origin = "lower")
-    plt.ylabel("Real Numbers")
-    plt.xlabel("Imaginary Numbers")
-    plt.savefig('./assets/mandelbrot.png')
-    plt.close()
 
 def choose_plot(plot_type):
     if plot_type == 'sample_size':

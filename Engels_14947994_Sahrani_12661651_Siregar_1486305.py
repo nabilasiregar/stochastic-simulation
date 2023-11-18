@@ -277,13 +277,12 @@ if __name__ == "__main__":
         print(posthoc_result)
 
 
-    confidence_intervals("./assets/mandelbrot_estimations.csv", 0.01)
+    confidence_intervals("./data/mandelbrot_estimations.csv", 0.01)
     
     def visualize_mandelbrot(output):
         plt.matshow(output, extent=(np.min(x), np.max(x), np.min(y), np.max(y)), cmap=cmap, origin = "lower")
         plt.ylabel("Real Numbers")
         plt.xlabel("Imaginary Numbers")
-        #plt.xticks(np.linspace(np.min(x), np.max(x), num=5))
         plt.savefig('./assets/mandelbrot.png')
         plt.close()
 
