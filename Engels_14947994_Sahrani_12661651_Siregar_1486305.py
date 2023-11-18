@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 from scipy import stats
+from scipy.stats import qmc
 import cmath
 import os
 import matplotlib.pyplot as plt
@@ -94,6 +95,23 @@ def uniform_circle(lower_bound, upper_bound, N_samples):
 
     return samples
 
+def orthogonal_circle(lower_bound, upper_bound, N_samples):
+    center_x = (lower_bound + upper_bound) / 2
+    center_y = (lower_bound + upper_bound) / 2
+    diameter = upper_bound - lower_bound
+    radius = diameter / 2
+
+    lhs = qmc.LatinHypercube(d=2, strenght=2)
+    samples = lhs.random(n=N_samples)
+
+    samples = lower_bound + samples * (upper_bound - lower_bound)
+
+    theta = 2 * np.pi * samples[:, 0]
+    r = radius * np.sqrt(samples[:, 1])
+    samples[:, 0] = center_x + r * np.cos(theta)
+    samples[:, 1] = center_y + r * np.sin(theta)
+
+    return samples
 
 def latin_hypercube(lower_bound, upper_bound, N_samples):
     dimensions = 2
@@ -175,7 +193,6 @@ print(f"Area with Latin Hypercube Sampling over a Square: " + str(lhc_results))
 print(f"Area with Orthogonal Sampling over a Square: " + str(orthogonal_results))
 
 #Experimenting with Sobol Sampling
-from scipy.stats import qmc
 sampler = qmc.Sobol(d=2)
 upper_bound = 2
 lower_bound = -2
