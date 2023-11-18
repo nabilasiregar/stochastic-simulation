@@ -291,11 +291,6 @@ if __name__ == "__main__":
         
         posthoc_result = pg.pairwise_gameshowell(data=data, dv="area", between="method")
         print(posthoc_result)
-        sampler = qmc.Sobol(d=2)
-        upper_bound = 2
-        lower_bound = -2
-        samples_sobol = sampler.random_base2(m=10) * ( upper_bound - lower_bound) + lower_bound
-        print("Area with Sobol Sampling over a Square: " + str(monte_carlo_integration(-2, 2, 1024, 1000, "square", samples_sobol)))
 
 
     confidence_intervals("./assets/mandelbrot_estimations.csv", 0.01)
