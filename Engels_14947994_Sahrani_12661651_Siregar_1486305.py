@@ -1,4 +1,6 @@
 import numpy as np
+import pandas as pd
+from scipy import stats
 import cmath
 import os
 import matplotlib.pyplot as plt
@@ -40,8 +42,8 @@ def get_mandelbrot_set(x, y, max_iteration):
     return iteration
 
 
-x = np.linspace(-2, 0.47, 1000)
-y = np.linspace(-1.12, 1.12, 1000)
+x = np.linspace(-2, 2, 1000)
+y = np.linspace(-2, 2, 1000)
 values = np.ndarray((x.shape[0], y.shape[0]))
 
 
@@ -54,10 +56,10 @@ def mandelbrot(x, y, matrix, max_iteration):
 
 
 def visualize_mandelbrot(output):
-    plt.matshow(output, cmap=cmap)
+    plt.matshow(output, extent=(np.min(x), np.max(x), np.min(y), np.max(y)), cmap=cmap, origin = "lower")
     plt.ylabel("Real Numbers")
     plt.xlabel("Imaginary Numbers")
-    plt.colorbar()
+    #plt.xticks(np.linspace(np.min(x), np.max(x), num=5))
     plt.savefig('./assets/mandelbrot.png')
     plt.close()
 
@@ -84,7 +86,7 @@ def uniform_circle(lower_bound, upper_bound, N_samples):
 
     for i in prange(N_samples):
         radius = random.uniform(0, diameter/2)
-        theta = random.uniform(0, 2 * np.pi)
+        theta = random.uniform(0, 2*np.pi)
         sample_x = (center_x + np.sqrt(radius) * np.cos(theta))
         sample_y = (center_y + np.sqrt(radius) * np.sin(theta))
         samples[i, 0] = sample_x
@@ -172,6 +174,13 @@ print(f"Area with Uniform Sampling over a Circle: " + str(uniform_circle_results
 print(f"Area with Latin Hypercube Sampling over a Square: " + str(lhc_results))
 print(f"Area with Orthogonal Sampling over a Square: " + str(orthogonal_results))
 
+#Experimenting with Sobol Sampling
+from scipy.stats import qmc
+sampler = qmc.Sobol(d=2)
+upper_bound = 2
+lower_bound = -2
+samples_sobol = sampler.random_base2(m=10) * ( upper_bound - lower_bound) + lower_bound
+print("Area with Sobol Sampling over a Square: " + str(mc_integrate(-2, 2, 1024, 1000, "square", samples_sobol)))
 
 def plot_convergence(lower_bound, upper_bound, N_samples, N_iterations, sampling_methods_info, start_iter=1, x_max=None, y_max=None):
     plt.figure(figsize=(10, 6))
@@ -225,3 +234,47 @@ sampling_methods_info = [
 print("Plotting convergence... Please wait")
 plot_convergence(-2, 2, 10000, 1000, sampling_methods_info,
                  start_iter=3, x_max=200)
+
+def confidence_intervals(filename, alpha):
+    methods = ["Uniform Square", "Uniform Circle", "Latin Hypercube", "Orthogonal"]
+    data = pd.read_csv(filename)
+    
+    uniform_square_data = data.groupby("method").get_group("uniform_square")
+    uniform_circle_data = data.groupby("method").get_group("uniform_circle")
+    latin_hypercube_data = data.groupby("method").get_group("latin_hypercube")
+    orthogonal_data = data.groupby("method").get_group("orthogonal")
+    
+    mean_uniform_square = uniform_square_data["mean_area"].iloc[0]
+    mean_uniform_circle = uniform_circle_data["mean_area"].iloc[0]
+    mean_latin_hypercube = latin_hypercube_data["mean_area"].iloc[0]
+    mean_orthogonal = orthogonal_data["mean_area"].iloc[0]
+    
+    means = [mean_uniform_square, mean_uniform_circle, mean_latin_hypercube, mean_orthogonal]
+    
+    std_uniform_square = np.std(uniform_square_data.loc[:,"area"])
+    std_uniform_circle = np.std(uniform_circle_data.loc[:,"area"])
+    std_latin_hypercube = np.std(latin_hypercube_data.loc[:,"area"])
+    std_orthogonal = np.std(orthogonal_data.loc[:,"area"])
+    
+    stds = [std_uniform_square, std_uniform_circle, std_latin_hypercube, std_orthogonal]
+    
+    for i in range(len(stds)):
+        standard_error = stds[i]/ 10
+        df = 99
+        conf_interval = stats.t.interval(1-alpha, df, means[i], scale=standard_error)
+        print(f"{methods[i]} Confidence Interval: {conf_interval}")
+        plt.errorbar(x=i, y=means[i], yerr=(conf_interval[1] - means[i]), fmt='o', label=methods[i])
+
+    plt.xticks(range(len(means)), [methods[i] for i in range(len(means))])
+    plt.ylabel('Area')
+    plt.title('Confidence Intervals for Mandelbrot Set Area')
+    plt.show()
+    
+    welch_result = pg.welch_anova(data=data, dv="area", between="method")
+    print(f"Welch's ANOVA statistic: {welch_result['F'][0]}    p-value: {welch_result['p-unc'][0]}")
+    
+    posthoc_result = pg.pairwise_gameshowell(data=data, dv="area", between="method")
+    print(posthoc_result)
+
+
+confidence_intervals("mandelbrot_estimations.csv", 0.01)
