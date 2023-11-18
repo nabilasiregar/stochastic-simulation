@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 from scipy import stats
+from scipy.stats import qmc
 import random, os, cmath
 import matplotlib.pyplot as plt
 import pingouin as pg
@@ -93,6 +94,23 @@ def uniform_circle(lower_bound, upper_bound, N_samples):
 
     return samples
 
+def orthogonal_circle(lower_bound, upper_bound, N_samples):
+    center_x = (lower_bound + upper_bound) / 2
+    center_y = (lower_bound + upper_bound) / 2
+    diameter = upper_bound - lower_bound
+    radius = diameter / 2
+
+    lhs = qmc.LatinHypercube(d=2, strenght=2)
+    samples = lhs.random(n=N_samples)
+
+    samples = lower_bound + samples * (upper_bound - lower_bound)
+
+    theta = 2 * np.pi * samples[:, 0]
+    r = radius * np.sqrt(samples[:, 1])
+    samples[:, 0] = center_x + r * np.cos(theta)
+    samples[:, 1] = center_y + r * np.sin(theta)
+
+    return samples
 
 def latin_hypercube(lower_bound, upper_bound, N_samples):
     dimensions = 2
@@ -153,6 +171,7 @@ def monte_carlo_integration(lower_bound, upper_bound, N_iterations, shape, sampl
         circle_area = np.pi * (np.sqrt(diameter/2)) ** 2
         return accept * circle_area / N_samples
 
+      
 if __name__ == "__main__":
     samples_unif_square = uniform_square(-2, 2, 1000000)
     samples_unif_circle = uniform_circle(-2, 2, 1000000)
