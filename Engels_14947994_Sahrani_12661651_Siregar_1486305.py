@@ -42,11 +42,6 @@ def get_mandelbrot_set(x, y, max_iteration):
     return iteration
 
 
-x = np.linspace(-2, 2, 1000)
-y = np.linspace(-2, 2, 1000)
-values = np.ndarray((x.shape[0], y.shape[0]))
-
-
 @njit(parallel=True)
 def mandelbrot(x, y, matrix, max_iteration):
     for i in prange(matrix.shape[0]):
@@ -55,13 +50,6 @@ def mandelbrot(x, y, matrix, max_iteration):
     return matrix
 
 
-def visualize_mandelbrot(output):
-    plt.matshow(output, extent=(np.min(x), np.max(x), np.min(y), np.max(y)), cmap=cmap, origin = "lower")
-    plt.ylabel("Real Part")
-    plt.xlabel("Imaginary Part")
-    #plt.xticks(np.linspace(np.min(x), np.max(x), num=5))
-    plt.savefig('./assets/mandelbrot.png')
-    plt.close()
 
 
 # Sampling Techniques
@@ -107,6 +95,7 @@ def orthogonal_circle(lower_bound, upper_bound, N_samples):
     samples[:, 1] = center_y + (r * np.sin(theta))
 
     return samples
+
 
 def latin_hypercube(lower_bound, upper_bound, N_samples):
     dimensions = 2
@@ -276,4 +265,16 @@ if __name__ == "__main__":
         print(posthoc_result)
 
 
-    confidence_intervals("./assets/mandelbrot_estimations.csv", 0.01)
+    confidence_intervals("./data/mandelbrot_estimations.csv", 0.01)
+    
+    def visualize_mandelbrot(output):
+        plt.matshow(output, extent=(np.min(x), np.max(x), np.min(y), np.max(y)), cmap=cmap, origin = "lower")
+        plt.ylabel("Real Numbers")
+        plt.xlabel("Imaginary Numbers")
+        plt.savefig('./assets/mandelbrot.png')
+        plt.close()
+
+    x = np.linspace(-2, 2, 1000)
+    y = np.linspace(-2, 2, 1000)
+    values = np.ndarray((x.shape[0], y.shape[0]))
+    visualize_mandelbrot(mandelbrot(x, y, values, 1000))
