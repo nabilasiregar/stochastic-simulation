@@ -33,26 +33,8 @@ def plot_sample_size_comparison():
     plt.title("Area Estimations for Varying Sample Sizes", fontsize = 16)
     plt.savefig('./assets/comparison_by_sample_size.png')
     plt.close()
-
-def plot_iterations_comparison():
-    data = pd.read_csv('./data/mandelbrot_iterations_comparison.csv')
-    iteration_counts = [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]
-    filtered_data = data[data['iterations'].isin(iteration_counts)]
-    mean_areas = filtered_data.groupby('iterations')['area'].mean()
-    std_error = filtered_data.groupby('iterations')['area'].std() / np.sqrt(filtered_data.groupby('iterations')['area'].count())
-
-    plt.figure(figsize=(10, 6))
-    plt.plot(mean_areas.index, mean_areas, marker='o', linestyle='-', color=normalized_palette["crayola"],)
-    plt.fill_between(mean_areas.index, mean_areas - std_error, mean_areas + std_error, color=normalized_palette["blue"], alpha=0.5)
-
-    plt.xlabel('Iterations', fontsize=18)
-    plt.xticks(iteration_counts, fontsize=16)
-    plt.ylabel('Estimated Area', fontsize=18)
-    plt.yticks(fontsize=16)
-    plt.savefig('./assets/comparison_by_iterations')
-    plt.close()
     
-def plot_iterations_comparisons_all_methods(): 
+def plot_iterations_comparison(): 
     methods = ["Uniform Square", "Uniform Circle", "Latin Hypercube", "Orthogonal Square", "Orthogonal Circle"]
     usqu_csv = pd.read_csv("./data/mandelbrot_iterations_comparison_usqu.csv")
     ucir_csv = pd.read_csv("./data/mandelbrot_iterations_comparison_ucir.csv")
@@ -147,6 +129,5 @@ def plot_variances_sampling():
 
 plot_sample_size_comparison()
 plot_iterations_comparison()
-plot_iterations_comparisons_all_methods()
 plot_variances()
 plot_variances_sampling()
