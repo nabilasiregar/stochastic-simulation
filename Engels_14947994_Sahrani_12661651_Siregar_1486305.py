@@ -233,27 +233,30 @@ if __name__ == "__main__":
     print("Finished plotting, please check assets folder.\n")
 
     def confidence_intervals(filename, alpha):
-        methods = ["Uniform Square", "Uniform Circle", "Latin Hypercube", "Orthogonal"]
+        methods = ["Uniform Square", "Uniform Circle", "Latin Hypercube", "Orthogonal Square", "Orthogonal Circle"]
         data = pd.read_csv(filename)
         
         uniform_square_data = data.groupby("method").get_group("uniform_square")
         uniform_circle_data = data.groupby("method").get_group("uniform_circle")
         latin_hypercube_data = data.groupby("method").get_group("latin_hypercube")
-        orthogonal_data = data.groupby("method").get_group("orthogonal")
+        orthogonal_square_data = data.groupby("method").get_group("orthogonal")
+        orthogonal_circle_data = data.groupby("method").get_group("orthogonal_circle")
         
         mean_uniform_square = uniform_square_data["mean_area"].iloc[0]
         mean_uniform_circle = uniform_circle_data["mean_area"].iloc[0]
         mean_latin_hypercube = latin_hypercube_data["mean_area"].iloc[0]
-        mean_orthogonal = orthogonal_data["mean_area"].iloc[0]
+        mean_orthogonal_square = orthogonal_square_data["mean_area"].iloc[0]
+        mean_orthogonal_circle = orthogonal_circle_data["mean_area"].iloc[0]
         
-        means = [mean_uniform_square, mean_uniform_circle, mean_latin_hypercube, mean_orthogonal]
+        means = [mean_uniform_square, mean_uniform_circle, mean_latin_hypercube, mean_orthogonal_square, mean_orthogonal_circle]
         
         std_uniform_square = np.std(uniform_square_data.loc[:,"area"])
         std_uniform_circle = np.std(uniform_circle_data.loc[:,"area"])
         std_latin_hypercube = np.std(latin_hypercube_data.loc[:,"area"])
-        std_orthogonal = np.std(orthogonal_data.loc[:,"area"])
+        std_orthogonal_square = np.std(orthogonal_square_data.loc[:,"area"])
+        std_orthogonal_circle = np.std(orthogonal_circle_data.loc[:,"area"])
         
-        stds = [std_uniform_square, std_uniform_circle, std_latin_hypercube, std_orthogonal]
+        stds = [std_uniform_square, std_uniform_circle, std_latin_hypercube, std_orthogonal_square, std_orthogonal_circle]
         
         for i in range(len(stds)):
             standard_error = stds[i]/ 10
