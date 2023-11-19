@@ -30,6 +30,7 @@ shapiro_stat_group1, shapiro_pvalue_group1 = stats.shapiro(array_like[0])
 shapiro_stat_group2, shapiro_pvalue_group2 = stats.shapiro(array_like[1])
 shapiro_stat_group3, shapiro_pvalue_group3 = stats.shapiro(array_like[2])
 shapiro_stat_group4, shapiro_pvalue_group4 = stats.shapiro(array_like[3])
+shapiro_stat_group5, shapiro_pvalue_group5 = stats.shapiro(array_like[4])
 
 print(
     f"Shapiro-Wilk Test - {methods[0]}: Statistic: {shapiro_stat_group1}, p-value: {shapiro_pvalue_group1}")
@@ -39,6 +40,8 @@ print(
     f"Shapiro-Wilk Test - {methods[2]}: Statistic: {shapiro_stat_group3}, p-value: {shapiro_pvalue_group3}")
 print(
     f"Shapiro-Wilk Test - {methods[3]}: Statistic: {shapiro_stat_group4}, p-value: {shapiro_pvalue_group4}")
+print(
+    f"Shapiro-Wilk Test - {methods[4]}: Statistic: {shapiro_stat_group5}, p-value: {shapiro_pvalue_group5}")
 
 sample = uniform_square(0,1,1000000)[:,0]
 unif_cdf = np.linspace(0,1,1000000)

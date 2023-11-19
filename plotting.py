@@ -4,10 +4,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import sys
 
-def plot_sample_size_comparison():
-    data = pd.read_csv('./data/mandelbrot_sample_size_comparison.csv')
-    mean_areas = data.groupby(['method', 'sample_size'])['area'].mean().reset_index()
-
+# def plot_sample_size_comparison():
+#     data = pd.read_csv('./data/mandelbrot_sample_size_comparison.csv')
+#     mean_areas = data.groupby(['method', 'sample_size'])['area'].mean().reset_index()
 
     method_colors = {
         "uniform_square": normalized_palette["green"],
@@ -37,6 +36,35 @@ def return_cdf(samples):
     print(cdf)
     return cdf
 
+
+def plot_iterations_comparison():
+    data = pd.read_csv('./data/mandelbrot_iterations_comparison.csv')
+    iteration_counts = [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]
+    filtered_data = data[data['iterations'].isin(iteration_counts)]
+    mean_areas = filtered_data.groupby('iterations')['area'].mean()
+    std_error = filtered_data.groupby('iterations')['area'].std() / np.sqrt(filtered_data.groupby('iterations')['area'].count())
+
+    method_colors = {
+        "uniform_square": normalized_palette["green"],
+        "uniform_circle": normalized_palette["blue"],
+        "latin_hypercube": normalized_palette["midnight"],
+        "orthogonal": normalized_palette["crayola"]
+    }
+
+    plt.figure(figsize=(10, 6))
+    for method in mean_areas['method'].unique():
+        method_data = mean_areas[mean_areas['method'] == method]
+        plt.plot(method_data['sample_size'], method_data['area'],
+                marker='o', label=method, color=method_colors[method])
+
+
+    plt.xscale('log')
+    plt.xlabel('Sample Size', fontsize=18)
+    plt.xticks(fontsize=16)
+    plt.ylabel('Estimated Area', fontsize=18)
+    plt.yticks(fontsize=16)
+    plt.legend(fontsize=18)
+    plt.savefig('./assets/comparison_by_sample_size.png')
 
 def plot_iterations_comparison():
     data = pd.read_csv('./data/mandelbrot_iterations_comparison.csv')
@@ -121,7 +149,7 @@ def plot_variances():
     plt.legend(methods, fontsize = 14, bbox_to_anchor=(1.01, 1), loc= "upper left", borderaxespad=0)
     plt.xlabel("Iterations", fontsize = 16)
     plt.ylabel("Variance", fontsize = 16)
-    plt.title("Variance between 100 runs for each sampling method", fontsize = 16)
+    plt.title("Variance between 100 Runs for Each Sampling Method", fontsize = 16)
     plt.savefig('./assets/variances', bbox_inches='tight')
 
 def choose_plot(plot_type):
@@ -142,3 +170,5 @@ if __name__ == "__main__":
     else:
         plot_type = input("Enter the simulation result you want to plot (sample_size or iterations): ")
     choose_plot(plot_type)
+
+# plot_variances()
