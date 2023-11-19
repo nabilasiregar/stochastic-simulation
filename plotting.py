@@ -1,7 +1,8 @@
-from Engels_14947994_Sahrani_12661651_Siregar_1486305 import normalized_palette
+from Engels_14947994_Sahrani_12661651_Siregar_1486305 import normalized_palette, uniform_square, orthogonal, latin_hypercube
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
+import scipy.stats.qmc as qmc
 import sys
 
 def plot_sample_size_comparison():
@@ -30,12 +31,6 @@ def plot_sample_size_comparison():
     plt.legend(fontsize=18)
     plt.savefig('./assets/comparison_by_sample_size.png')
     
-def return_cdf(samples):
-    """Returns the cumulative distribution function of a list of samples, flattens 2 dimensional lists"""
-    sorted_samples = np.sort(samples)[:,0]
-    cdf = np.cumsum(sorted_samples) / np.sum(sorted_samples)
-    print(cdf)
-    return cdf
 
 
 def plot_iterations_comparison():
@@ -123,6 +118,28 @@ def plot_variances():
     plt.ylabel("Variance", fontsize = 16)
     plt.title("Variance between 100 runs for each sampling method", fontsize = 16)
     plt.savefig('./assets/variances', bbox_inches='tight')
+    
+def plot_variances_sampling():
+    vars_uniform_square = []
+    vars_latin_hypercube = []
+    vars_orthogonal = []
+    for i in range(100):
+        vars_uniform_square.append(np.var(uniform_square(0, 1, 10000)))
+        vars_latin_hypercube.append(np.var(latin_hypercube(0, 1, 10000)))
+        vars_orthogonal.append(np.var(orthogonal(0, 1, 10000)))
+    plt.figure(figsize=(10, 6))
+    plt.plot(vars_uniform_square, linestyle='-', color=normalized_palette["green"], label = "Uniform Square")
+    plt.plot(vars_latin_hypercube, linestyle='-', color=normalized_palette["midnight"], label = "Latin Hypercube")
+    plt.plot(vars_orthogonal,  linestyle='-', color=normalized_palette["crayola"], label = "Orthogonal")
+
+    plt.legend(fontsize = 14, bbox_to_anchor=(1.01, 1), loc= "upper left", borderaxespad=0)
+    plt.xlabel("run", fontsize = 16)
+    plt.ylabel("Variance", fontsize = 16)
+    plt.title("Variance for each run for each sampling method", fontsize = 16)
+    plt.savefig('./assets/variances_sampling', bbox_inches='tight')
+
+
+
 
 def choose_plot(plot_type):
     if plot_type == 'sample_size':
@@ -133,6 +150,8 @@ def choose_plot(plot_type):
         plot_iterations_comparisons_all_methods()
     elif plot_type == "variances":
         plot_variances()
+    elif plot_type == "varsamp":
+        plot_variances_sampling()
     else:
         print('Invalid plot type input')
 
