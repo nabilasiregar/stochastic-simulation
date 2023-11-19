@@ -87,15 +87,15 @@ def orthogonal_circle(lower_bound, upper_bound, N_samples):
     diameter = upper_bound - lower_bound
     radius = diameter / 2
 
-    lhs = qmc.LatinHypercube(d=2, strenght=2)
-    samples = lhs.random(n=N_samples)
+    samples = orthogonal(0,1,N_samples)
 
     theta = 2 * np.pi * samples[:, 0]
-    r = radius * samples[:, 1]
-    samples[:, 0] = center_x + np.sqrt(r) * np.cos(theta)
-    samples[:, 1] = center_y + np.sqrt(r) * np.sin(theta)
+    r = np.sqrt(radius * samples[:, 1])
+    samples[:, 0] = center_x + (r * np.cos(theta))
+    samples[:, 1] = center_y + (r * np.sin(theta))
 
     return samples
+
 
 def latin_hypercube(lower_bound, upper_bound, N_samples):
     dimensions = 2
