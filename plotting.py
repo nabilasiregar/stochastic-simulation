@@ -5,20 +5,17 @@ import numpy as np
 import sys
 
 def plot_sample_size_comparison():
-    data = pd.read_csv('./data/mandelbrot_sample_size_comparison.csv')
+    prev_data = pd.read_csv('./data/mandelbrot_sample_size_comparison.csv')
+    ocircle_data = pd.read_csv('./data/mandelbrot_sample_size_comparison_ocir_complete.csv')
+    data = pd.concat([prev_data, ocircle_data], ignore_index=True)
     mean_areas = data.groupby(['method', 'sample_size'])['area'].mean().reset_index()
 
     method_colors = {
         "uniform_square": normalized_palette["green"],
         "uniform_circle": normalized_palette["blue"],
         "latin_hypercube": normalized_palette["midnight"],
-        "orthogonal": normalized_palette["crayola"]
-    }
-    method_colors = {
-        "uniform_square": normalized_palette["green"],
-        "uniform_circle": normalized_palette["blue"],
-        "latin_hypercube": normalized_palette["midnight"],
-        "orthogonal": normalized_palette["crayola"]
+        "orthogonal": normalized_palette["violet"],
+        "orthogonal_circle": normalized_palette["crayola"]
     }
 
     plt.figure(figsize=(10, 6))
@@ -28,11 +25,12 @@ def plot_sample_size_comparison():
                 marker='o', label=method, color=method_colors[method])
 
     plt.xscale('log')
-    plt.xlabel('Sample Size', fontsize=18)
+    plt.xlabel('Sample Size', fontsize=16)
     plt.xticks(fontsize=16)
-    plt.ylabel('Estimated Area', fontsize=18)
+    plt.ylabel('Estimated Area', fontsize=16)
     plt.yticks(fontsize=16)
-    plt.legend(fontsize=18)
+    plt.legend(["Uniform Square", "Uniform Circle", "Latin Hypercube", "Orthogonal Square", "Orthogonal Circle"], fontsize=16)
+    plt.title("Area Estimations for Varying Sample Sizes", fontsize = 16)
     plt.savefig('./assets/comparison_by_sample_size.png')
     
 
@@ -192,5 +190,5 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         plot_type = sys.argv[1]
     else:
-        plot_type = input("Enter the simulation result you want to plot (sample_size or iterations): ")
+        plot_type = input("Enter the simulation result you want to plot (sample_size, iterations, all_iterations, variances, varsamp): ")
     choose_plot(plot_type)
