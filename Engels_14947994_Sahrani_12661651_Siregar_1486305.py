@@ -30,7 +30,6 @@ color_stops = [i / (len(colors) - 1) for i in range(len(colors))]
 cmap = LinearSegmentedColormap.from_list(
     "custom_gradient", list(zip(color_stops, colors)))
 
-
 @njit
 def get_mandelbrot_set(x, y, max_iteration):
     c = complex(x, y)
@@ -41,16 +40,12 @@ def get_mandelbrot_set(x, y, max_iteration):
         iteration += 1
     return iteration
 
-
 @njit(parallel=True)
 def mandelbrot(x, y, matrix, max_iteration):
     for i in prange(matrix.shape[0]):
         for j in prange(matrix.shape[1]):
             matrix[i, j] = get_mandelbrot_set(x[i], y[j], max_iteration)
     return matrix
-
-
-
 
 # Sampling Techniques
 def uniform_square(lower_bound, upper_bound, N_samples):
@@ -63,7 +58,6 @@ def uniform_square(lower_bound, upper_bound, N_samples):
         samples[i, 0] = sample_x
         samples[i, 1] = sample_y
     return samples
-
 
 def uniform_circle(lower_bound, upper_bound, N_samples):
     center_x = (lower_bound + upper_bound) / 2
@@ -96,7 +90,6 @@ def orthogonal_circle(lower_bound, upper_bound, N_samples):
 
     return samples
 
-
 def latin_hypercube(lower_bound, upper_bound, N_samples):
     dimensions = 2
     samples = np.random.uniform(size=(N_samples, dimensions))
@@ -107,7 +100,6 @@ def latin_hypercube(lower_bound, upper_bound, N_samples):
     samples = (tiles - samples) / N_samples
     samples = samples * (upper_bound - lower_bound) + lower_bound
     return samples
-
 
 def orthogonal(lower_bound, upper_bound, N_samples):
     size = int(np.sqrt(N_samples))
@@ -140,7 +132,6 @@ def orthogonal(lower_bound, upper_bound, N_samples):
 
     return samples
 
-
 def monte_carlo_integration(lower_bound, upper_bound, N_iterations, shape, samples):
     # if you use orthogonal sampling, remember to input N_samples = sqrt(N_samples)
     accept = 0
@@ -156,14 +147,23 @@ def monte_carlo_integration(lower_bound, upper_bound, N_iterations, shape, sampl
         circle_area = np.pi * (np.sqrt(diameter/2)) ** 2
         return accept * circle_area / N_samples
 
-      
 if __name__ == "__main__":
-    samples_unif_square = uniform_square(-2, 2, 1000000)
-    samples_unif_circle = uniform_circle(-2, 2, 1000000)
-    samples_lhc = latin_hypercube(-2, 2, 1000000)
-    samples_ortho = orthogonal(-2, 2, 1000000)
 
-if __name__ == "__main__":
+    def visualize_mandelbrot(output):
+        plt.matshow(output, extent=(np.min(x), np.max(x), np.min(y), np.max(y)), cmap=cmap, origin = "lower")
+        plt.ylabel("Real Numbers")
+        plt.xlabel("Imaginary Numbers")
+        plt.savefig('./assets/mandelbrot.png')
+        plt.close()
+
+    x = np.linspace(-2, 2, 1000)
+    y = np.linspace(-2, 2, 1000)
+    values = np.ndarray((x.shape[0], y.shape[0]))
+
+    print("Visualizing mandelbrot set...")
+    visualize_mandelbrot(mandelbrot(x, y, values, 1000))
+    print("Saved! Please check assets folder.\n")
+
     def plot_convergence(lower_bound, upper_bound, N_samples, N_iterations, sampling_methods_info, start_j=1, x_max=None, y_max=None):
         plt.figure(figsize=(10, 8))
 
@@ -210,7 +210,6 @@ if __name__ == "__main__":
         plt.savefig('./assets/convergence.png')
         plt.close()
 
-
     sampling_methods_info = [
         (uniform_square, 'Uniform Square', 'square'),
         (uniform_circle, 'Uniform Circle', 'circle'),
@@ -222,64 +221,51 @@ if __name__ == "__main__":
     plot_convergence(-2, 2, 10000, 300, sampling_methods_info, start_j=5)
     print("Finished plotting, please check assets folder.\n")
 
-def confidence_intervals(filename, alpha):
-    methods = ["Uniform Square", "Uniform Circle", "Latin Hypercube", "Orthogonal Square", "Orthogonal Circle"]
-    data = pd.read_csv(filename)
-    
-    uniform_square_data = data.groupby("method").get_group("uniform_square")
-    uniform_circle_data = data.groupby("method").get_group("uniform_circle")
-    latin_hypercube_data = data.groupby("method").get_group("latin_hypercube")
-    orthogonal_square_data = data.groupby("method").get_group("orthogonal")
-    orthogonal_circle_data = data.groupby("method").get_group("orthogonal_circle")
-    
-    mean_uniform_square = uniform_square_data["mean_area"].iloc[0]
-    mean_uniform_circle = uniform_circle_data["mean_area"].iloc[0]
-    mean_latin_hypercube = latin_hypercube_data["mean_area"].iloc[0]
-    mean_orthogonal_square = orthogonal_square_data["mean_area"].iloc[0]
-    mean_orthogonal_circle = orthogonal_circle_data["mean_area"].iloc[0]
-    
-    means = [mean_uniform_square, mean_uniform_circle, mean_latin_hypercube, mean_orthogonal_square, mean_orthogonal_circle]
-    
-    std_uniform_square = np.std(uniform_square_data.loc[:,"area"])
-    std_uniform_circle = np.std(uniform_circle_data.loc[:,"area"])
-    std_latin_hypercube = np.std(latin_hypercube_data.loc[:,"area"])
-    std_orthogonal_square = np.std(orthogonal_square_data.loc[:,"area"])
-    std_orthogonal_circle = np.std(orthogonal_circle_data.loc[:,"area"])
-    
-    stds = [std_uniform_square, std_uniform_circle, std_latin_hypercube, std_orthogonal_square, std_orthogonal_circle]
-    
-    plt.figure(figsize=(10, 6))
-    
-    for i in range(len(stds)):
-        standard_error = stds[i]/ 10
-        df = 99
-        conf_interval = stats.t.interval(1-alpha, df, means[i], scale=standard_error)
-        print(f"{methods[i]} Confidence Interval: {conf_interval}")
-        plt.errorbar(x=i, y=means[i], yerr=(conf_interval[1] - means[i]), fmt='o', label=methods[i], color = colors[i])
+    def confidence_intervals(filename, alpha):
+        methods = ["Uniform Square", "Uniform Circle", "Latin Hypercube", "Orthogonal Square", "Orthogonal Circle"]
+        data = pd.read_csv(filename)
+        
+        uniform_square_data = data.groupby("method").get_group("uniform_square")
+        uniform_circle_data = data.groupby("method").get_group("uniform_circle")
+        latin_hypercube_data = data.groupby("method").get_group("latin_hypercube")
+        orthogonal_square_data = data.groupby("method").get_group("orthogonal")
+        orthogonal_circle_data = data.groupby("method").get_group("orthogonal_circle")
+        
+        mean_uniform_square = uniform_square_data["mean_area"].iloc[0]
+        mean_uniform_circle = uniform_circle_data["mean_area"].iloc[0]
+        mean_latin_hypercube = latin_hypercube_data["mean_area"].iloc[0]
+        mean_orthogonal_square = orthogonal_square_data["mean_area"].iloc[0]
+        mean_orthogonal_circle = orthogonal_circle_data["mean_area"].iloc[0]
+        
+        means = [mean_uniform_square, mean_uniform_circle, mean_latin_hypercube, mean_orthogonal_square, mean_orthogonal_circle]
+        
+        std_uniform_square = np.std(uniform_square_data.loc[:,"area"])
+        std_uniform_circle = np.std(uniform_circle_data.loc[:,"area"])
+        std_latin_hypercube = np.std(latin_hypercube_data.loc[:,"area"])
+        std_orthogonal_square = np.std(orthogonal_square_data.loc[:,"area"])
+        std_orthogonal_circle = np.std(orthogonal_circle_data.loc[:,"area"])
+        
+        stds = [std_uniform_square, std_uniform_circle, std_latin_hypercube, std_orthogonal_square, std_orthogonal_circle]
+        
+        plt.figure(figsize=(10, 6))
+        
+        for i in range(len(stds)):
+            standard_error = stds[i]/ 10
+            df = 99
+            conf_interval = stats.t.interval(1-alpha, df, means[i], scale=standard_error)
+            print(f"{methods[i]} Confidence Interval: {conf_interval}")
+            plt.errorbar(x=i, y=means[i], yerr=(conf_interval[1] - means[i]), fmt='o', label=methods[i], color = colors[i])
 
-    plt.xticks(range(len(means)), [methods[i] for i in range(len(means))], fontsize = 12)
-    plt.ylabel('Estimated Area', fontsize = 16)
-    plt.title('Confidence Intervals for Mandelbrot Set Area', fontsize = 16)
-    plt.savefig('./assets/confidence_intervals.png')
-    plt.close()
-    
-    welch_result = pg.welch_anova(data=data, dv="area", between="method")
-    print(f"Welch's ANOVA statistic: {welch_result['F'][0]}    p-value: {welch_result['p-unc'][0]}")
-    
-    posthoc_result = pg.pairwise_gameshowell(data=data, dv="area", between="method")
-    print(posthoc_result)
+        plt.xticks(range(len(means)), [methods[i] for i in range(len(means))], fontsize = 12)
+        plt.ylabel('Estimated Area', fontsize = 16)
+        plt.title('Confidence Intervals for Mandelbrot Set Area', fontsize = 16)
+        plt.savefig('./assets/confidence_intervals.png')
+        plt.close()
+        
+        welch_result = pg.welch_anova(data=data, dv="area", between="method")
+        print(f"Welch's ANOVA statistic: {welch_result['F'][0]}    p-value: {welch_result['p-unc'][0]}")
+        
+        posthoc_result = pg.pairwise_gameshowell(data=data, dv="area", between="method")
+        print(posthoc_result)
 
-
-confidence_intervals("./data/mandelbrot_estimations.csv", 0.01)
-    
-def visualize_mandelbrot(output):
-    plt.matshow(output, extent=(np.min(x), np.max(x), np.min(y), np.max(y)), cmap=cmap, origin = "lower")
-    plt.ylabel("Real Numbers")
-    plt.xlabel("Imaginary Numbers")
-    plt.savefig('./assets/mandelbrot.png')
-    plt.close()
-
-    x = np.linspace(-2, 2, 1000)
-    y = np.linspace(-2, 2, 1000)
-    values = np.ndarray((x.shape[0], y.shape[0]))
-    visualize_mandelbrot(mandelbrot(x, y, values, 1000))
+    confidence_intervals("./data/mandelbrot_estimations.csv", 0.01)
