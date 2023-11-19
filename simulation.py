@@ -46,6 +46,7 @@ def run_simulation(simulation_type):
     print(f"Running simulation for {simulation_type}")
     if simulation_type == "all":
         results = []
+        results.extend(run_simulation_for_sample_size(orthogonal_circle, "circle", num_runs, sample))
         results.extend(run_simulation_all(uniform_square, "square", num_runs, num_samples))
         results.extend(run_simulation_all(uniform_circle, "circle", num_runs, num_samples))
         results.extend(run_simulation_all(latin_hypercube, "square", num_runs, num_samples))
@@ -63,7 +64,7 @@ def run_simulation(simulation_type):
                     result['mean_area'] = mean_area
 
         df = pd.DataFrame(results)
-        df.to_csv(f"./assets/mandelbrot_estimations.csv", index=False)
+        df.to_csv(f"./data/mandelbrot_estimations.csv", index=False)
     elif simulation_type == "sample_size":
         results = []
         for sample in sample_sizes:
