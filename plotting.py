@@ -45,21 +45,6 @@ def plot_iterations_comparison():
     plt.ylabel('Estimated Area', fontsize=18)
     plt.yticks(fontsize=16)
     plt.savefig('./assets/comparison_by_iterations')
-
-def choose_plot(plot_type):
-    if plot_type == 'sample_size':
-        plot_sample_size_comparison()
-    elif plot_type == 'iterations':
-        plot_iterations_comparison()
-    else:
-        print('Invalid plot type input')
-
-if __name__ == "__main__":
-    if len(sys.argv) > 1:
-        plot_type = sys.argv[1]
-    else:
-        plot_type = input("Enter the simulation result you want to plot (sample_size or iterations): ")
-    choose_plot(plot_type)
     
 def plot_iterations_comparisons_all_methods(): 
     methods = ["Uniform Square", "Uniform Circle", "Latin Hypercube", "Orthogonal Square", "Orthogonal Circle"]
@@ -102,3 +87,49 @@ def plot_iterations_comparisons_all_methods():
     plt.yticks(fontsize=16)
     plt.title("Area Estimation Differences for Varying Sampling Methods - s = 10201", fontsize = 16)
     plt.show()
+
+def plot_variances():
+    methods = ["Uniform Square", "Uniform Circle", "Latin Hypercube", "Orthogonal Square", "Orthogonal Circle"]
+    usqu_csv = pd.read_csv("./data/mandelbrot_iterations_comparison_usqu.csv")
+    ucir_csv = pd.read_csv("./data/mandelbrot_iterations_comparison_ucir.csv")
+    lhs_csv = pd.read_csv("./data/mandelbrot_iterations_comparison_lhcs.csv")
+    osqu_csv = pd.read_csv("./data/mandelbrot_iterations_comparison_osqu.csv")
+    ocir_csv = pd.read_csv("./data/mandelbrot_iterations_comparison_ocir.csv")
+    
+    var_uniform_square_data = usqu_csv.groupby("iterations")["area"].var()
+    var_uniform_circle_data = ucir_csv.groupby("iterations")["area"].var()
+    var_latin_hypercube_data = lhs_csv.groupby("iterations")["area"].var()
+    var_orth_square_data = osqu_csv.groupby("iterations")["area"].var()
+    var_orth_circle_data = ocir_csv.groupby("iterations")["area"].var()
+    
+    plt.figure(figsize=(10, 6))
+    plt.plot(var_uniform_square_data.index, var_uniform_square_data, marker='o', linestyle='-', color=normalized_palette["green"])
+    plt.plot(var_uniform_circle_data.index, var_uniform_circle_data, marker='o', linestyle='-', color=normalized_palette["blue"])
+    plt.plot(var_latin_hypercube_data.index, var_latin_hypercube_data, marker='o', linestyle='-', color=normalized_palette["midnight"])
+    plt.plot(var_orth_square_data.index, var_orth_square_data, marker='o', linestyle='-', color=normalized_palette["violet"])
+    plt.plot(var_orth_circle_data.index, var_orth_circle_data, marker='o', linestyle='-', color=normalized_palette["crayola"])
+    
+    plt.legend(methods, fontsize = 14, bbox_to_anchor=(1.01, 1), loc= "upper left", borderaxespad=0)
+    plt.xlabel("Iterations", fontsize = 16)
+    plt.ylabel("Variance", fontsize = 16)
+    plt.title("Variance between 100 runs for each sampling method", fontsize = 16)
+    plt.savefig('./assets/variances', bbox_inches='tight')
+
+def choose_plot(plot_type):
+    if plot_type == 'sample_size':
+        plot_sample_size_comparison()
+    elif plot_type == 'iterations':
+        plot_iterations_comparison()
+    elif plot_type == "all_iterations":
+        plot_iterations_comparisons_all_methods()
+    elif plot_type == "variances":
+        plot_variances()
+    else:
+        print('Invalid plot type input')
+
+if __name__ == "__main__":
+    if len(sys.argv) > 1:
+        plot_type = sys.argv[1]
+    else:
+        plot_type = input("Enter the simulation result you want to plot (sample_size or iterations): ")
+    choose_plot(plot_type)
