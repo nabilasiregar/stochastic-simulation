@@ -2,10 +2,9 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 from scipy.stats import qmc
-import cmath
-import os
+import random, os, cmath
 import matplotlib.pyplot as plt
-import random
+import pingouin as pg
 from matplotlib.colors import LinearSegmentedColormap
 from numba import njit, prange
 
@@ -168,6 +167,12 @@ def monte_carlo_integration(lower_bound, upper_bound, N_iterations, shape, sampl
         circle_area = np.pi * (np.sqrt(diameter/2)) ** 2
         return accept * circle_area / N_samples
 
+      
+if __name__ == "__main__":
+    samples_unif_square = uniform_square(-2, 2, 1000000)
+    samples_unif_circle = uniform_circle(-2, 2, 1000000)
+    samples_lhc = latin_hypercube(-2, 2, 1000000)
+    samples_ortho = orthogonal(-2, 2, 1000000)
 
 if __name__ == "__main__":
     def plot_convergence(lower_bound, upper_bound, N_samples, N_iterations, sampling_methods_info, start_j=1, x_max=None, y_max=None):
@@ -214,6 +219,7 @@ if __name__ == "__main__":
             plt.ylim(0, y_max)
 
         plt.savefig('./assets/convergence.png')
+        plt.close()
 
 
     sampling_methods_info = [
@@ -225,7 +231,7 @@ if __name__ == "__main__":
 
     print("Plotting convergence...")
     plot_convergence(-2, 2, 10000, 300, sampling_methods_info, start_j=5)
-    print("Finished plotting, please check assets folder.")
+    print("Finished plotting, please check assets folder.\n")
 
     def confidence_intervals(filename, alpha):
         methods = ["Uniform Square", "Uniform Circle", "Latin Hypercube", "Orthogonal"]
@@ -260,7 +266,8 @@ if __name__ == "__main__":
         plt.xticks(range(len(means)), [methods[i] for i in range(len(means))])
         plt.ylabel('Area')
         plt.title('Confidence Intervals for Mandelbrot Set Area')
-        plt.show()
+        plt.savefig('./assets/confidence_intervals.png')
+        plt.close()
         
         welch_result = pg.welch_anova(data=data, dv="area", between="method")
         print(f"Welch's ANOVA statistic: {welch_result['F'][0]}    p-value: {welch_result['p-unc'][0]}")
@@ -269,4 +276,4 @@ if __name__ == "__main__":
         print(posthoc_result)
 
 
-    confidence_intervals("mandelbrot_estimations.csv", 0.01)
+    confidence_intervals("./assets/mandelbrot_estimations.csv", 0.01)
