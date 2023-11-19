@@ -58,13 +58,12 @@ def mandelbrot(x, y, matrix, max_iteration):
 
 def visualize_mandelbrot(output):
     plt.matshow(output, extent=(np.min(x), np.max(x), np.min(y), np.max(y)), cmap=cmap, origin = "lower")
-    plt.ylabel("Real Numbers")
-    plt.xlabel("Imaginary Numbers")
+    plt.ylabel("Real Part")
+    plt.xlabel("Imaginary Part")
     #plt.xticks(np.linspace(np.min(x), np.max(x), num=5))
     plt.savefig('./assets/mandelbrot.png')
     plt.close()
 
-visualize_mandelbrot(mandelbrot(x, y, values, 1000))
 
 # Sampling Techniques
 def uniform_square(lower_bound, upper_bound, N_samples):
@@ -101,15 +100,12 @@ def orthogonal_circle(lower_bound, upper_bound, N_samples):
     diameter = upper_bound - lower_bound
     radius = diameter / 2
 
-    lhs = qmc.LatinHypercube(d=2, strenght=2)
-    samples = lhs.random(n=N_samples)
-
-    samples = lower_bound + samples * (upper_bound - lower_bound)
+    samples = orthogonal(0,1,N_samples)
 
     theta = 2 * np.pi * samples[:, 0]
-    r = radius * np.sqrt(samples[:, 1])
-    samples[:, 0] = center_x + r * np.cos(theta)
-    samples[:, 1] = center_y + r * np.sin(theta)
+    r = np.sqrt(radius * samples[:, 1])
+    samples[:, 0] = center_x + (r * np.cos(theta))
+    samples[:, 1] = center_y + (r * np.sin(theta))
 
     return samples
 
@@ -172,32 +168,6 @@ def monte_carlo_integration(lower_bound, upper_bound, N_iterations, shape, sampl
         circle_area = np.pi * (np.sqrt(diameter/2)) ** 2
         return accept * circle_area / N_samples
 
-
-samples_unif_square = uniform_square(-2, 2, 1000000)
-samples_unif_circle = uniform_circle(-2, 2, 1000000)
-samples_lhc = latin_hypercube(-2, 2, 1000000)
-samples_ortho = orthogonal(-2, 2, 1000000)
-
-uniform_square_results = monte_carlo_integration(
-    -2, 2,  1000, "square", samples_unif_square)
-uniform_circle_results = monte_carlo_integration(
-    -2, 2,  1000, "circle", samples_unif_circle)
-lhc_results = monte_carlo_integration(-2,
-    2, 1000, "square", samples_lhc)
-orthogonal_results = monte_carlo_integration(
-    -2, 2, 1000, "square", samples_ortho)
-
-print("Area with Uniform Sampling over a Square: " + str(uniform_square_results))
-print(f"Area with Uniform Sampling over a Circle: " + str(uniform_circle_results))
-print(f"Area with Latin Hypercube Sampling over a Square: " + str(lhc_results))
-print(f"Area with Orthogonal Sampling over a Square: " + str(orthogonal_results))
-
-#Experimenting with Sobol Sampling
-sampler = qmc.Sobol(d=2)
-upper_bound = 2
-lower_bound = -2
-samples_sobol = sampler.random_base2(m=10) * ( upper_bound - lower_bound) + lower_bound
-print("Area with Sobol Sampling over a Square: " + str(monte_carlo_integration(-2, 2, 1024, 1000, "square", samples_sobol)))
 
 if __name__ == "__main__":
     def plot_convergence(lower_bound, upper_bound, N_samples, N_iterations, sampling_methods_info, start_j=1, x_max=None, y_max=None):
