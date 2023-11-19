@@ -14,12 +14,55 @@ def plot_sample_size_comparison():
         "latin_hypercube": normalized_palette["midnight"],
         "orthogonal": normalized_palette["crayola"]
     }
+    method_colors = {
+        "uniform_square": normalized_palette["green"],
+        "uniform_circle": normalized_palette["blue"],
+        "latin_hypercube": normalized_palette["midnight"],
+        "orthogonal": normalized_palette["crayola"]
+    }
 
     plt.figure(figsize=(10, 6))
     for method in mean_areas['method'].unique():
         method_data = mean_areas[mean_areas['method'] == method]
         plt.plot(method_data['sample_size'], method_data['area'],
                 marker='o', label=method, color=method_colors[method])
+
+    plt.xscale('log')
+    plt.xlabel('Sample Size', fontsize=18)
+    plt.xticks(fontsize=16)
+    plt.ylabel('Estimated Area', fontsize=18)
+    plt.yticks(fontsize=16)
+    plt.legend(fontsize=18)
+    plt.savefig('./assets/comparison_by_sample_size.png')
+    
+def return_cdf(samples):
+    """Returns the cumulative distribution function of a list of samples, flattens 2 dimensional lists"""
+    sorted_samples = np.sort(samples)[:,0]
+    cdf = np.cumsum(sorted_samples) / np.sum(sorted_samples)
+    print(cdf)
+    return cdf
+
+
+def plot_iterations_comparison():
+    data = pd.read_csv('./data/mandelbrot_iterations_comparison.csv')
+    iteration_counts = [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]
+    filtered_data = data[data['iterations'].isin(iteration_counts)]
+    mean_areas = filtered_data.groupby('iterations')['area'].mean()
+    std_error = filtered_data.groupby('iterations')['area'].std() / np.sqrt(filtered_data.groupby('iterations')['area'].count())
+
+    method_colors = {
+        "uniform_square": normalized_palette["green"],
+        "uniform_circle": normalized_palette["blue"],
+        "latin_hypercube": normalized_palette["midnight"],
+        "orthogonal": normalized_palette["crayola"]
+    }
+
+    plt.figure(figsize=(10, 6))
+    for method in mean_areas['method'].unique():
+        method_data = mean_areas[mean_areas['method'] == method]
+        plt.plot(method_data['sample_size'], method_data['area'],
+                marker='o', label=method, color=method_colors[method])
+
 
     plt.xscale('log')
     plt.xlabel('Sample Size', fontsize=18)
@@ -48,11 +91,11 @@ def plot_iterations_comparison():
     
 def plot_iterations_comparisons_all_methods(): 
     methods = ["Uniform Square", "Uniform Circle", "Latin Hypercube", "Orthogonal Square", "Orthogonal Circle"]
-    usqu_csv = pd.read_csv("./assets/mandelbrot_iterations_comparison_usqu.csv")
-    ucir_csv = pd.read_csv("./assets/mandelbrot_iterations_comparison_ucir.csv")
-    lhs_csv = pd.read_csv("./assets/mandelbrot_iterations_comparison_lhcs.csv")
-    osqu_csv = pd.read_csv("./assets/mandelbrot_iterations_comparison_osqu.csv")
-    ocir_csv = pd.read_csv("./assets/mandelbrot_iterations_comparison_ocir.csv")
+    usqu_csv = pd.read_csv("./data/mandelbrot_iterations_comparison_usqu.csv")
+    ucir_csv = pd.read_csv("./data/mandelbrot_iterations_comparison_ucir.csv")
+    lhs_csv = pd.read_csv("./data/mandelbrot_iterations_comparison_lhcs.csv")
+    osqu_csv = pd.read_csv("./data/mandelbrot_iterations_comparison_osqu.csv")
+    ocir_csv = pd.read_csv("./data/mandelbrot_iterations_comparison_ocir.csv")
 
     iteration_counts = [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]
 
@@ -85,8 +128,8 @@ def plot_iterations_comparisons_all_methods():
     plt.xticks(iteration_counts, fontsize=16)
     plt.ylabel('|$A_{iteration,s} - A_{1000,s}$|', fontsize=16)
     plt.yticks(fontsize=16)
-    plt.title("Area Estimation Differences for Varying Sampling Methods - s = 10201", fontsize = 16)
-    plt.show()
+    plt.title("Area Estimation Differences for Varying Sampling Methods - s = 10000", fontsize = 16)
+    plt.savefig('./assets/iterations')
 
 def plot_variances():
     methods = ["Uniform Square", "Uniform Circle", "Latin Hypercube", "Orthogonal Square", "Orthogonal Circle"]
@@ -112,7 +155,7 @@ def plot_variances():
     plt.legend(methods, fontsize = 14, bbox_to_anchor=(1.01, 1), loc= "upper left", borderaxespad=0)
     plt.xlabel("Iterations", fontsize = 16)
     plt.ylabel("Variance", fontsize = 16)
-    plt.title("Variance between 100 Runs for Each Sampling Method", fontsize = 16)
+    plt.title("Variance between 100 Runs for Each Sampling Method - s = 10000", fontsize = 16)
     plt.savefig('./assets/variances', bbox_inches='tight')
 
 def choose_plot(plot_type):

@@ -1,9 +1,9 @@
-from Engels_14947994_Sahrani_12661651_Siregar_1486305 import uniform_circle, uniform_square, latin_hypercube, orthogonal, monte_carlo_integration
+from Engels_14947994_Sahrani_12661651_Siregar_1486305 import uniform_circle, uniform_square, orthogonal_circle, latin_hypercube, orthogonal, monte_carlo_integration
 import pandas as pd
 import sys
 
 num_runs = 100
-num_samples = 1000000
+num_samples = 40000
 iteration_values = [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]
 sample_sizes = [100, 10000, 1000000]
 
@@ -67,6 +67,7 @@ def run_simulation(simulation_type):
     elif simulation_type == "sample_size":
         results = []
         for sample in sample_sizes:
+            results.extend(run_simulation_for_sample_size(orthogonal_circle, "circle", num_runs, sample))
             results.extend(run_simulation_for_sample_size(uniform_square, "square", num_runs, sample))
             results.extend(run_simulation_for_sample_size(uniform_circle, "circle", num_runs, sample))
             results.extend(run_simulation_for_sample_size(latin_hypercube, "square", num_runs, sample))
@@ -77,10 +78,10 @@ def run_simulation(simulation_type):
     elif simulation_type == "iterations":
         results = []
         for iteration in iteration_values:
-            results.extend(run_simulation_for_iterations(uniform_square, "square", iteration, num_samples))
+            results.extend(run_simulation_for_iterations(orthogonal_circle, "circle", iteration, num_samples))
 
         df = pd.DataFrame(results)
-        df.to_csv(f"./assets/mandelbrot_iterations_comparison.csv", index=False)
+        df.to_csv(f"./data/mandelbrot_iterations_comparison_ocir.csv", index=False)
     else:
         print("Invalid simulation type")
 
