@@ -49,6 +49,9 @@ def mandelbrot(x, y, matrix, max_iteration):
             matrix[i, j] = get_mandelbrot_set(x[i], y[j], max_iteration)
     return matrix
 
+
+
+
 # Sampling Techniques
 def uniform_square(lower_bound, upper_bound, N_samples):
     samples = np.empty((N_samples, 2))
@@ -160,20 +163,7 @@ if __name__ == "__main__":
     samples_lhc = latin_hypercube(-2, 2, 1000000)
     samples_ortho = orthogonal(-2, 2, 1000000)
 
-    uniform_square_results = monte_carlo_integration(
-        -2, 2,  1000, "square", samples_unif_square)
-    uniform_circle_results = monte_carlo_integration(
-        -2, 2,  1000, "circle", samples_unif_circle)
-    lhc_results = monte_carlo_integration(-2,
-        2, 1000, "square", samples_lhc)
-    orthogonal_results = monte_carlo_integration(
-        -2, 2, 1000, "square", samples_ortho)
-
-    print("Area with Uniform Sampling over a Square: " + str(uniform_square_results))
-    print(f"Area with Uniform Sampling over a Circle: " + str(uniform_circle_results))
-    print(f"Area with Latin Hypercube Sampling over a Square: " + str(lhc_results))
-    print(f"Area with Orthogonal Sampling over a Square: " + str(orthogonal_results))
-
+if __name__ == "__main__":
     def plot_convergence(lower_bound, upper_bound, N_samples, N_iterations, sampling_methods_info, start_j=1, x_max=None, y_max=None):
         plt.figure(figsize=(10, 8))
 

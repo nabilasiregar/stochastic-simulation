@@ -1,4 +1,4 @@
-from Engels_14947994_Sahrani_12661651_Siregar_1486305 import uniform_circle, uniform_square, latin_hypercube, orthogonal, monte_carlo_integration
+from Engels_14947994_Sahrani_12661651_Siregar_1486305 import uniform_circle, uniform_square, orthogonal_circle, latin_hypercube, orthogonal, monte_carlo_integration
 import pandas as pd
 import sys
 
@@ -67,6 +67,7 @@ def run_simulation(simulation_type):
     elif simulation_type == "sample_size":
         results = []
         for sample in sample_sizes:
+            results.extend(run_simulation_for_sample_size(orthogonal_circle, "circle", num_runs, sample))
             results.extend(run_simulation_for_sample_size(uniform_square, "square", num_runs, sample))
             results.extend(run_simulation_for_sample_size(uniform_circle, "circle", num_runs, sample))
             results.extend(run_simulation_for_sample_size(latin_hypercube, "square", num_runs, sample))
