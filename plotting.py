@@ -4,10 +4,16 @@ import matplotlib.pyplot as plt
 import numpy as np
 import sys
 
-# def plot_sample_size_comparison():
-#     data = pd.read_csv('./data/mandelbrot_sample_size_comparison.csv')
-#     mean_areas = data.groupby(['method', 'sample_size'])['area'].mean().reset_index()
+def plot_sample_size_comparison():
+    data = pd.read_csv('./data/mandelbrot_sample_size_comparison.csv')
+    mean_areas = data.groupby(['method', 'sample_size'])['area'].mean().reset_index()
 
+    method_colors = {
+        "uniform_square": normalized_palette["green"],
+        "uniform_circle": normalized_palette["blue"],
+        "latin_hypercube": normalized_palette["midnight"],
+        "orthogonal": normalized_palette["crayola"]
+    }
     method_colors = {
         "uniform_square": normalized_palette["green"],
         "uniform_circle": normalized_palette["blue"],
@@ -79,11 +85,11 @@ def plot_iterations_comparison():
     
 def plot_iterations_comparisons_all_methods(): 
     methods = ["Uniform Square", "Uniform Circle", "Latin Hypercube", "Orthogonal Square", "Orthogonal Circle"]
-    usqu_csv = pd.read_csv("./assets/mandelbrot_iterations_comparison_usqu.csv")
-    ucir_csv = pd.read_csv("./assets/mandelbrot_iterations_comparison_ucir.csv")
-    lhs_csv = pd.read_csv("./assets/mandelbrot_iterations_comparison_lhcs.csv")
-    osqu_csv = pd.read_csv("./assets/mandelbrot_iterations_comparison_osqu.csv")
-    ocir_csv = pd.read_csv("./assets/mandelbrot_iterations_comparison_ocir.csv")
+    usqu_csv = pd.read_csv("./data/mandelbrot_iterations_comparison_usqu.csv")
+    ucir_csv = pd.read_csv("./data/mandelbrot_iterations_comparison_ucir.csv")
+    lhs_csv = pd.read_csv("./data/mandelbrot_iterations_comparison_lhcs.csv")
+    osqu_csv = pd.read_csv("./data/mandelbrot_iterations_comparison_osqu.csv")
+    ocir_csv = pd.read_csv("./data/mandelbrot_iterations_comparison_ocir.csv")
 
     iteration_counts = [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]
 
@@ -116,8 +122,8 @@ def plot_iterations_comparisons_all_methods():
     plt.xticks(iteration_counts, fontsize=16)
     plt.ylabel('|$A_{iteration,s} - A_{1000,s}$|', fontsize=16)
     plt.yticks(fontsize=16)
-    plt.title("Area Estimation Differences for Varying Sampling Methods - s = 10201", fontsize = 16)
-    plt.show()
+    plt.title("Area Estimation Differences for Varying Sampling Methods - s = 10000", fontsize = 16)
+    plt.savefig('./assets/iterations')
 
 def plot_variances():
     methods = ["Uniform Square", "Uniform Circle", "Latin Hypercube", "Orthogonal Square", "Orthogonal Circle"]
@@ -143,7 +149,7 @@ def plot_variances():
     plt.legend(methods, fontsize = 14, bbox_to_anchor=(1.01, 1), loc= "upper left", borderaxespad=0)
     plt.xlabel("Iterations", fontsize = 16)
     plt.ylabel("Variance", fontsize = 16)
-    plt.title("Variance between 100 Runs for Each Sampling Method", fontsize = 16)
+    plt.title("Variance between 100 Runs for Each Sampling Method - s = 10000", fontsize = 16)
     plt.savefig('./assets/variances', bbox_inches='tight')
     
 def plot_variances_sampling():
@@ -188,5 +194,3 @@ if __name__ == "__main__":
     else:
         plot_type = input("Enter the simulation result you want to plot (sample_size or iterations): ")
     choose_plot(plot_type)
-
-# plot_variances()
