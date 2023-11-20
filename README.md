@@ -19,7 +19,6 @@ Python >3.10
 ```bash
   python main.py
 ```
-**Note:** _we cannot rename the file to Engels_14947994_Sahrani_12661651_Siregar_1486305_Assignment1.py because git would treat it as a completely new file without the previous commit history and we do not want that because we need it to count contribution using git-fame_
 
 ⏳ Run the simulation (optional)
 ```bash
