@@ -2,7 +2,6 @@ from Engels_14947994_Sahrani_12661651_Siregar_1486305 import normalized_palette,
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
-import scipy.stats.qmc as qmc
 import sys
 
 def plot_sample_size_comparison():
