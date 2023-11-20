@@ -64,7 +64,7 @@ def run_simulation(simulation_type):
                     result['mean_area'] = mean_area
 
         df = pd.DataFrame(results)
-        df.to_csv(f"./data/mandelbrot_estimations.csv", index=False)
+        df.to_csv(f"./assets/mandelbrot_estimations.csv", index=False)
     elif simulation_type == "sample_size":
         results = []
         for sample in sample_sizes:
@@ -87,7 +87,7 @@ def run_simulation(simulation_type):
 
         df = pd.DataFrame(results)
 
-        df.to_csv(f"./data/mandelbrot_iterations_comparison.csv", index=False)
+        df.to_csv(f"./assets/mandelbrot_iterations_comparison.csv", index=False)
     else:
         print("Invalid simulation type")
 

@@ -5,7 +5,6 @@ import numpy as np
 import sys
 
 def plot_sample_size_comparison():
-
     prev_data = pd.read_csv('./data/mandelbrot_sample_size_comparison.csv')
     ocircle_data = pd.read_csv('./data/mandelbrot_sample_size_comparison_ocir_complete.csv')
     data = pd.concat([prev_data, ocircle_data], ignore_index=True)
