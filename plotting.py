@@ -5,9 +5,9 @@ import numpy as np
 import scipy.stats.qmc as qmc
 import sys
 
-# def plot_sample_size_comparison():
-#     data = pd.read_csv('./data/mandelbrot_sample_size_comparison.csv')
-#     mean_areas = data.groupby(['method', 'sample_size'])['area'].mean().reset_index()
+def plot_sample_size_comparison():
+    data = pd.read_csv('./data/mandelbrot_sample_size_comparison.csv')
+    mean_areas = data.groupby(['method', 'sample_size'])['area'].mean().reset_index()
 
     method_colors = {
         "uniform_square": normalized_palette["green"],
@@ -160,7 +160,7 @@ def plot_variances_sampling():
     plt.plot(vars_latin_hypercube, linestyle='-', color=normalized_palette["midnight"], label = "Latin Hypercube")
     plt.plot(vars_orthogonal,  linestyle='-', color=normalized_palette["crayola"], label = "Orthogonal")
 
-    plt.legend(fontsize = 14, bbox_to_anchor=(1.01, 1), loc= "upper left", borderaxespad=0)
+    plt.legend(fontsize = 14,loc= "upper right", borderaxespad=0)
     plt.xlabel("run", fontsize = 16)
     plt.ylabel("Variance", fontsize = 16)
     plt.title("Variance for each run for each sampling method", fontsize = 16)
