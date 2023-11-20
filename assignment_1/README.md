@@ -12,12 +12,12 @@ Python >3.10
 
 📁 Go to the project directory
 ```bash
-  cd stochastic-simulation
+  cd stochastic-simulation/assignment_1
 ```
 
 💻 Run the main file
 ```bash
-  python Engels_14947994_Sahrani_12661651_Siregar_1486305.py
+  python main.py
 ```
 **Note:** _we cannot rename the file to Engels_14947994_Sahrani_12661651_Siregar_1486305_Assignment1.py because git would treat it as a completely new file without the previous commit history and we do not want that because we need it to count contribution using git-fame_
 
