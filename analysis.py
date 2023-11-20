@@ -3,12 +3,12 @@ import numpy as np
 from Engels_14947994_Sahrani_12661651_Siregar_1486305 import orthogonal, uniform_square
 import scipy.stats as stats
 
-f = pd.read_csv("./data/mandelbrot_sample_size_comparison.csv", header=0)
+f = pd.read_csv("./data/mandelbrot_estimations.csv", header=0)
 df = pd.DataFrame(f)
 alpha = 0.01
 
 # Descriptive stats
-point_estimated = df.groupby(["method", "sample_size"]).aggregate(
+point_estimated = df.groupby(["method"]).aggregate(
     ["mean", "std", "min", "max"])["area"]
 point_estimated["Confidence Interval"] = [stats.t.interval(
     1-alpha, 99, mean, std/33) for mean, std in zip(point_estimated["mean"], point_estimated["std"])]

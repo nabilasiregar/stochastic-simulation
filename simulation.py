@@ -3,7 +3,7 @@ import pandas as pd
 import sys
 
 num_runs = 100
-num_samples = 1000000
+num_samples = 40000
 iteration_values = [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]
 sample_sizes = [100, 10000, 1000000]
 
@@ -11,7 +11,7 @@ def run_simulation_all(method, shape, num_runs, num_samples):
     results = []
     for run in range(num_runs):
         samples = method(-2, 2, num_samples)
-        area = monte_carlo_integration(-2, 2, 1000, shape, samples)
+        area = monte_carlo_integration(-2, 2, 300, shape, samples)
         results.append({'method': method.__name__, 'run': run + 1, 'samples': num_samples, 'area': area})
     return results
 
@@ -19,7 +19,7 @@ def run_simulation_for_sample_size(method, shape, num_runs, sample_size):
     results = []
     for run in range(num_runs):
         samples = method(-2, 2, sample_size) 
-        area = monte_carlo_integration(-2, 2, 1000, shape, samples)
+        area = monte_carlo_integration(-2, 2, 300, shape, samples)
         results.append({
             'method': method.__name__,
             'sample_size': sample_size,
@@ -46,11 +46,11 @@ def run_simulation(simulation_type):
     print(f"Running simulation for {simulation_type}")
     if simulation_type == "all":
         results = []
-        results.extend(run_simulation_for_sample_size(orthogonal_circle, "circle", num_runs, sample))
         results.extend(run_simulation_all(uniform_square, "square", num_runs, num_samples))
         results.extend(run_simulation_all(uniform_circle, "circle", num_runs, num_samples))
         results.extend(run_simulation_all(latin_hypercube, "square", num_runs, num_samples))
         results.extend(run_simulation_all(orthogonal, "square", num_runs, num_samples))
+        results.extend(run_simulation_all(orthogonal_circle, "circle", num_runs, num_samples))
 
         df = pd.DataFrame(results)
         means = df.groupby('method')['area'].mean().reset_index()
@@ -68,11 +68,11 @@ def run_simulation(simulation_type):
     elif simulation_type == "sample_size":
         results = []
         for sample in sample_sizes:
-            results.extend(run_simulation_for_sample_size(orthogonal_circle, "circle", num_runs, sample))
             results.extend(run_simulation_for_sample_size(uniform_square, "square", num_runs, sample))
             results.extend(run_simulation_for_sample_size(uniform_circle, "circle", num_runs, sample))
             results.extend(run_simulation_for_sample_size(latin_hypercube, "square", num_runs, sample))
             results.extend(run_simulation_for_sample_size(orthogonal, "square", num_runs, sample))
+            results.extend(run_simulation_for_sample_size(orthogonal_circle, "circle", num_runs, sample))
 
         df = pd.DataFrame(results)
         df.to_csv(f"./assets/mandelbrot_sample_size_comparison.csv", index=False)
@@ -80,9 +80,14 @@ def run_simulation(simulation_type):
         results = []
         for iteration in iteration_values:
             results.extend(run_simulation_for_iterations(uniform_square, "square", iteration, num_samples))
+            results.extend(run_simulation_for_iterations(uniform_circle, "circle", iteration, num_samples))
+            results.extend(run_simulation_for_iterations(latin_hypercube, "square", iteration, num_samples))
+            results.extend(run_simulation_for_iterations(orthogonal, "square", iteration, num_samples))
+            results.extend(run_simulation_for_iterations(orthogonal_circle, "circle", iteration, num_samples))
 
         df = pd.DataFrame(results)
-        df.to_csv(f"./assets/mandelbrot_iterations_comparison.csv", index=False)
+
+        df.to_csv(f"./data/mandelbrot_iterations_comparison.csv", index=False)
     else:
         print("Invalid simulation type")
 
