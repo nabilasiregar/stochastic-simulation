@@ -1,6 +1,5 @@
 import simpy
 import random
-import csv
 
 class Customer():
     def __init__(self, env, name, duration, priority=False):
@@ -56,14 +55,3 @@ class Simulation:
     def run(self):
         self.env.run(until=self.runtime)
         return self.results
-    
-    def save_simulation_to_csv(self, file_path):
-        with open(file_path, 'w', newline='') as csvfile:
-            fieldnames = ['waiting_time', 'system_time', 'utilization']
-            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-
-            writer.writeheader()
-            for wt, st, ut in zip(self.results['waiting_times'], 
-                                  self.results['system_times'], 
-                                  self.results['utilization']):
-                writer.writerow({'waiting_time': wt, 'system_time': st, 'utilization': ut})
