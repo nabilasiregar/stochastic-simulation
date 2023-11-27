@@ -1,5 +1,6 @@
 import simpy
 import random
+import argparse
 
 class Customer():
     def __init__(self, env, name, duration, priority=False):
@@ -55,3 +56,20 @@ class Simulation:
     def run(self):
         self.env.run(until=self.runtime)
         return self.results
+    
+def main(debug, n_servers):
+    mu = 0.8
+    lam = 0.28
+    priority = True
+    runtime = 1000
+
+    simulation = Simulation(lam, mu, n_servers, priority, debug, runtime)
+    simulation.run()
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Run the simulation in debug mode.')
+    parser.add_argument('--debug', action='store_true', help='Enable debug mode')
+    parser.add_argument('--servers', type=int, default=2, help='Number of servers')
+    args = parser.parse_args()
+
+    main(args.debug, args.servers)
