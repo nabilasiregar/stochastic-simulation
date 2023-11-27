@@ -15,9 +15,11 @@ class Server:
         self.resource = simpy.PriorityResource(env, capacity=capacity)
 
 class Simulation:
-    def __init__(self, lam, mu, n_servers, priority, debug, runtime):
+    def __init__(self, lam, mu, dist_wait, dist_serve, n_servers, priority, debug, runtime):
         self.lam = lam
         self.mu = mu
+        self.dist_wait = dist_wait
+        self.dist_serve = dist_serve
         self.n_servers = n_servers
         self.priority = priority
         self.debug = debug
