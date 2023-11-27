@@ -1,47 +1,69 @@
 import simpy
 import random
-
-DEBUG = True
-PRIOTITY = True
-mu = 0.8
-lam = 0.28
-n = 2
-
+import csv
 
 class Customer():
-    def __init__(self, env, name, duration):
+    def __init__(self, env, name, duration, priority=False):
         self.env = env
         self.name = name
         self.duration = duration
-        if PRIOTITY:
-            self.priority = duration
-        else:
-            self.priority = 0
+        self.arrival_time = env.now
+        self.priority = self.duration if priority else 0
 
+class Server:
+    def __init__(self, env, capacity):
+        self.resource = simpy.PriorityResource(env, capacity=capacity)
 
-def add_customers(env, lam, mu, servers):
-    i = 1
-    while True:
-        yield env.timeout(random.expovariate(lam))
-        i += 1
-        customer = Customer(env, f'customer {i}', random.expovariate(mu))
-        if DEBUG:
-            print(f'Customer {i} arrived at {env.now:.2f}')
+class Simulation:
+    def __init__(self, lam, mu, n_servers, priority, debug, runtime):
+        self.lam = lam
+        self.mu = mu
+        self.n_servers = n_servers
+        self.priority = priority
+        self.debug = debug
+        self.runtime = runtime
+        self.env = simpy.Environment()
+        self.server = Server(self.env, capacity=self.n_servers)
+        self.results = {'waiting_times': [], 'system_times': [], 'utilization': []}
+        self.env.process(self.add_customers())
 
-        env.process(serve_customers(env, customer, servers))
+    def add_customers(self):
+        i = 0
+        while True:
+            yield self.env.timeout(random.expovariate(self.lam))
+            i += 1
+            customer = Customer(self.env, f'customer {i}', random.expovariate(self.mu), self.priority)
+            if self.debug:
+                print(f'Customer {i} arrived at {self.env.now:.2f}')
+            self.env.process(self.serve_customer(customer))
 
+    def serve_customer(self, customer):
+        arrival_time = self.env.now
+        with self.server.resource.request(priority=customer.priority) as req:
+            yield req
+            waiting_time = self.env.now - arrival_time
+            self.results['waiting_times'].append(waiting_time)
+            if self.debug:
+                print(f'{customer.name} started service at {self.env.now:.2f}')
+            yield self.env.timeout(customer.duration)
+            if self.debug:
+                print(f'{customer.name} finished service at {self.env.now:.2f}')
+            system_time = self.env.now - customer.arrival_time
+            self.results['system_times'].append(system_time)
+            busy_time = customer.duration
+            self.results['utilization'].append(busy_time / self.env.now)
 
-def serve_customers(env, customer, servers):
-    with servers.request(priority=customer.priority) as req:
-        yield req
+    def run(self):
+        self.env.run(until=self.runtime)
+        return self.results
+    
+    def save_simulation_to_csv(self, file_path):
+        with open(file_path, 'w', newline='') as csvfile:
+            fieldnames = ['waiting_time', 'system_time', 'utilization']
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
 
-        print(f'{customer.name} started service at {env.now:.2f}')
-        yield env.timeout(customer.duration)
-        print(f'{customer.name} finished service at {env.now:.2f}')
-
-
-env = simpy.Environment()
-servers = simpy.PriorityResource(env, capacity=n)
-env.process(add_customers(env, lam, mu, servers))
-
-env.run(until=1000)
+            writer.writeheader()
+            for wt, st, ut in zip(self.results['waiting_times'], 
+                                  self.results['system_times'], 
+                                  self.results['utilization']):
+                writer.writerow({'waiting_time': wt, 'system_time': st, 'utilization': ut})
