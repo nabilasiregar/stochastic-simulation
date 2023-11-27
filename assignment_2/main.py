@@ -1,68 +1,75 @@
 import simpy
 import random
-import pandas as pd
-
-DEBUG = False
-PRIORITY = True
-mu = 0.8
-lam = 0.28
-n = 2
-
+import argparse
 
 class Customer():
-    def __init__(self, env, name, duration):
+    def __init__(self, env, name, duration, priority=False):
         self.env = env
         self.name = name
         self.duration = duration
-        if PRIORITY:
-            self.priority = duration
-        else:
-            self.priority = 0
+        self.arrival_time = env.now
+        self.priority = self.duration if priority else 0
 
+class Server:
+    def __init__(self, env, capacity):
+        self.resource = simpy.PriorityResource(env, capacity=capacity)
 
-def add_customers(env, lam, mu, servers, results):
-    i = 1
-    while True:
-        yield env.timeout(random.expovariate(lam))
-        i += 1
-        customer = Customer(env, f'customer {i}', random.expovariate(mu))
-        if DEBUG:
-            print(f'Customer {i} arrived at {env.now:.2f}')
+class Simulation:
+    def __init__(self, lam, mu, n_servers, priority, debug, runtime):
+        self.lam = lam
+        self.mu = mu
+        self.n_servers = n_servers
+        self.priority = priority
+        self.debug = debug
+        self.runtime = runtime
+        self.env = simpy.Environment()
+        self.server = Server(self.env, capacity=self.n_servers)
+        self.results = {'waiting_times': [], 'system_times': [], 'utilization': []}
+        self.env.process(self.add_customers())
 
-        env.process(serve_customers(env, customer, servers, results))
+    def add_customers(self):
+        i = 0
+        while True:
+            yield self.env.timeout(random.expovariate(self.lam))
+            i += 1
+            customer = Customer(self.env, f'customer {i}', random.expovariate(self.mu), self.priority)
+            if self.debug:
+                print(f'Customer {i} arrived at {self.env.now:.2f}')
+            self.env.process(self.serve_customer(customer))
 
+    def serve_customer(self, customer):
+        arrival_time = self.env.now
+        with self.server.resource.request(priority=customer.priority) as req:
+            yield req
+            waiting_time = self.env.now - arrival_time
+            self.results['waiting_times'].append(waiting_time)
+            if self.debug:
+                print(f'{customer.name} started service at {self.env.now:.2f}')
+            yield self.env.timeout(customer.duration)
+            if self.debug:
+                print(f'{customer.name} finished service at {self.env.now:.2f}')
+            system_time = self.env.now - customer.arrival_time
+            self.results['system_times'].append(system_time)
+            busy_time = customer.duration
+            self.results['utilization'].append(busy_time / self.env.now)
 
-def serve_customers(env, customer, servers, results):
-    with servers.request(priority=customer.priority) as req:
-        yield req
-
-        #print(f'{customer.name} started service at {env.now:.2f}')
-        start_time = env.now
-        yield env.timeout(customer.duration)
-        end_time = env.now
-        #print(f'{customer.name} finished service at {env.now:.2f}')
-        
-        results.append({
-            'N': servers.capacity,
-            'PriorityQueue': PRIORITY,
-            'CustomerName': customer.name,
-            'CustomerDuration': customer.duration
-        })
-
-def simulate(n, lam, mu):
-    results = []
-    env = simpy.Environment()
-    servers = simpy.PriorityResource(env, capacity=n)
-    env.process(add_customers(env, lam, mu, servers, results))
-    env.run(until=1000)
-
-    return results
-
-def simulation_results():
-    results = []
-    for n in [1, 2, 4]:
-        results.extend(simulate(n, lam, mu))
-
-    df = pd.DataFrame(results)
-    df.to_csv(f"./assignment_2/customer_durations.csv", index=False)
+    def run(self):
+        self.env.run(until=self.runtime)
+        return self.results
     
+def main(debug, n_servers):
+    mu = 0.8
+    lam = 0.28
+    priority = True
+    runtime = 1000
+
+    simulation = Simulation(lam, mu, n_servers, priority, debug, runtime)
+    simulation.run()
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Run the simulation in debug mode.')
+    parser.add_argument('--debug', action='store_true', help='Enable debug mode')
+    parser.add_argument('--servers', type=int, default=2, help='Number of servers')
+    args = parser.parse_args()
+
+    main(args.debug, args.servers)
