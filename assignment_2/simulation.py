@@ -35,8 +35,8 @@ priority = True
 debug = False
 runtime = 1000
 num_runs = 100
-dist_wait = None
-dist_serve = None
+dist_wait = random.expovariate
+dist_serve = random.expovariate
 
 for n_servers in [1, 2, 4]:
     print(f"Running simulations for {n_servers} servers...")
