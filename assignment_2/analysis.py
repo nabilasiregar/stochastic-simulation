@@ -26,32 +26,42 @@ def statistics(filename):
     f = pd.read_csv(filename, header=0)
     df = pd.DataFrame(f)
     
-    mm1_data = df.groupby("n_server").get_group(1)
-    mm2_data = df.groupby("n_server").get_group(2)
-    mm4_data = df.groupby("n_server").get_group(4)
+    mm1_data = df.groupby("n_server").get_group(1)["waiting_time"].values
+    mm2_data = df.groupby("n_server").get_group(2)["waiting_time"].values
+    mm4_data = df.groupby("n_server").get_group(4)["waiting_time"].values
     
-    mm1_wait_mean = np.mean(mm1_data["system_time"].values)
-    mm2_wait_mean = np.mean(mm2_data["system_time"].values)
-    mm4_wait_mean = np.mean(mm4_data["system_time"].values)
+    mm1_wait_mean = np.mean(mm1_data)
+    mm2_wait_mean = np.mean(mm2_data)
+    mm4_wait_mean = np.mean(mm4_data)
     
-    mm1_wait_std = np.std(mm1_data["system_time"].values)
-    mm2_wait_std = np.std(mm2_data["system_time"].values)
-    mm4_wait_std = np.std(mm4_data["system_time"].values)
+    mm1_wait_std = np.std(mm1_data)
+    mm2_wait_std = np.std(mm2_data)
+    mm4_wait_std = np.std(mm4_data)
     
-    #Creating the general stats
-    alpha = 0.01
-    general_stats = df.groupby(["n_server"]).aggregate(["mean", "std", "min", "max"])["system_time"]
-    print(general_stats.to_latex(float_format="%.3f"))
-    
-    #ANOVA
-    statistic, p_value = stats.f_oneway(mm1_data["system_time"].values, mm2_data["system_time"].values, mm4_data["system_time"].values)
-    print(f"P_value for ANOVA: {p_value}")
-    print()
-    
-    #Creating the confidence intervals
     methods = ["M/M/1", "M/M/2", "M/M/4"]
     means = [mm1_wait_mean, mm2_wait_mean, mm4_wait_mean]
     stds = [mm1_wait_std, mm2_wait_std, mm4_wait_std]
+    
+    #Creating the general stats
+    alpha = 0.01
+    general_stats = df.groupby(["n_server"]).aggregate(["mean", "std", "min", "max"])["waiting_time"]
+    print(general_stats.to_latex(float_format="%.3f"))
+    
+    #ANOVA
+    statistic, p_value = stats.f_oneway(mm1_data, mm2_data, mm4_data)
+    print(f"P_value for ANOVA: {p_value}")
+    print()
+    
+    #T-tests
+    statistic_1, p_value_1 = stats.ttest_ind(a= mm1_data, b=mm2_data, equal_var=True)
+    statistic_2, p_value_2 = stats.ttest_ind(a= mm1_data, b=mm4_data, equal_var=True)
+    statistic_4, p_value_4 = stats.ttest_ind(a= mm2_data, b=mm4_data, equal_var=True)
+    print(f"T-test p_value between n = 1, n = 2:  {p_value_1}")
+    print(f"T-test p_value between n = 1, n = 4:  {p_value_2}")
+    print(f"T-test p_value between n = 2, n = 4:  {p_value_4}")
+    print()
+    
+    #Creating the confidence intervals
     
     plt.figure(figsize=(10, 6))
     
