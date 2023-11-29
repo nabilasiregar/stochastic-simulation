@@ -5,6 +5,7 @@ from scipy import stats
 import matplotlib.pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap
 import statsmodels.stats.power as smp
+import statsmodels.api as sm
 
 palette = {
     "green": (139, 191, 159),
@@ -99,36 +100,13 @@ def power_analysis(lam, mu):
     var_mm4_wait = (1/mm4_wait)**2
     
     waiting_time_data = [np.array([mm1_wait]), np.array([mm2_wait]), np.array([mm4_wait])]
-
-    df_between = 2 
-    df_total = 99
-    alpha = 0.05
+    overall_mean = np.mean(waiting_time_data)
+    ss_total = np.sum((waiting_time_data - overall_mean) ** 2)
+    ss_between = np.sum([(np.mean(queue_type) - overall_mean) ** 2 for queue_type in waiting_time_data])
+    eta_squared = ss_between /ss_total
     
-    mean_diff_1_2 = mm1_wait - mm2_wait
-    mean_diff_1_4 = mm1_wait - mm4_wait
-    mean_diff_2_4 = mm2_wait - mm4_wait
-
-    pooled_var_1_2 = (99*var_mm1_wait + 99*var_mm2_wait) / (99 + 99 - 2)
-    pooled_sd_1_2 = np.sqrt(pooled_var_1_2)
-    
-    pooled_var_1_4 = (99*var_mm1_wait + 99*var_mm4_wait) / (99 + 99 - 2)
-    pooled_sd_1_4 = np.sqrt(pooled_var_1_4)
-    
-    pooled_var_2_4 = (99*var_mm2_wait + 99*var_mm4_wait) / (99 + 99 - 2)
-    pooled_sd_2_4 = np.sqrt(pooled_var_2_4)
-
-    cohen_d_1_2 = mean_diff_1_2 / pooled_sd_1_2
-    cohen_d_1_4 = mean_diff_1_4 / pooled_sd_1_4
-    cohen_d_2_4 = mean_diff_2_4 / pooled_sd_2_4
-    
-    sample_size_1_2 = smp.TTestIndPower().solve_power(effect_size=cohen_d_1_2, alpha=alpha, power=0.8, alternative='two-sided')
-    sample_size_1_4 = smp.TTestIndPower().solve_power(effect_size=cohen_d_1_4, alpha=alpha, power=0.8, alternative='two-sided')
-    sample_size_2_4 = smp.TTestIndPower().solve_power(effect_size=cohen_d_2_4, alpha=alpha, power=0.8, alternative='two-sided')
-
-    print(f"Number of samples needed for rho = {round(lam/(mu), 3)}: {int(np.ceil(sample_size_1_2))}")
-    print(f"Number of samples needed for rho = {round(lam/(2*mu), 3)}: {int(np.ceil(sample_size_1_4))}")
-    print(f"Number of samples needed for rho = {round(lam/(4*mu), 3)}: {int(np.ceil(sample_size_2_4))}")
-
+    sample_size = smp.FTestAnovaPower().solve_power(effect_size=eta_squared, alpha=0.05, k_groups=3, power=0.8, nobs=None)
+    print(f"Number of samples needed for lam = {lam} and mu = {mu}: {int(np.ceil(sample_size))}")
     
 power_analysis(0.28, 0.8)
     
