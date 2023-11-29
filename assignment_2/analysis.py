@@ -5,7 +5,6 @@ from scipy import stats
 import matplotlib.pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap
 import statsmodels.stats.power as smp
-import statsmodels.api as sm
 
 palette = {
     "green": (139, 191, 159),
