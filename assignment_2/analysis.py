@@ -1,8 +1,10 @@
 import numpy as np
 import pandas as pd
+import math
 from scipy import stats
 import matplotlib.pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap
+import statsmodels.stats.power as smp
 
 palette = {
     "green": (139, 191, 159),
@@ -78,23 +80,56 @@ def statistics(filename):
     plt.title('Confidence Intervals for Expected Waiting Times', fontsize = 16)
     plt.show()
 
-statistics("./assignment_2/simulation_results/results.csv")
+#statistics("./assignment_2/simulation_results/results.csv")
 
 def expected_wait_time_n(n, lam, mu):
+    rho = lam/(n* mu)
     delay_probability = ((n* rho) ** n / math.factorial(n)) * (((1 - rho) *  np.sum([(n * rho) ** m / math.factorial(m) for m in range(n)]) + (n * rho) ** n / math.factorial(n)) ** -1)
     expected_wait_time_n = delay_probability / (n * mu * (1 - rho))
     
     return expected_wait_time_n
 
-def power_analysis(n, lam, mu):
-    mm1_wait = (lam/(n * mu)) / (mu - lam)
+def power_analysis(lam, mu):
+    mm1_wait = (lam/(mu)) / (mu - lam)
     mm2_wait = expected_wait_time_n(2, lam, mu)
     mm4_wait = expected_wait_time_n(4, lam, mu)
     
-    var_mm1_wait = (1/mm1_wait)^2
-    var_mm2_wait = (1/mm2_wait)^2
-    var_mm4_wait = (1/mm4_wait)^2
+    var_mm1_wait = (1/mm1_wait)**2
+    var_mm2_wait = (1/mm2_wait)**2
+    var_mm4_wait = (1/mm4_wait)**2
     
+    waiting_time_data = [np.array([mm1_wait]), np.array([mm2_wait]), np.array([mm4_wait])]
+
+    df_between = 2 
+    df_total = 99
+    alpha = 0.05
     
+    mean_diff_1_2 = mm1_wait - mm2_wait
+    mean_diff_1_4 = mm1_wait - mm4_wait
+    mean_diff_2_4 = mm2_wait - mm4_wait
+
+    pooled_var_1_2 = (99*var_mm1_wait + 99*var_mm2_wait) / (99 + 99 - 2)
+    pooled_sd_1_2 = np.sqrt(pooled_var_1_2)
+    
+    pooled_var_1_4 = (99*var_mm1_wait + 99*var_mm4_wait) / (99 + 99 - 2)
+    pooled_sd_1_4 = np.sqrt(pooled_var_1_4)
+    
+    pooled_var_2_4 = (99*var_mm2_wait + 99*var_mm4_wait) / (99 + 99 - 2)
+    pooled_sd_2_4 = np.sqrt(pooled_var_2_4)
+
+    cohen_d_1_2 = mean_diff_1_2 / pooled_sd_1_2
+    cohen_d_1_4 = mean_diff_1_4 / pooled_sd_1_4
+    cohen_d_2_4 = mean_diff_2_4 / pooled_sd_2_4
+    
+    sample_size_1_2 = smp.TTestIndPower().solve_power(effect_size=cohen_d_1_2, alpha=alpha, power=0.8, alternative='two-sided')
+    sample_size_1_4 = smp.TTestIndPower().solve_power(effect_size=cohen_d_1_4, alpha=alpha, power=0.8, alternative='two-sided')
+    sample_size_2_4 = smp.TTestIndPower().solve_power(effect_size=cohen_d_2_4, alpha=alpha, power=0.8, alternative='two-sided')
+
+    print(f"Number of samples needed for rho = {round(lam/(mu), 3)}: {int(np.ceil(sample_size_1_2))}")
+    print(f"Number of samples needed for rho = {round(lam/(2*mu), 3)}: {int(np.ceil(sample_size_1_4))}")
+    print(f"Number of samples needed for rho = {round(lam/(4*mu), 3)}: {int(np.ceil(sample_size_2_4))}")
+
+    
+power_analysis(0.28, 0.8)
     
     
