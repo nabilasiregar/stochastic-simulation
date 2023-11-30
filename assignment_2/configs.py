@@ -5,7 +5,7 @@ def random_norm(x):
     return abs(random.normalvariate(1/x, 1/x**2))
 
 def hyperexponential(x):
-    return random.expovariate(x) if random.random() < 0.7 else random.expovariate(x*1.5)
+    return random.expovariate(x) if random.random() < 0.75 else random.expovariate(x*1.5)
 
 def configs():
     return {
@@ -17,7 +17,8 @@ def configs():
             "dist_wait": random.expovariate,
             "dist_serve": random.expovariate,
             "priority": False,
-            "debug": False,
+            "preempt": False,
+            "debug": True,
             "runtime": 1000},
         },
         "experiment_2":
@@ -28,6 +29,7 @@ def configs():
             "dist_wait": random.expovariate,
             "dist_serve": random.expovariate,
             "priority": True,
+            "preempt": False,
             "debug": False,
             "runtime": 1000}
         },
@@ -39,6 +41,7 @@ def configs():
             "dist_wait": random.expovariate,
             "dist_serve": np.random.lognormal,
             "priority": False,
+            "preempt": False,
             "debug": False,
             "runtime": 1000}
         },
@@ -50,7 +53,20 @@ def configs():
             "dist_wait": random.expovariate,
             "dist_serve": hyperexponential,
             "priority": False,
+            "preempt": False,
             "debug": False,
             "runtime": 1000}
-        }
+        },
+        "experiment_5":
+        {"name": "M/M/1Preempt",
+        "kwargs": {
+            "lam": 0.99,
+            "mu": 1,
+            "dist_wait": random.expovariate,
+            "dist_serve": random.expovariate,
+            "priority": True,
+            "preempt": True,
+            "debug": False,
+            "runtime": 1000}
+        },
     }
