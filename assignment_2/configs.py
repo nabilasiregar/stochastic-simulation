@@ -15,7 +15,8 @@ def configs():
             "dist_wait": random.expovariate,
             "dist_serve": random.expovariate,
             "priority": False,
-            "debug": False,
+            "preempt": False,
+            "debug": True,
             "runtime": 1000},
         },
         "experiment_2":
@@ -26,6 +27,7 @@ def configs():
             "dist_wait": random.expovariate,
             "dist_serve": random.expovariate,
             "priority": True,
+            "preempt": False,
             "debug": False,
             "runtime": 1000}
         },
@@ -37,6 +39,7 @@ def configs():
             "dist_wait": random_norm,
             "dist_serve": random_norm,
             "priority": False,
+            "preempt": False,
             "debug": False,
             "runtime": 1000}
         },
@@ -48,7 +51,20 @@ def configs():
             "dist_wait": random_norm,
             "dist_serve": random_norm,
             "priority": False,
+            "preempt": False,
             "debug": False,
             "runtime": 1000}
-        }
+        },
+        "experiment_5":
+        {"name": "M/M/1Preempt",
+        "kwargs": {
+            "lam": 0.79,
+            "mu": 0.8,
+            "dist_wait": random.expovariate,
+            "dist_serve": random.expovariate,
+            "priority": True,
+            "preempt": True,
+            "debug": False,
+            "runtime": 1000}
+        },
     }
