@@ -15,13 +15,14 @@ class Server:
         self.resource = simpy.PriorityResource(env, capacity=capacity)
 
 class Simulation:
-    def __init__(self, lam, mu, dist_wait, dist_serve, n_servers, priority, debug, runtime):
+    def __init__(self, lam, mu, dist_wait, dist_serve, n_servers, priority, preempt, debug, runtime):
         self.lam = lam
         self.mu = mu
         self.dist_wait = dist_wait
         self.dist_serve = dist_serve
         self.n_servers = n_servers
         self.priority = priority
+        self.preempt = preempt
         self.debug = debug
         self.runtime = runtime
         self.env = simpy.Environment()
@@ -32,16 +33,16 @@ class Simulation:
     def add_customers(self):
         i = 0
         while True:
-            yield self.env.timeout(random.expovariate(self.lam))
+            yield self.env.timeout(self.dist_wait(self.lam))
             i += 1
-            customer = Customer(self.env, f'customer {i}', random.expovariate(self.mu), self.priority)
+            customer = Customer(self.env, f'customer {i}', self.dist_serve(self.mu), self.priority)
             if self.debug:
                 print(f'Customer {i} arrived at {self.env.now:.2f}')
             self.env.process(self.serve_customer(customer))
 
     def serve_customer(self, customer):
         arrival_time = self.env.now
-        with self.server.resource.request(priority=customer.priority) as req:
+        with self.server.resource.request(priority=customer.priority, preempt=self.preempt) as req:
             yield req
             waiting_time = self.env.now - arrival_time
             self.results['waiting_times'].append(waiting_time)
