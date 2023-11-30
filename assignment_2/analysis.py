@@ -80,8 +80,8 @@ def statistics(filename):
     plt.title('Confidence Intervals for Expected Waiting Times', fontsize = 16)
     plt.show()
 
-statistics("./simulation_results/results.csv")
 
+statistics("./simulation_results/results.csv")
 def expected_wait_time_n(n, lam, mu):
     rho = lam/(n* mu)
     delay_probability = ((n* rho) ** n / math.factorial(n)) * (((1 - rho) *  np.sum([(n * rho) ** m / math.factorial(m) for m in range(n)]) + (n * rho) ** n / math.factorial(n)) ** -1)
@@ -90,14 +90,18 @@ def expected_wait_time_n(n, lam, mu):
     return expected_wait_time_n
 
 def power_analysis(lam, mu):
-    mm1_wait = (lam/(mu)) / (mu - lam)
+
     mm2_wait = expected_wait_time_n(2, 2*lam, mu)
     mm4_wait = expected_wait_time_n(4, 4*lam, mu)
+
     
     var_mm1_wait = (1/mm1_wait)**2
     var_mm2_wait = (1/mm2_wait)**2
     var_mm4_wait = (1/mm4_wait)**2
     
+    
+    
+
     waiting_time_data = np.array([mm1_wait, mm2_wait, mm4_wait])
     overall_mean = np.mean(waiting_time_data)
     ss_total = np.sum((waiting_time_data - overall_mean) ** 2)
