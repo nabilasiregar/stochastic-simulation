@@ -32,9 +32,9 @@ class Simulation:
     def add_customers(self):
         i = 0
         while True:
-            yield self.env.timeout(random.expovariate(self.lam))
+            yield self.env.timeout(self.dist_wait(self.lam))
             i += 1
-            customer = Customer(self.env, f'customer {i}', random.expovariate(self.mu), self.priority)
+            customer = Customer(self.env, f'customer {i}', self.dist_serve(self.mu), self.priority)
             if self.debug:
                 print(f'Customer {i} arrived at {self.env.now:.2f}')
             self.env.process(self.serve_customer(customer))

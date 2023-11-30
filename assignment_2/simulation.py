@@ -30,15 +30,19 @@ with open(file_path, 'w', newline='') as csvfile:
     writer = csv.DictWriter(csvfile, fieldnames=['n_server', 'dist_wait', 'dist_serve', 'priority', 'waiting_time', 'system_time', 'utilization'])
     writer.writeheader()
 
-
-num_runs = 1
+num_runs = 100
 for experiment in configs():
     print(f"Running simulations for {experiment}...")
     for n_servers in [1, 2, 4]:
         for run_number in range(1, num_runs + 1):
-            simulation = Simulation(**configs()[experiment]['kwargs'], n_servers=n_servers)
+            print ("\033[A                                                        \033[A")
+            print(f"Run {run_number}/{num_runs} for {n_servers} servers")
+            experiment_config = configs()[experiment]['kwargs']
+            experiment_config['lam'] *= n_servers
+            random.seed(run_number)
+            simulation = Simulation(**experiment_config, n_servers=n_servers)
             results = simulation.run()
-            save_results_to_csv(results, file_path, run_number, n_servers, configs()[experiment]['kwargs'])
+            save_results_to_csv(results, file_path, run_number, n_servers, experiment_config)
 
 
 print(f'Results for simulation saved to {file_path}')
