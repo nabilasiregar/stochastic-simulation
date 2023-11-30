@@ -27,10 +27,11 @@ def statistics(filename):
     #Collecting the data from the csv
     f = pd.read_csv(filename, header=0)
     df = pd.DataFrame(f)
+    df = df.loc[(df["dist_wait"] == "expovariate") & (df["priority"] == False)]
     
-    mm1_data = df.groupby("n_server").get_group(1)["waiting_time"].values
-    mm2_data = df.groupby("n_server").get_group(2)["waiting_time"].values
-    mm4_data = df.groupby("n_server").get_group(4)["waiting_time"].values
+    mm1_data = df.groupby("n_server").get_group(1)["waiting_time"]
+    mm2_data = df.groupby("n_server").get_group(2)["waiting_time"]
+    mm4_data = df.groupby("n_server").get_group(4)["waiting_time"]
     
     mm1_wait_mean = np.mean(mm1_data)
     mm2_wait_mean = np.mean(mm2_data)
@@ -46,7 +47,7 @@ def statistics(filename):
     
     #Creating the general stats
     alpha = 0.01
-    general_stats = df.groupby(["n_server"]).aggregate(["mean", "std", "min", "max"])["waiting_time"]
+    general_stats = df.groupby("n_server")["waiting_time"].agg(["mean", "std", "min", "max"])
     print(general_stats.to_latex(float_format="%.3f"))
     
     #ANOVA
@@ -72,6 +73,7 @@ def statistics(filename):
             df = 99
             conf_interval = stats.t.interval(1-alpha, df, means[i], scale=standard_error)
             rounded_conf_interval = tuple(round(value, 3) for value in conf_interval)
+            print(f'Mean: {means[i]}')
             print(f"{methods[i]} Confidence Interval: {rounded_conf_interval}")
             plt.errorbar(x=i, y=means[i], yerr=(conf_interval[1] - means[i]), fmt='o', label=methods[i], color = colors[i])
 
@@ -80,8 +82,8 @@ def statistics(filename):
     plt.title('Confidence Intervals for Expected Waiting Times', fontsize = 16)
     plt.show()
 
-statistics("./simulation_results/results.csv")
 
+statistics("./simulation_results/results.csv")
 def expected_wait_time_n(n, lam, mu):
     rho = lam/(n* mu)
     delay_probability = ((n* rho) ** n / math.factorial(n)) * (((1 - rho) *  np.sum([(n * rho) ** m / math.factorial(m) for m in range(n)]) + (n * rho) ** n / math.factorial(n)) ** -1)
@@ -90,14 +92,19 @@ def expected_wait_time_n(n, lam, mu):
     return expected_wait_time_n
 
 def power_analysis(lam, mu):
-    mm1_wait = (lam/(mu)) / (mu - lam)
+
+    mm1_wait = expected_wait_time_n(2, lam, mu)
     mm2_wait = expected_wait_time_n(2, 2*lam, mu)
     mm4_wait = expected_wait_time_n(4, 4*lam, mu)
+
     
     var_mm1_wait = (1/mm1_wait)**2
     var_mm2_wait = (1/mm2_wait)**2
     var_mm4_wait = (1/mm4_wait)**2
     
+    
+    
+
     waiting_time_data = np.array([mm1_wait, mm2_wait, mm4_wait])
     overall_mean = np.mean(waiting_time_data)
     ss_total = np.sum((waiting_time_data - overall_mean) ** 2)
