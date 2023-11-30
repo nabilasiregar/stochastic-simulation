@@ -1,9 +1,11 @@
 import random
+import numpy as np
+
 def random_norm(x):
     return abs(random.normalvariate(1/x, 1/x**2))
 
 def hyperexponential(x):
-    return random.expovariate(x) if random.random() < 0.7 else random.expovariate(x*1.5)
+    return random.expovariate(x) if random.random() < 0.75 else random.expovariate(x*1.5)
 
 def configs():
     return {
@@ -22,8 +24,8 @@ def configs():
         "experiment_2":
         {"name": "M/M/1P",
         "kwargs": {
-            "lam": 0.79,
-            "mu": 0.8,
+            "lam": 0.99,
+            "mu": 1,
             "dist_wait": random.expovariate,
             "dist_serve": random.expovariate,
             "priority": True,
@@ -34,10 +36,10 @@ def configs():
         "experiment_3":
         {"name": "M/G/n",
         "kwargs": {
-            "lam": 0.28,
-            "mu": 0.8,
-            "dist_wait": random_norm,
-            "dist_serve": random_norm,
+            "lam": 0.99,
+            "mu": 1,
+            "dist_wait": random.expovariate,
+            "dist_serve": np.random.lognormal,
             "priority": False,
             "preempt": False,
             "debug": False,
@@ -46,10 +48,10 @@ def configs():
         "experiment_4":
         {"name": "M/G/n",
         "kwargs": {
-            "lam": 0.28,
-            "mu": 0.8,
-            "dist_wait": random_norm,
-            "dist_serve": random_norm,
+            "lam": 0.99,
+            "mu": 1,
+            "dist_wait": random.expovariate,
+            "dist_serve": hyperexponential,
             "priority": False,
             "preempt": False,
             "debug": False,
@@ -58,8 +60,8 @@ def configs():
         "experiment_5":
         {"name": "M/M/1Preempt",
         "kwargs": {
-            "lam": 0.79,
-            "mu": 0.8,
+            "lam": 0.99,
+            "mu": 1,
             "dist_wait": random.expovariate,
             "dist_serve": random.expovariate,
             "priority": True,
