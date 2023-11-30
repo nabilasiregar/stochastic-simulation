@@ -27,10 +27,11 @@ def statistics(filename):
     #Collecting the data from the csv
     f = pd.read_csv(filename, header=0)
     df = pd.DataFrame(f)
+    df = df.loc[(df["dist_wait"] == "expovariate") & (df["priority"] == False)]
     
-    mm1_data = df.groupby("n_server").get_group(1)["waiting_time"].values
-    mm2_data = df.groupby("n_server").get_group(2)["waiting_time"].values
-    mm4_data = df.groupby("n_server").get_group(4)["waiting_time"].values
+    mm1_data = df.groupby("n_server").get_group(1)["waiting_time"]
+    mm2_data = df.groupby("n_server").get_group(2)["waiting_time"]
+    mm4_data = df.groupby("n_server").get_group(4)["waiting_time"]
     
     mm1_wait_mean = np.mean(mm1_data)
     mm2_wait_mean = np.mean(mm2_data)
@@ -46,7 +47,7 @@ def statistics(filename):
     
     #Creating the general stats
     alpha = 0.01
-    general_stats = df.groupby(["n_server"]).aggregate(["mean", "std", "min", "max"])["waiting_time"]
+    general_stats = df.groupby("n_server")["waiting_time"].agg(["mean", "std", "min", "max"])
     print(general_stats.to_latex(float_format="%.3f"))
     
     #ANOVA
@@ -72,6 +73,7 @@ def statistics(filename):
             df = 99
             conf_interval = stats.t.interval(1-alpha, df, means[i], scale=standard_error)
             rounded_conf_interval = tuple(round(value, 3) for value in conf_interval)
+            print(f'Mean: {means[i]}')
             print(f"{methods[i]} Confidence Interval: {rounded_conf_interval}")
             plt.errorbar(x=i, y=means[i], yerr=(conf_interval[1] - means[i]), fmt='o', label=methods[i], color = colors[i])
 
@@ -91,6 +93,7 @@ def expected_wait_time_n(n, lam, mu):
 
 def power_analysis(lam, mu):
 
+    mm1_wait = expected_wait_time_n(2, lam, mu)
     mm2_wait = expected_wait_time_n(2, 2*lam, mu)
     mm4_wait = expected_wait_time_n(4, 4*lam, mu)
 
