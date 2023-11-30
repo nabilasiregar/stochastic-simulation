@@ -30,7 +30,7 @@ with open(file_path, 'w', newline='') as csvfile:
 
 # Set parameters for the simulation
 mu = 0.8
-lam = 0.28
+lam = 0.75
 priority = True
 debug = False
 runtime = 1000

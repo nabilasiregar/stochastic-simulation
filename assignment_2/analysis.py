@@ -80,7 +80,7 @@ def statistics(filename):
     plt.title('Confidence Intervals for Expected Waiting Times', fontsize = 16)
     plt.show()
 
-#statistics("./assignment_2/simulation_results/results.csv")
+statistics("./simulation_results/results.csv")
 
 def expected_wait_time_n(n, lam, mu):
     rho = lam/(n* mu)
@@ -91,22 +91,22 @@ def expected_wait_time_n(n, lam, mu):
 
 def power_analysis(lam, mu):
     mm1_wait = (lam/(mu)) / (mu - lam)
-    mm2_wait = expected_wait_time_n(2, lam, mu)
-    mm4_wait = expected_wait_time_n(4, lam, mu)
+    mm2_wait = expected_wait_time_n(2, 2*lam, mu)
+    mm4_wait = expected_wait_time_n(4, 4*lam, mu)
     
     var_mm1_wait = (1/mm1_wait)**2
     var_mm2_wait = (1/mm2_wait)**2
     var_mm4_wait = (1/mm4_wait)**2
     
-    waiting_time_data = [np.array([mm1_wait]), np.array([mm2_wait]), np.array([mm4_wait])]
+    waiting_time_data = np.array([mm1_wait, mm2_wait, mm4_wait])
     overall_mean = np.mean(waiting_time_data)
     ss_total = np.sum((waiting_time_data - overall_mean) ** 2)
     ss_between = np.sum([(np.mean(queue_type) - overall_mean) ** 2 for queue_type in waiting_time_data])
     eta_squared = ss_between /ss_total
     
-    sample_size = smp.FTestAnovaPower().solve_power(effect_size=eta_squared, alpha=0.05, k_groups=3, power=0.8, nobs=None)
+    sample_size = smp.FTestAnovaPower().solve_power(effect_size=1, alpha=0.01, k_groups=3, power=0.8, nobs=None)
     print(f"Number of samples needed for lam = {lam} and mu = {mu}: {int(np.ceil(sample_size))}")
     
-power_analysis(0.28, 0.8)
+power_analysis(0.3, 0.8)
     
     
