@@ -69,4 +69,16 @@ def configs():
             "debug": False,
             "runtime": 1000}
         },
+        "experiment_6":
+        {"name": "M/M/1Preempt",
+        "kwargs": {
+            "lam": 0.99,
+            "mu": 1,
+            "dist_wait": random.expovariate,
+            "dist_serve": np.random.lognormal,
+            "priority": True,
+            "preempt": True,
+            "debug": False,
+            "runtime": 1000}
+        },
     }
