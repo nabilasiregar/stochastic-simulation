@@ -1,11 +1,12 @@
 import numpy as np
 import pandas as pd
+import pingouin as pg
 import math
 from scipy import stats
 import matplotlib.pyplot as plt
 from matplotlib.colors import to_rgba
 import statsmodels.stats.power as smp
-from statsmodels.stats.multicomp import MultiComparison
+from statsmodels.stats.multicomp import pairwise_tukeyhsd
 
 def statistics(filename):
     """
@@ -21,29 +22,29 @@ def statistics(filename):
     f = pd.read_csv(filename, header=0)
     df = pd.DataFrame(f)
         
-    mm1_data = df[(df["n_server"] == 1) & (df["dist_serve"] == "expovariate") & (df["priority"] == False)]["waiting_time"]
-    mm2_data = df[(df["n_server"] == 2) & (df["dist_serve"] == "expovariate") & (df["priority"] == False)]["waiting_time"]
-    mm4_data = df[(df["n_server"] == 4) & (df["dist_serve"] == "expovariate") & (df["priority"] == False)]["waiting_time"]
+    mm1_data = df[(df["n_server"] == 1) & (df["dist_serve"] == "expovariate") & (df["priority"] == False)]["avg_waiting_time"]
+    mm2_data = df[(df["n_server"] == 2) & (df["dist_serve"] == "expovariate") & (df["priority"] == False)]["avg_waiting_time"]
+    mm4_data = df[(df["n_server"] == 4) & (df["dist_serve"] == "expovariate") & (df["priority"] == False)]["avg_waiting_time"]
     
-    prio_mm1_data = df[(df["n_server"] == 1) & (df["priority"] ==True) & (df["preempt"] == False)]["waiting_time"]
-    prio_mm2_data = df[(df["n_server"] == 2) & (df["priority"] == True) & (df["preempt"] == False)]["waiting_time"]
-    prio_mm4_data = df[(df["n_server"] == 4) & (df["priority"] == True) & (df["preempt"] == False)]["waiting_time"]
+    prio_mm1_data = df[(df["n_server"] == 1) & (df["priority"] ==True) & (df["preempt"] == False)]["avg_waiting_time"]
+    prio_mm2_data = df[(df["n_server"] == 2) & (df["priority"] == True) & (df["preempt"] == False)]["avg_waiting_time"]
+    prio_mm4_data = df[(df["n_server"] == 4) & (df["priority"] == True) & (df["preempt"] == False)]["avg_waiting_time"]
     
-    log_mm1_data = df[(df["n_server"] == 1) & (df["priority"] == False) & (df["dist_serve"] == "lognormal")]["waiting_time"]
-    log_mm2_data = df[(df["n_server"] == 2) & (df["priority"] == False) & (df["dist_serve"] == "lognormal")]["waiting_time"]
-    log_mm4_data = df[(df["n_server"] == 4) & (df["priority"] == False) & (df["dist_serve"] == "lognormal")]["waiting_time"]
+    log_mm1_data = df[(df["n_server"] == 1) & (df["priority"] == False) & (df["dist_serve"] == "lognormal")]["avg_waiting_time"]
+    log_mm2_data = df[(df["n_server"] == 2) & (df["priority"] == False) & (df["dist_serve"] == "lognormal")]["avg_waiting_time"]
+    log_mm4_data = df[(df["n_server"] == 4) & (df["priority"] == False) & (df["dist_serve"] == "lognormal")]["avg_waiting_time"]
     
-    hyp_mm1_data = df[(df["n_server"] == 1) & (df["dist_serve"] == "hyperexponential")]["waiting_time"]
-    hyp_mm2_data = df[(df["n_server"] == 2) & (df["dist_serve"] == "hyperexponential")]["waiting_time"]
-    hyp_mm4_data = df[(df["n_server"] == 4) & (df["dist_serve"] == "hyperexponential")]["waiting_time"]
+    hyp_mm1_data = df[(df["n_server"] == 1) & (df["dist_serve"] == "hyperexponential")]["avg_waiting_time"]
+    hyp_mm2_data = df[(df["n_server"] == 2) & (df["dist_serve"] == "hyperexponential")]["avg_waiting_time"]
+    hyp_mm4_data = df[(df["n_server"] == 4) & (df["dist_serve"] == "hyperexponential")]["avg_waiting_time"]
     
-    preempt_mm1_data = df[(df["n_server"] == 1) & (df["preempt"] == True) & (df["dist_serve"] == "expovariate")]["waiting_time"]
-    preempt_mm2_data = df[(df["n_server"] == 2) & (df["preempt"] == True) & (df["dist_serve"] == "expovariate")]["waiting_time"]
-    preempt_mm4_data = df[(df["n_server"] == 4) & (df["preempt"] == True) & (df["dist_serve"] == "expovariate")]["waiting_time"]
+    preempt_mm1_data = df[(df["n_server"] == 1) & (df["preempt"] == True) & (df["dist_serve"] == "expovariate")]["avg_waiting_time"]
+    preempt_mm2_data = df[(df["n_server"] == 2) & (df["preempt"] == True) & (df["dist_serve"] == "expovariate")]["avg_waiting_time"]
+    preempt_mm4_data = df[(df["n_server"] == 4) & (df["preempt"] == True) & (df["dist_serve"] == "expovariate")]["avg_waiting_time"]
 
-    preempt_log_mm1_data = df[(df["n_server"] == 1) & (df["priority"] == True) & (df["dist_serve"] == "lognormal")]["waiting_time"]
-    preempt_log_mm2_data = df[(df["n_server"] == 2) & (df["priority"] == True) & (df["dist_serve"] == "lognormal")]["waiting_time"]
-    preempt_log_mm4_data = df[(df["n_server"] == 4) & (df["priority"] == True) & (df["dist_serve"] == "lognormal")]["waiting_time"]
+    preempt_log_mm1_data = df[(df["n_server"] == 1) & (df["priority"] == True) & (df["dist_serve"] == "lognormal")]["avg_waiting_time"]
+    preempt_log_mm2_data = df[(df["n_server"] == 2) & (df["priority"] == True) & (df["dist_serve"] == "lognormal")]["avg_waiting_time"]
+    preempt_log_mm4_data = df[(df["n_server"] == 4) & (df["priority"] == True) & (df["dist_serve"] == "lognormal")]["avg_waiting_time"]
 
     mm1_wait_mean = np.mean(mm1_data)
     mm2_wait_mean = np.mean(mm2_data)
@@ -96,79 +97,120 @@ def statistics(filename):
     methods = ["M/M/1", "M/M/1NP", "M/M/1P", "M/H/1", "M/M/2", "M/M/2NP", "M/M/2P", "M/H/2", "M/M/4", "M/M/4NP", "M/M/4P", "M/H/4"]
     means = [mm1_wait_mean, prio_mm1_wait_mean, preempt_log_mm1_wait_mean, hyp_mm1_wait_mean, mm2_wait_mean, prio_mm2_wait_mean, preempt_mm2_wait_mean, hyp_mm2_wait_mean, mm4_wait_mean, prio_mm4_wait_mean, preempt_mm4_wait_mean, hyp_mm4_wait_mean]
     stds = [mm1_wait_std, prio_mm1_wait_std, preempt_mm1_wait_std, hyp_mm1_wait_std, mm2_wait_std, prio_mm2_wait_std, preempt_mm2_wait_std, hyp_mm2_wait_std, mm4_wait_std, prio_mm4_wait_std, preempt_mm4_wait_std, hyp_mm4_wait_std]
+    
     log_methods = ["M/M/1P", "M/LN/1P", "M/LN/1", "M/M/2P", "M/LN/2P", "M/LN/2","M/M/4P","M/LN/4P", "M/LN/4"]
     log_means = [prio_mm1_wait_mean, preempt_log_mm1_wait_mean, log_mm1_wait_mean, prio_mm2_wait_mean, preempt_log_mm2_wait_mean, log_mm2_wait_mean, prio_mm4_wait_mean, preempt_log_mm4_wait_mean, log_mm4_wait_mean]
     log_stds = [prio_mm1_wait_std, preempt_log_mm1_wait_std, log_mm1_wait_std, prio_mm2_wait_std, preempt_log_mm2_wait_std, log_mm2_wait_std, prio_mm4_wait_std, preempt_log_mm4_wait_std, log_mm4_wait_std]
-    
-    for i, mean in enumerate(means):
-        print(f"{methods[i]} mean: {mean:.3f}")
-    
-    print()
-    for i, std in enumerate(stds):
-        print(f"{methods[i]} std: {std:.3f}")
+
     
     #Creating the general stats and displaying in LaTeX 
-    general_stats = df.groupby(["n_server", "dist_serve", "priority", "preempt"])["waiting_time"].agg(["mean", "std"])
+    general_stats = df.groupby(["n_server", "dist_serve", "priority", "preempt"])["avg_waiting_time"].agg(["mean", "std"])
     print(general_stats.style.to_latex())
     
-    #ANOVA for between M/M/n types and then between all M/X/n types for each n
-    gen_statistic, gen_p_value = stats.f_oneway(mm1_data, mm2_data, mm4_data)
-    print(f"P_value for General ANOVA: {gen_p_value}")
+
+    #Kruskal-Wallis tests 
+    gen_kw_statistic, gen_kw_p_value = stats.kruskal(mm1_data, mm2_data, mm4_data)
+    print(f"P_value for General Kruskal-Wallis test: {gen_kw_p_value}")
     print()
-    mm1_statistic, mm1_p_value = stats.f_oneway(mm1_data, prio_mm1_data, preempt_mm1_data, hyp_mm1_data)
-    print(f"P_value for ANOVA of M/X/1 Variants without LN: {mm1_p_value}")
+
+    mm1_kw_statistic, mm1_kw_p_value = stats.kruskal(mm1_data, prio_mm1_data, preempt_mm1_data, hyp_mm1_data)
+    print(f"P_value for Kruskal-Wallis test of M/X/1 Variants without LN: {mm1_kw_p_value}")
     print()
-    mm2_statistic, mm2_p_value = stats.f_oneway(mm2_data, prio_mm2_data, preempt_mm2_data, hyp_mm2_data)
-    print(f"P_value for ANOVA of M/X/2 Variants without LN: {mm1_p_value}")
+
+    mm2_kw_statistic, mm2_kw_p_value = stats.kruskal(mm2_data, prio_mm2_data, preempt_mm2_data, hyp_mm2_data)
+    print(f"P_value for Kruskal-Wallis test of M/X/2 Variants without LN: {mm2_kw_p_value}")
     print()
-    mm4_statistic, mm4_p_value = stats.f_oneway(mm4_data, prio_mm4_data, preempt_mm4_data, hyp_mm4_data)
-    print(f"P_value for ANOVA of M/X/4 Variants without LN: {mm1_p_value}")
+
+    mm4_kw_statistic, mm4_kw_p_value = stats.kruskal(mm4_data, prio_mm4_data, preempt_mm4_data, hyp_mm4_data)
+    print(f"P_value for Kruskal-Wallis test of M/X/4 Variants without LN: {mm4_kw_p_value}")
     print()
-    log_statistic, log_p_value = stats.f_oneway(log_mm1_data, log_mm2_data, log_mm4_data)
-    print(f"P_value for ANOVA with LN: {log_p_value}")
+
+    log_kw_statistic, log_kw_p_value = stats.kruskal(log_mm1_data, log_mm2_data, log_mm4_data)
+    print(f"P_value for Kruskal-Wallis test with LN: {log_kw_p_value}")
     print()
     
     #Tukey Post-hoc tests for each significant ANOVA
-    mc = MultiComparison(np.concatenate([mm1_data.values, mm2_data.values, mm4_data.values]),
+    tukey = pairwise_tukeyhsd(np.concatenate([mm1_data.values, mm2_data.values, mm4_data.values]),
                      groups=np.repeat(["M/M/1", "M/M/2", "M/M/4"], [len(mm1_data), len(mm2_data), len(mm4_data)]))
     print("Tukey for General Comparison")
-    print(mc.tukeyhsd())
+    print(tukey)
     print()
     
-    mc = MultiComparison(np.concatenate([mm1_data.values, prio_mm1_data.values, preempt_mm1_data.values, hyp_mm1_data.values]),
+    tukey = pairwise_tukeyhsd(np.concatenate([mm1_data.values, prio_mm1_data.values, preempt_mm1_data.values, hyp_mm1_data.values]),
                      groups=np.repeat(["M/M/1", "M/M/1NP", "M/M/1P", "M/H/1"], [len(mm1_data), len(prio_mm1_data), len(preempt_mm1_data), len(hyp_mm1_data)]))
     print("Tukey for M/X/1 without LN")
-    print(mc.tukeyhsd())
+    print(tukey)
     print()
     
-    mc = MultiComparison(np.concatenate([mm2_data.values, prio_mm2_data.values, preempt_mm2_data.values, hyp_mm2_data.values]),
+    tukey = pairwise_tukeyhsd(np.concatenate([mm2_data.values, prio_mm2_data.values, preempt_mm2_data.values, hyp_mm2_data.values]),
                      groups=np.repeat(["M/M/2", "M/M/2NP", "M/M/2P", "M/H/2"], [len(mm2_data), len(prio_mm2_data), len(preempt_mm2_data), len(hyp_mm2_data)]))
     print("Tukey for M/X/2 without LN")
-    print(mc.tukeyhsd())
+    print(tukey)
     print()
     
-    mc = MultiComparison(np.concatenate([mm4_data.values, prio_mm4_data.values, preempt_mm4_data.values, hyp_mm4_data.values]),
+    tukey = pairwise_tukeyhsd(np.concatenate([mm4_data.values, prio_mm4_data.values, preempt_mm4_data.values, hyp_mm4_data.values]),
                      groups=np.repeat(["M/M/4", "M/M/4NP", "M/M/4P", "M/H/4"], [len(mm4_data), len(prio_mm4_data), len(preempt_mm4_data), len(hyp_mm4_data)]))
     print("Tukey for M/X/4 without LN")
-    print(mc.tukeyhsd())
+    print(tukey)
     print()
     
-    mc = MultiComparison(np.concatenate([log_mm1_data.values, log_mm2_data.values, log_mm4_data.values]),
-                     groups=np.repeat(["M/LN/1", "M/LN/2", "M/LN/4"], [len(log_mm1_data), len(log_mm2_data), len(log_mm4_data)]))
-    print("Tukey for M/LN/n")
-    print(mc.tukeyhsd())
-    print()
+    #Shapiro-Wilk Tests for Normality
+    shapiro_stat_group1, shapiro_pvalue_group1 = stats.shapiro(mm1_data)
+    shapiro_stat_group2, shapiro_pvalue_group2 = stats.shapiro(mm2_data)
+    shapiro_stat_group3, shapiro_pvalue_group3 = stats.shapiro(mm4_data)
+    shapiro_stat_group4, shapiro_pvalue_group4 = stats.shapiro(prio_mm1_data)
+    shapiro_stat_group5, shapiro_pvalue_group5 = stats.shapiro(prio_mm2_data)
+    shapiro_stat_group6, shapiro_pvalue_group6 = stats.shapiro(prio_mm4_data)
+    shapiro_stat_group7, shapiro_pvalue_group7 = stats.shapiro(preempt_mm1_data)
+    shapiro_stat_group8, shapiro_pvalue_group8 = stats.shapiro(preempt_mm2_data)
+    shapiro_stat_group9, shapiro_pvalue_group9 = stats.shapiro(preempt_mm4_data)
+    shapiro_stat_group10, shapiro_pvalue_group10 = stats.shapiro(log_mm1_data)
+    shapiro_stat_group11, shapiro_pvalue_group11 = stats.shapiro(log_mm2_data)
+    shapiro_stat_group12, shapiro_pvalue_group12 = stats.shapiro(log_mm4_data)
+    shapiro_stat_group13, shapiro_pvalue_group13 = stats.shapiro(preempt_log_mm1_data)
+    shapiro_stat_group14, shapiro_pvalue_group14 = stats.shapiro(preempt_log_mm2_data)
+    shapiro_stat_group15, shapiro_pvalue_group15 = stats.shapiro(preempt_log_mm4_data)
+    shapiro_stat_group16, shapiro_pvalue_group16 = stats.shapiro(hyp_mm1_data)
+    shapiro_stat_group17, shapiro_pvalue_group17 = stats.shapiro(hyp_mm2_data)
+    shapiro_stat_group18, shapiro_pvalue_group18 = stats.shapiro(hyp_mm4_data)
     
-    #Independent T-Tests between general M/M/n queues and corresponding M/LN/n queues
-    t_statistic_1, p_value_1 = stats.ttest_ind(mm1_data, log_mm1_data)
-    print(f"P-value for Independent T-test between M/M/1 and M/LN/1: {p_value_1}")
-    t_statistic_prio, p_value_prio = stats.ttest_ind(prio_mm1_data.values, hyp_mm1_data.values, alternative='two-sided')
-    print(f"P-value for Independent T-test between M/H/1 and M/M/1NP: {p_value_prio}")
-    t_statistic_2, p_value_2 = stats.ttest_ind(mm2_data, log_mm2_data)
-    print(f"P-value for Independent T-test between M/M/2 and M/LN/2: {p_value_2}")
-    t_statistic_4, p_value_4 = stats.ttest_ind(mm4_data, log_mm4_data)
-    print(f"P-value for Independent T-test between M/M/4 and M/LN/4: {p_value_4}")
-    print()
+
+    print(
+        f"p-value: {shapiro_pvalue_group1}")
+    print(
+        f"p-value: {shapiro_pvalue_group2}")
+    print(
+        f"p-value: {shapiro_pvalue_group3}")
+    print(
+        f"p-value: {shapiro_pvalue_group4}")
+    print(
+        f"p-value: {shapiro_pvalue_group5}")
+    print(
+        f"p-value: {shapiro_pvalue_group6}")
+    print(
+        f"p-value: {shapiro_pvalue_group7}")
+    print(
+        f"p-value: {shapiro_pvalue_group8}")
+    print(
+        f"p-value: {shapiro_pvalue_group9}")
+    print(
+        f"p-value: {shapiro_pvalue_group10}")
+    print(
+        f"p-value: {shapiro_pvalue_group12}")
+    print(
+        f"p-value: {shapiro_pvalue_group12}")
+    print(
+        f"p-value: {shapiro_pvalue_group13}")
+    print(
+        f"p-value: {shapiro_pvalue_group14}")
+    print(
+        f"p-value: {shapiro_pvalue_group15}")
+    print(
+        f"p-value: {shapiro_pvalue_group16}")
+    print(
+        f"p-value: {shapiro_pvalue_group17}")
+    print(
+        f"p-value: {shapiro_pvalue_group18}")
 
     
     #Creating the confidence intervals for M/X/n queues exclusing M/LN/n queues
