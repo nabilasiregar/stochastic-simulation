@@ -11,7 +11,7 @@ if not os.path.exists(results_dir):
 
 def save_results_to_csv(results, file_path, run_number, n_server, kwargs):
     with open(file_path, 'a', newline='') as csvfile:
-        fieldnames = ['n_server', 'dist_wait', 'dist_serve', 'priority', 'waiting_time', 'system_time', 'utilization']
+        fieldnames = ['n_server', 'dist_wait', 'dist_serve', 'priority', 'preempt', 'waiting_time', 'system_time', 'utilization']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         for wt, st, ut in zip(results['waiting_times'], results['system_times'], results['utilization']):
             writer.writerow({
@@ -27,7 +27,7 @@ def save_results_to_csv(results, file_path, run_number, n_server, kwargs):
 file_path = os.path.join(results_dir, f'results.csv')
 
 with open(file_path, 'w', newline='') as csvfile:
-    writer = csv.DictWriter(csvfile, fieldnames=['n_server', 'dist_wait', 'dist_serve', 'priority', 'waiting_time', 'system_time', 'utilization'])
+    writer = csv.DictWriter(csvfile, fieldnames=['n_server', 'dist_wait', 'dist_serve', 'priority','preempt', 'waiting_time', 'system_time', 'utilization'])
     writer.writeheader()
 
 num_runs = 100

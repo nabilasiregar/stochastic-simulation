@@ -44,16 +44,17 @@ class Simulation:
         arrival_time = self.env.now
         with self.server.resource.request(priority=customer.priority, preempt=self.preempt) as req:
             yield req
-            waiting_time = self.env.now - arrival_time
-            self.results['waiting_times'].append(waiting_time)
             if self.debug:
                 print(f'{customer.name} started service at {self.env.now:.2f}')
             yield self.env.timeout(customer.duration)
             if self.debug:
                 print(f'{customer.name} finished service at {self.env.now:.2f}')
+
+            waiting_time = self.env.now - arrival_time - customer.duration
             system_time = self.env.now - customer.arrival_time
-            self.results['system_times'].append(system_time)
             busy_time = customer.duration
+            self.results['waiting_times'].append(waiting_time)
+            self.results['system_times'].append(system_time)
             self.results['utilization'].append(busy_time / self.env.now)
 
     def run(self):

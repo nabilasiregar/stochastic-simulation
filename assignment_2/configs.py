@@ -16,7 +16,7 @@ def configs():
             "dist_serve": random.expovariate,
             "priority": False,
             "preempt": False,
-            "debug": True,
+            "debug": False,
             "runtime": 1000},
         },
         "experiment_2":
@@ -56,7 +56,7 @@ def configs():
             "runtime": 1000}
         },
         "experiment_5":
-        {"name": "M/M/1Preempt",
+        {"name": "M/M/nPreempt",
         "kwargs": {
             "lam": 0.79,
             "mu": 0.8,
