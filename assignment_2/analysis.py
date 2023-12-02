@@ -37,9 +37,9 @@ def statistics(filename):
     hyp_mm2_data = df[(df["n_server"] == 2) & (df["dist_serve"] == "hyperexponential")]["waiting_time"]
     hyp_mm4_data = df[(df["n_server"] == 4) & (df["dist_serve"] == "hyperexponential")]["waiting_time"]
     
-    preempt_mm1_data = df[(df["n_server"] == 1) & (df["preempt"] == True) & (df["dist_serve"] == "lognormal")]["waiting_time"]
-    preempt_mm2_data = df[(df["n_server"] == 2) & (df["preempt"] == True) & (df["dist_serve"] == "lognormal")]["waiting_time"]
-    preempt_mm4_data = df[(df["n_server"] == 4) & (df["preempt"] == True) & (df["dist_serve"] == "lognormal")]["waiting_time"]
+    preempt_mm1_data = df[(df["n_server"] == 1) & (df["preempt"] == True) & (df["dist_serve"] == "expovariate")]["waiting_time"]
+    preempt_mm2_data = df[(df["n_server"] == 2) & (df["preempt"] == True) & (df["dist_serve"] == "expovariate")]["waiting_time"]
+    preempt_mm4_data = df[(df["n_server"] == 4) & (df["preempt"] == True) & (df["dist_serve"] == "expovariate")]["waiting_time"]
 
     preempt_log_mm1_data = df[(df["n_server"] == 1) & (df["priority"] == True) & (df["dist_serve"] == "lognormal")]["waiting_time"]
     preempt_log_mm2_data = df[(df["n_server"] == 2) & (df["priority"] == True) & (df["dist_serve"] == "lognormal")]["waiting_time"]
