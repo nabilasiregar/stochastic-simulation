@@ -12,7 +12,7 @@ class Customer():
 
 class Server:
     def __init__(self, env, capacity):
-        self.resource = simpy.PriorityResource(env, capacity=capacity)
+        self.resource = simpy.PreemptiveResource(env, capacity=capacity)
 
 class Simulation:
     def __init__(self, lam, mu, dist_wait, dist_serve, n_servers, priority, preempt, debug, runtime):
@@ -42,19 +42,31 @@ class Simulation:
 
     def serve_customer(self, customer):
         arrival_time = self.env.now
-        with self.server.resource.request(priority=customer.priority, preempt=self.preempt) as req:
-            yield req
-            waiting_time = self.env.now - arrival_time
-            self.results['waiting_times'].append(waiting_time)
-            if self.debug:
-                print(f'{customer.name} started service at {self.env.now:.2f}')
-            yield self.env.timeout(customer.duration)
-            if self.debug:
-                print(f'{customer.name} finished service at {self.env.now:.2f}')
+        while True:
+            with self.server.resource.request(priority=customer.priority, preempt=self.preempt) as req:
+                yield req
+                try:
+                    if self.debug:
+                        print(f'{customer.name} started service at {self.env.now:.2f}')
+                    yield self.env.timeout(customer.duration)
+                    if self.debug:
+                        print(f'{customer.name} finished service at {self.env.now:.2f}')
+                    waiting_time = self.env.now - arrival_time
+                except simpy.Interrupt as interrupt:
+                    by = interrupt.cause.by
+                    usage = self.env.now - interrupt.cause.usage_since
+                    waiting_time = self.env.now - arrival_time - usage
+                    if self.debug:
+                        print(f'{customer.name} got preempted by {by} at {self.env.now} after {usage}')
+
+
+
             system_time = self.env.now - customer.arrival_time
-            self.results['system_times'].append(system_time)
             busy_time = customer.duration
+            self.results['waiting_times'].append(waiting_time)
+            self.results['system_times'].append(system_time)
             self.results['utilization'].append(busy_time / self.env.now)
+            break
 
     def run(self):
         self.env.run(until=self.runtime)
