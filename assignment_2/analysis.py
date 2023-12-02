@@ -94,13 +94,17 @@ def statistics(filename):
     preempt_log_mm2_wait_std = np.std(preempt_log_mm2_data)
     preempt_log_mm4_wait_std = np.std(preempt_log_mm4_data)
     
-    methods = ["M/M/1", "M/M/1NP", "M/M/1P", "M/H/1", "M/M/2", "M/M/2NP", "M/M/2P", "M/H/2", "M/M/4", "M/M/4NP", "M/M/4P", "M/H/4"]
-    means = [mm1_wait_mean, prio_mm1_wait_mean, preempt_log_mm1_wait_mean, hyp_mm1_wait_mean, mm2_wait_mean, prio_mm2_wait_mean, preempt_mm2_wait_mean, hyp_mm2_wait_mean, mm4_wait_mean, prio_mm4_wait_mean, preempt_mm4_wait_mean, hyp_mm4_wait_mean]
-    stds = [mm1_wait_std, prio_mm1_wait_std, preempt_mm1_wait_std, hyp_mm1_wait_std, mm2_wait_std, prio_mm2_wait_std, preempt_mm2_wait_std, hyp_mm2_wait_std, mm4_wait_std, prio_mm4_wait_std, preempt_mm4_wait_std, hyp_mm4_wait_std]
+    methods = ["M/M/1", "M/M/1NP", "M/M/1P", "M/LN/1P", "M/H/1", "M/M/2", "M/M/2NP", "M/M/2P", "M/LN/2P", "M/H/2", "M/M/4", "M/M/4NP", "M/M/4P", "M/LN/4P", "M/H/4"]
+    means = [mm1_wait_mean, prio_mm1_wait_mean, preempt_mm1_wait_mean, preempt_log_mm1_wait_mean, hyp_mm1_wait_mean, 
+             mm2_wait_mean, prio_mm2_wait_mean, preempt_mm2_wait_mean, preempt_log_mm2_wait_mean, hyp_mm2_wait_mean, 
+             mm4_wait_mean, prio_mm4_wait_mean, preempt_mm4_wait_mean, preempt_log_mm4_wait_mean, hyp_mm4_wait_mean]
+    stds = [mm1_wait_std, prio_mm1_wait_std, preempt_mm1_wait_std, preempt_log_mm1_wait_std, hyp_mm1_wait_std, 
+            mm2_wait_std, prio_mm2_wait_std, preempt_mm2_wait_std, preempt_log_mm2_wait_std, hyp_mm2_wait_std, 
+            mm4_wait_std, prio_mm4_wait_std, preempt_mm4_wait_std, preempt_log_mm4_wait_std, hyp_mm4_wait_std]
     
-    log_methods = ["M/M/1P", "M/LN/1P", "M/LN/1", "M/M/2P", "M/LN/2P", "M/LN/2","M/M/4P","M/LN/4P", "M/LN/4"]
-    log_means = [prio_mm1_wait_mean, preempt_log_mm1_wait_mean, log_mm1_wait_mean, prio_mm2_wait_mean, preempt_log_mm2_wait_mean, log_mm2_wait_mean, prio_mm4_wait_mean, preempt_log_mm4_wait_mean, log_mm4_wait_mean]
-    log_stds = [prio_mm1_wait_std, preempt_log_mm1_wait_std, log_mm1_wait_std, prio_mm2_wait_std, preempt_log_mm2_wait_std, log_mm2_wait_std, prio_mm4_wait_std, preempt_log_mm4_wait_std, log_mm4_wait_std]
+    log_methods = ["M/M/1", "M/LN/1", "M/M/2", "M/LN/2","M/M/4", "M/LN/4"]
+    log_means = [mm1_wait_mean, log_mm1_wait_mean, mm2_wait_mean, log_mm2_wait_mean, mm4_wait_mean, log_mm4_wait_mean]
+    log_stds = [mm1_wait_std, log_mm1_wait_std, mm2_wait_std, log_mm2_wait_std, mm4_wait_std, log_mm4_wait_std]
 
     
     #Creating the general stats and displaying in LaTeX 
@@ -129,7 +133,7 @@ def statistics(filename):
     print(f"P_value for Kruskal-Wallis test with LN: {log_kw_p_value}")
     print()
     
-    #Tukey Post-hoc tests for each significant ANOVA
+    #Tukey Post-hoc tests for each significant Kruskall-Wallis
     tukey = pairwise_tukeyhsd(np.concatenate([mm1_data.values, mm2_data.values, mm4_data.values]),
                      groups=np.repeat(["M/M/1", "M/M/2", "M/M/4"], [len(mm1_data), len(mm2_data), len(mm4_data)]))
     print("Tukey for General Comparison")
@@ -155,65 +159,48 @@ def statistics(filename):
     print()
     
     #Shapiro-Wilk Tests for Normality
-    shapiro_stat_group1, shapiro_pvalue_group1 = stats.shapiro(mm1_data)
-    shapiro_stat_group2, shapiro_pvalue_group2 = stats.shapiro(mm2_data)
-    shapiro_stat_group3, shapiro_pvalue_group3 = stats.shapiro(mm4_data)
-    shapiro_stat_group4, shapiro_pvalue_group4 = stats.shapiro(prio_mm1_data)
-    shapiro_stat_group5, shapiro_pvalue_group5 = stats.shapiro(prio_mm2_data)
-    shapiro_stat_group6, shapiro_pvalue_group6 = stats.shapiro(prio_mm4_data)
-    shapiro_stat_group7, shapiro_pvalue_group7 = stats.shapiro(preempt_mm1_data)
-    shapiro_stat_group8, shapiro_pvalue_group8 = stats.shapiro(preempt_mm2_data)
-    shapiro_stat_group9, shapiro_pvalue_group9 = stats.shapiro(preempt_mm4_data)
-    shapiro_stat_group10, shapiro_pvalue_group10 = stats.shapiro(log_mm1_data)
-    shapiro_stat_group11, shapiro_pvalue_group11 = stats.shapiro(log_mm2_data)
-    shapiro_stat_group12, shapiro_pvalue_group12 = stats.shapiro(log_mm4_data)
-    shapiro_stat_group13, shapiro_pvalue_group13 = stats.shapiro(preempt_log_mm1_data)
-    shapiro_stat_group14, shapiro_pvalue_group14 = stats.shapiro(preempt_log_mm2_data)
-    shapiro_stat_group15, shapiro_pvalue_group15 = stats.shapiro(preempt_log_mm4_data)
-    shapiro_stat_group16, shapiro_pvalue_group16 = stats.shapiro(hyp_mm1_data)
-    shapiro_stat_group17, shapiro_pvalue_group17 = stats.shapiro(hyp_mm2_data)
-    shapiro_stat_group18, shapiro_pvalue_group18 = stats.shapiro(hyp_mm4_data)
+    data_arrays = [mm1_data, mm2_data, mm4_data, prio_mm1_data, prio_mm2_data, prio_mm4_data,
+               preempt_mm1_data, preempt_mm2_data, preempt_mm4_data,
+               log_mm1_data, log_mm2_data, log_mm4_data,
+               preempt_log_mm1_data, preempt_log_mm2_data, preempt_log_mm4_data,
+               hyp_mm1_data, hyp_mm2_data, hyp_mm4_data]
     
-
-    print(
-        f"p-value: {shapiro_pvalue_group1}")
-    print(
-        f"p-value: {shapiro_pvalue_group2}")
-    print(
-        f"p-value: {shapiro_pvalue_group3}")
-    print(
-        f"p-value: {shapiro_pvalue_group4}")
-    print(
-        f"p-value: {shapiro_pvalue_group5}")
-    print(
-        f"p-value: {shapiro_pvalue_group6}")
-    print(
-        f"p-value: {shapiro_pvalue_group7}")
-    print(
-        f"p-value: {shapiro_pvalue_group8}")
-    print(
-        f"p-value: {shapiro_pvalue_group9}")
-    print(
-        f"p-value: {shapiro_pvalue_group10}")
-    print(
-        f"p-value: {shapiro_pvalue_group12}")
-    print(
-        f"p-value: {shapiro_pvalue_group12}")
-    print(
-        f"p-value: {shapiro_pvalue_group13}")
-    print(
-        f"p-value: {shapiro_pvalue_group14}")
-    print(
-        f"p-value: {shapiro_pvalue_group15}")
-    print(
-        f"p-value: {shapiro_pvalue_group16}")
-    print(
-        f"p-value: {shapiro_pvalue_group17}")
-    print(
-        f"p-value: {shapiro_pvalue_group18}")
-
+    data_names = ["mm1", "mm2", "mm4", "prio_mm1", "prio_mm2", "prio_mm4",
+              "preempt_mm1", "preempt_mm2", "preempt_mm4",
+              "log_mm1", "log_mm2", "log_mm4",
+              "preempt_log_mm1", "preempt_log_mm2", "preempt_log_mm4",
+              "hyp_mm1", "hyp_mm2", "hyp_mm4"]
     
-    #Creating the confidence intervals for M/X/n queues exclusing M/LN/n queues
+    shapiro_stats = []
+    shapiro_pvalues = []
+    for data in data_arrays:
+        shapiro_stat, shapiro_pvalue = stats.shapiro(data)
+        shapiro_stats.append(shapiro_stat)
+        shapiro_pvalues.append(shapiro_pvalue)
+
+    for i, p_value in enumerate(shapiro_pvalues):
+        print(f"Shapiro-Wilk p-value for {data_names[i]}: {p_value}")
+    print()
+    
+    #Create and display the confidence intervals
+    
+    all_methods = ["M/M/1", "M/M/1NP", "M/M/1P", "M/LN/1P", "M/H/1", "M/M/2", "M/M/2NP", "M/M/2P", "M/LN/2P", "M/H/2", "M/M/4", "M/M/4NP", "M/M/4P", "M/LN/4P", "M/H/4", "M/LN/1", "M/LN/2", "M/LN/4"]
+    all_means = [mm1_wait_mean, prio_mm1_wait_mean, preempt_mm1_wait_mean, preempt_log_mm1_wait_mean, hyp_mm1_wait_mean,
+             mm2_wait_mean, prio_mm2_wait_mean, preempt_mm2_wait_mean, preempt_log_mm2_wait_mean, hyp_mm2_wait_mean,
+             mm4_wait_mean, prio_mm4_wait_mean, preempt_mm4_wait_mean, preempt_log_mm4_wait_mean, hyp_mm4_wait_mean, log_mm1_wait_mean, log_mm2_wait_mean, log_mm4_wait_mean]
+    all_stds = [mm1_wait_std, prio_mm1_wait_std, preempt_mm1_wait_std, preempt_log_mm1_wait_std, hyp_mm1_wait_std, 
+            mm2_wait_std, prio_mm2_wait_std, preempt_mm2_wait_std, preempt_log_mm2_wait_std, hyp_mm2_wait_std, 
+            mm4_wait_std, prio_mm4_wait_std, preempt_mm4_wait_std, preempt_log_mm4_wait_std, hyp_mm4_wait_std, log_mm1_wait_std, log_mm2_wait_std, log_mm4_wait_std]
+    
+    for i, method in enumerate(all_methods):
+            alpha = 0.05
+            standard_error = all_stds[i]/ np.sqrt(20)
+            df = 19
+            conf_interval = stats.t.interval(1-alpha, df, all_means[i], scale=standard_error)
+            rounded_conf_interval = tuple(round(value, 3) for value in conf_interval)
+            print(f"{all_methods[i]} Confidence Interval: {rounded_conf_interval}")
+    
+    #Creating bar charts for M/X/n queues exclusing M/LN/n queues
     
     method_colors = {
     "M/M/1": "#8BBF9F",
@@ -239,42 +226,36 @@ def statistics(filename):
     plt.figure(figsize=(12, 6))
     for i, method in enumerate(methods):
             alpha = 0.05
-            standard_error = stds[i]/ 10
-            df = 99
-            conf_interval = stats.t.interval(1-alpha, df, means[i], scale=standard_error)
-            rounded_conf_interval = tuple(round(value, 3) for value in conf_interval)
-            print(f"{methods[i]} Confidence Interval: {rounded_conf_interval}")
+            standard_error = stds[i]/ np.sqrt(20)
+            df = 19
             color = to_rgba(method_colors[method])
             plt.bar(i, means[i], yerr=standard_error, capsize=5, color=color, label=method)
             
-    plt.xticks([1.5,5.5,9.5], ["n = 1", "n = 2", "n = 4"], fontsize = 14)
+    plt.xticks([2, 7, 12], ["n = 1", "n = 2", "n = 4"], fontsize = 14)
     plt.ylabel('Expected Waiting Time', fontsize = 16)
     plt.yticks(fontsize = 14)
-    plt.legend(["M/M/n", "M/M/n Nonpreemptive", "M/M/n Preemptive", "M/H/n"], loc='upper right', bbox_to_anchor=(1.395, 1.02), fontsize = 14)
+    plt.legend(["M/M/n", "M/M/n Nonpreemptive", "M/M/n Preemptive", "M/LN/n Preemptive", "M/H/n"], loc='upper right', bbox_to_anchor=(1.395, 1.02), fontsize = 14)
     plt.title('Expected Waiting Times with Confidence Intervals', fontsize = 16)
     plt.tight_layout()
     plt.show()
     print()
     
-    #Creating confidence intervals for M/M/n queues against M/LN/n queues
+    #Creating Bar Charts for M/M/n queues against M/LN/n queues
     plt.figure(figsize=(12, 6))
     for i, log_method in enumerate(log_methods):
             alpha = 0.05
-            log_standard_error = log_stds[i]/ 10
-            df = 99
-            log_conf_interval = stats.t.interval(1-alpha, df, log_means[i], scale=log_standard_error)
-            log_rounded_conf_interval = tuple(round(value, 3) for value in log_conf_interval)
-            print(f"{log_methods[i]} Confidence Interval for LN: {log_rounded_conf_interval}")
+            log_standard_error = log_stds[i]/ np.sqrt(20)
             color = to_rgba(method_colors[log_method])
             plt.bar(i, log_means[i], yerr=log_standard_error, capsize=5, color=color, label=log_method)
 
-    plt.xticks([1, 4, 7], ["n = 1", "n = 2", "n = 4"], fontsize = 14)
+    plt.xticks([0.5, 2.5, 4.5], ["n = 1", "n = 2", "n = 4"], fontsize = 14)
     plt.ylabel('Expected Waiting Time', fontsize = 16)
     plt.yticks(fontsize = 14)
-    plt.legend(["M/M/n Preemptive", "M/LN/n Preemptive", "M/LN/n"], loc='upper right', bbox_to_anchor=(1.35, 1.02), fontsize = 14)
-    plt.title('Expected Waiting Times with Confidence Intervals', fontsize = 16)
+    plt.legend(["M/M/n", "M/LN/n"], loc='upper right', bbox_to_anchor=(1.16, 1.02), fontsize = 14)
+    plt.title('Expected Waiting Times with Confidence Intervals - Comparing M/M/n to M/LN/n', fontsize = 16)
     plt.tight_layout()
     plt.show()
+
 
 statistics("./simulation_results/results.csv")
 
