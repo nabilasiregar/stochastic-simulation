@@ -93,18 +93,6 @@ def statistics(filename):
     preempt_log_mm1_wait_std = np.std(preempt_log_mm1_data)
     preempt_log_mm2_wait_std = np.std(preempt_log_mm2_data)
     preempt_log_mm4_wait_std = np.std(preempt_log_mm4_data)
-    
-    methods = ["M/M/1NP", "M/M/1P", "M/LN/1P", "M/H/1", "M/M/2NP", "M/M/2P", "M/LN/2P", "M/H/2", "M/M/4NP", "M/M/4P", "M/LN/4P", "M/H/4"]
-    means = [prio_mm1_wait_mean, preempt_mm1_wait_mean, preempt_log_mm1_wait_mean, hyp_mm1_wait_mean, 
-             prio_mm2_wait_mean, preempt_mm2_wait_mean, preempt_log_mm2_wait_mean, hyp_mm2_wait_mean, 
-             prio_mm4_wait_mean, preempt_mm4_wait_mean, preempt_log_mm4_wait_mean, hyp_mm4_wait_mean]
-    stds = [prio_mm1_wait_std, preempt_mm1_wait_std, preempt_log_mm1_wait_std, hyp_mm1_wait_std, 
-            prio_mm2_wait_std, preempt_mm2_wait_std, preempt_log_mm2_wait_std, hyp_mm2_wait_std, 
-            prio_mm4_wait_std, preempt_mm4_wait_std, preempt_log_mm4_wait_std, hyp_mm4_wait_std]
-    
-    log_methods = ["M/M/1", "M/LN/1", "M/M/2", "M/LN/2","M/M/4", "M/LN/4"]
-    log_means = [mm1_wait_mean, log_mm1_wait_mean, mm2_wait_mean, log_mm2_wait_mean, mm4_wait_mean, log_mm4_wait_mean]
-    log_stds = [mm1_wait_std, log_mm1_wait_std, mm2_wait_std, log_mm2_wait_std, mm4_wait_std, log_mm4_wait_std]
 
     
     #Creating the general stats and displaying in LaTeX 
@@ -185,9 +173,9 @@ def statistics(filename):
             print(f"{all_methods[i]} Confidence Interval: {rounded_conf_interval}")
             
     #One-Sample T-Tests for general M/M/n distributions
-    analytical_mean_mm1 = (0.99)*(1/(1 - 0.99))
-    analytical_mean_mm2 = ((2*(0.99)**2)/(1 + (0.99)))*(1/(1 - 0.99))*(1/2)
-    analytical_mean_mm4 = ((32*(0.99)**4)/(8*(0.99)**3 + 12*(0.99)**2 + 9*(0.99) + 3))*(1/(1 - 0.99))*(1/4)
+    analytical_mean_mm1 = (0.98)*(1/(1 - 0.98))
+    analytical_mean_mm2 = ((2*(0.98)**2)/(1 + (0.98)))*(1/(1 - 0.98))*(1/2)
+    analytical_mean_mm4 = ((32*(0.98)**4)/(8*(0.98)**3 + 12*(0.98)**2 + 9*(0.98) + 3))*(1/(1 - 0.98))*(1/4)
     
     test_statistic1, p_value1 = stats.ttest_1samp(mm1_data.values, analytical_mean_mm1, alternative="two-sided")
     print()
@@ -221,6 +209,18 @@ def statistics(filename):
     "M/H/4": "#EE204D",
     }
     
+    methods = ["M/M/1NP", "M/M/1P", "M/LN/1P", "M/H/1", "M/M/2NP", "M/M/2P", "M/LN/2P", "M/H/2", "M/M/4NP", "M/M/4P", "M/LN/4P", "M/H/4"]
+    means = [prio_mm1_wait_mean, preempt_mm1_wait_mean, preempt_log_mm1_wait_mean, hyp_mm1_wait_mean, 
+             prio_mm2_wait_mean, preempt_mm2_wait_mean, preempt_log_mm2_wait_mean, hyp_mm2_wait_mean, 
+             prio_mm4_wait_mean, preempt_mm4_wait_mean, preempt_log_mm4_wait_mean, hyp_mm4_wait_mean]
+    stds = [prio_mm1_wait_std, preempt_mm1_wait_std, preempt_log_mm1_wait_std, hyp_mm1_wait_std, 
+            prio_mm2_wait_std, preempt_mm2_wait_std, preempt_log_mm2_wait_std, hyp_mm2_wait_std, 
+            prio_mm4_wait_std, preempt_mm4_wait_std, preempt_log_mm4_wait_std, hyp_mm4_wait_std]
+    
+    log_methods = ["M/M/1", "M/LN/1", "M/M/2", "M/LN/2","M/M/4", "M/LN/4"]
+    log_means = [mm1_wait_mean, log_mm1_wait_mean, mm2_wait_mean, log_mm2_wait_mean, mm4_wait_mean, log_mm4_wait_mean]
+    log_stds = [mm1_wait_std, log_mm1_wait_std, mm2_wait_std, log_mm2_wait_std, mm4_wait_std, log_mm4_wait_std]
+    
     plt.figure(figsize=(12, 6))
     for i, method in enumerate(methods):
             alpha = 0.05
@@ -229,11 +229,11 @@ def statistics(filename):
             color = to_rgba(method_colors[method])
             plt.bar(i, means[i], yerr=standard_error, capsize=5, color=color, label=method)
             
-    plt.xticks([2, 7, 12], ["n = 1", "n = 2", "n = 4"], fontsize = 14)
+    plt.xticks([1.5, 5.5, 9.5], ["n = 1", "n = 2", "n = 4"], fontsize = 14)
     plt.ylabel('Expected Waiting Time', fontsize = 16)
     plt.yticks(fontsize = 14)
-    plt.legend(["M/M/n", "M/M/n Nonpreemptive", "M/M/n Preemptive", "M/LN/n Preemptive", "M/H/n"], loc='upper right', bbox_to_anchor=(1.395, 1.02), fontsize = 14)
-    plt.title('Expected Waiting Times with Confidence Intervals', fontsize = 16)
+    plt.legend(["M/M/n Nonpreemptive Priority", "M/M/n Preemptive Priority", "M/LN/n Preemptive Priority", "M/H/n"], loc='upper right', fontsize = 14)
+    plt.title('Expected Waiting Times for Varying Queue Types', fontsize = 16)
     plt.tight_layout()
     plt.show()
     print()
@@ -249,8 +249,8 @@ def statistics(filename):
     plt.xticks([0.5, 2.5, 4.5], ["n = 1", "n = 2", "n = 4"], fontsize = 14)
     plt.ylabel('Expected Waiting Time', fontsize = 16)
     plt.yticks(fontsize = 14)
-    plt.legend(["M/M/n", "M/LN/n"], loc='upper right', bbox_to_anchor=(1.16, 1.02), fontsize = 14)
-    plt.title('Expected Waiting Times with Confidence Intervals - Comparing M/M/n to M/LN/n', fontsize = 16)
+    plt.legend(["M/M/n", "M/LN/n"], loc='upper right', fontsize = 14)
+    plt.title('Expected Waiting Times for Varying Queue Types - Comparing M/M/n to M/LN/n', fontsize = 16)
     plt.tight_layout()
     plt.show()
 
