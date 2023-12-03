@@ -113,20 +113,14 @@ def statistics(filename):
     
 
     #Kruskal-Wallis tests 
-    gen_kw_statistic, gen_kw_p_value = stats.kruskal(mm1_data, mm2_data, mm4_data)
-    print(f"P_value for General Kruskal-Wallis test: {gen_kw_p_value}")
-
-    mm1_kw_statistic, mm1_kw_p_value = stats.kruskal(mm1_data, prio_mm1_data, preempt_mm1_data, hyp_mm1_data)
+    mm1_kw_statistic, mm1_kw_p_value = stats.kruskal(mm1_data, prio_mm1_data, preempt_mm1_data, hyp_mm1_data, log_mm1_data)
     print(f"P_value for Kruskal-Wallis test of M/X/1 Variants without LN: {mm1_kw_p_value}")
 
-    mm2_kw_statistic, mm2_kw_p_value = stats.kruskal(mm2_data, prio_mm2_data, preempt_mm2_data, hyp_mm2_data)
+    mm2_kw_statistic, mm2_kw_p_value = stats.kruskal(mm2_data, prio_mm2_data, preempt_mm2_data, hyp_mm2_data, log_mm2_data)
     print(f"P_value for Kruskal-Wallis test of M/X/2 Variants without LN: {mm2_kw_p_value}")
 
-    mm4_kw_statistic, mm4_kw_p_value = stats.kruskal(mm4_data, prio_mm4_data, preempt_mm4_data, hyp_mm4_data)
+    mm4_kw_statistic, mm4_kw_p_value = stats.kruskal(mm4_data, prio_mm4_data, preempt_mm4_data, hyp_mm4_data, log_mm4_data)
     print(f"P_value for Kruskal-Wallis test of M/X/4 Variants without LN: {mm4_kw_p_value}")
-
-    log_kw_statistic, log_kw_p_value = stats.kruskal(log_mm1_data, log_mm2_data, log_mm4_data)
-    print(f"P_value for Kruskal-Wallis test with LN: {log_kw_p_value}")
     print()
     
     #Tukey Post-hoc tests for each significant Kruskall-Wallis
@@ -153,12 +147,7 @@ def statistics(filename):
     print("Tukey for M/X/4 without LN")
     print(tukey)
     print()
-    
-    tukey = pairwise_tukeyhsd(np.concatenate([log_mm1_data.values, log_mm2_data.values, log_mm4_data.values]),
-                     groups=np.repeat(["M/LN/1", "M/LN/2", "M/LN/4"], [len(log_mm1_data), len(log_mm2_data), len(log_mm4_data)]))
-    print("Tukey for M/X/4 without LN")
-    print(tukey)
-    print()
+
     
     #Shapiro-Wilk Tests for Normality
     data_arrays = [mm1_data, mm2_data, mm4_data, prio_mm1_data, prio_mm2_data, prio_mm4_data,
@@ -185,7 +174,6 @@ def statistics(filename):
     print()
     
     #Create and display the confidence intervals
-    
     all_methods = ["M/M/1", "M/M/1NP", "M/M/1P", "M/LN/1P", "M/H/1", "M/M/2", "M/M/2NP", "M/M/2P", "M/LN/2P", "M/H/2", "M/M/4", "M/M/4NP", "M/M/4P", "M/LN/4P", "M/H/4", "M/LN/1", "M/LN/2", "M/LN/4"]
     all_means = [mm1_wait_mean, prio_mm1_wait_mean, preempt_mm1_wait_mean, preempt_log_mm1_wait_mean, hyp_mm1_wait_mean,
              mm2_wait_mean, prio_mm2_wait_mean, preempt_mm2_wait_mean, preempt_log_mm2_wait_mean, hyp_mm2_wait_mean,
@@ -203,7 +191,6 @@ def statistics(filename):
             print(f"{all_methods[i]} Confidence Interval: {rounded_conf_interval}")
             
     #One-Sample T-Tests for general M/M/n distributions
-
     analytical_mean_mm1 = (0.99)*(1/(1 - 0.99))
     analytical_mean_mm2 = ((2*(0.99)**2)/(1 + (0.99)))*(1/(1 - 0.99))*(1/2)
     analytical_mean_mm4 = ((32*(0.99)**4)/(8*(0.99)**3 + 12*(0.99)**2 + 9*(0.99) + 3))*(1/(1 - 0.99))*(1/4)
@@ -218,8 +205,7 @@ def statistics(filename):
     test_statistic3, p_value4 = stats.ttest_1samp(mm4_data.values, analytical_mean_mm4, alternative="two-sided")
     print(f"P-value 1-Sample T-test for MM4 data: {p_value4}")
 
-    #Creating bar charts for M/X/n queues exclusing M/LN/n queues
-    
+    #Creating bar charts for M/X/n queues excluding M/LN/n queues
     method_colors = {
     "M/M/1": "#8BBF9F",
     "M/M/1NP": "#83BCFF",
