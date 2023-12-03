@@ -177,9 +177,9 @@ def statistics(filename):
             mm4_wait_std, prio_mm4_wait_std, preempt_mm4_wait_std, preempt_log_mm4_wait_std, hyp_mm4_wait_std, log_mm1_wait_std, log_mm2_wait_std, log_mm4_wait_std]
     
     for i, method in enumerate(all_methods):
-            alpha = 0.05
-            standard_error = all_stds[i]/ np.sqrt(20)
-            df = 19
+            alpha = 0.01
+            standard_error = all_stds[i]/ np.sqrt(len(mm1_data))
+            df = len(mm1_data) - 1
             conf_interval = stats.t.interval(1-alpha, df, all_means[i], scale=standard_error)
             rounded_conf_interval = tuple(round(value, 3) for value in conf_interval)
             print(f"{all_methods[i]} Confidence Interval: {rounded_conf_interval}")
