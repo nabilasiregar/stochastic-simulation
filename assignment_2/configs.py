@@ -1,8 +1,14 @@
 import random
 import numpy as np
 
-def random_norm(x):
-    return abs(random.normalvariate(1/x, 1/x**2))
+def lognormal(x):
+    '''Accepts the lambda from an exponential distribution and returns a lognormal distribution with the same mean and variance'''
+    s = np.sqrt(1/x**2)
+    m = 1/x
+    block = np.log((s/m)**2 + 1)
+    scaled_variance = np.sqrt(block)
+    scaled_mean = np.log(1/x) - block/ 2
+    return np.random.lognormal(scaled_mean, scaled_variance)
 
 def hyperexponential(x):
     return random.expovariate(x) if random.random() < 0.75 else random.expovariate(x*1.5)
@@ -19,7 +25,7 @@ def configs():
             "priority": False,
             "preempt": False,
             "debug": False,
-            "runtime": 20000},
+            "runtime": 100000},
         },
         "experiment_2":
         {"name": "M/M/1P",
@@ -31,7 +37,7 @@ def configs():
             "priority": True,
             "preempt": False,
             "debug": False,
-            "runtime": 20000}
+            "runtime": 100000}
         },
         "experiment_3":
         {"name": "M/G/n",
@@ -39,11 +45,11 @@ def configs():
             "lam": 0.99,
             "mu": 1,
             "dist_wait": random.expovariate,
-            "dist_serve": np.random.lognormal,
+            "dist_serve": lognormal,
             "priority": False,
             "preempt": False,
             "debug": False,
-            "runtime": 20000}
+            "runtime": 100000}
         },
         "experiment_4":
         {"name": "M/G/n",
@@ -55,7 +61,7 @@ def configs():
             "priority": False,
             "preempt": False,
             "debug": False,
-            "runtime": 20000}
+            "runtime": 100000}
         },
         "experiment_5":
         {"name": "M/M/nPreempt",
@@ -67,7 +73,7 @@ def configs():
             "priority": True,
             "preempt": True,
             "debug": False,
-            "runtime": 20000}
+            "runtime": 100000}
         },
         "experiment_6":
         {"name": "M/M/1Preempt",
@@ -75,10 +81,10 @@ def configs():
             "lam": 0.99,
             "mu": 1,
             "dist_wait": random.expovariate,
-            "dist_serve": np.random.lognormal,
+            "dist_serve": lognormal,
             "priority": True,
             "preempt": True,
             "debug": False,
-            "runtime": 20000}
+            "runtime": 100000}
         },
     }

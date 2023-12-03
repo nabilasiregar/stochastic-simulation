@@ -3,6 +3,7 @@ import os
 import csv
 import random
 from configs import configs
+import matplotlib.pyplot as plt
 
 results_dir = "simulation_results"
 if not os.path.exists(results_dir):
@@ -34,19 +35,21 @@ for experiment in configs():
     print(f"Running simulations for {experiment}...")
     for n_servers in [1, 2, 4]:
         for run_number in range(1, num_runs + 1):
-            print("\033[A                                                        \033[A")
-            print(f"Run {run_number}/{num_runs} for {n_servers} servers")
             experiment_config = configs()[experiment]['kwargs']
             experiment_config['lam'] *= n_servers
             random.seed(run_number)
             simulation = Simulation(**experiment_config, n_servers=n_servers)
             results = simulation.run()
-
+            
+            exclude = int(0.3 * len(results['waiting_times']))
+            
             # Calculate averages for each run
-            avg_waiting_time = sum(results['waiting_times']) / len(results['waiting_times'])
-            avg_system_time = sum(results['system_times']) / len(results['system_times'])
-            avg_utilization = sum(results['utilization']) / len(results['utilization'])
+            avg_waiting_time = sum(results['waiting_times'][exclude:]) / (len(results['waiting_times']) - exclude)
+            avg_system_time = sum(results['system_times'][exclude:]) / (len(results['system_times']) - exclude)
+            avg_utilization = sum(results['utilization'][exclude:]) / (len(results['utilization']) - exclude)
 
+            print("\033[A                                                                                             \033[A")
+            print(f"Run {run_number}/{num_runs} for {n_servers} servers, {experiment}, avg wait {avg_waiting_time:.2f}, observations {len(results['waiting_times'])}")
             average_results = {
                 'avg_waiting_time': avg_waiting_time,
                 'avg_system_time': avg_system_time,
