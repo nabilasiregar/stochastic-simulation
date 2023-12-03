@@ -37,7 +37,7 @@ class Simulation:
             i += 1
             customer = Customer(self.env, f'customer {i}', self.dist_serve(self.mu), self.priority)
             if self.debug:
-                print(f'Customer {i} arrived at {self.env.now:.2f}')
+                print(f'Customer {i} arrived at {self.env.now:.2f}, duration {customer.duration:.2f}')
             self.env.process(self.serve_customer(customer))
 
     def serve_customer(self, customer):
@@ -51,16 +51,18 @@ class Simulation:
                     yield self.env.timeout(customer.duration)
                     if self.debug:
                         print(f'{customer.name} finished service at {self.env.now:.2f}')
-                    waiting_time = self.env.now - arrival_time
                 except simpy.Interrupt as interrupt:
                     by = interrupt.cause.by
                     usage = self.env.now - interrupt.cause.usage_since
-                    waiting_time = self.env.now - arrival_time - usage
+                    customer.duration -= usage
+                    yield self.env.timeout(customer.duration)
+
                     if self.debug:
-                        print(f'{customer.name} got preempted by {by} at {self.env.now} after {usage}')
+                        print(f'{customer.name} finished service after preemption at {self.env.now:.2f}')
 
 
 
+            waiting_time = self.env.now - arrival_time - customer.duration
             system_time = self.env.now - customer.arrival_time
             busy_time = customer.duration
             self.results['waiting_times'].append(waiting_time)
@@ -76,9 +78,12 @@ def main(debug, n_servers):
     mu = 0.8
     lam = 0.28
     priority = True
-    runtime = 1000
+    debug = True
+    n_servers = 2
+    preempt = True
+    runtime = 100
 
-    simulation = Simulation(lam, mu, n_servers, priority, debug, runtime)
+    simulation = Simulation(lam, mu, random.expovariate, random.expovariate, n_servers, priority, preempt, debug, runtime)
     simulation.run()
 
 if __name__ == "__main__":

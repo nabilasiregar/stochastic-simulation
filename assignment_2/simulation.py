@@ -3,6 +3,7 @@ import os
 import csv
 import random
 from configs import configs
+import matplotlib.pyplot as plt
 
 results_dir = "simulation_results"
 if not os.path.exists(results_dir):
@@ -29,13 +30,11 @@ with open(file_path, 'w', newline='') as csvfile:
     writer = csv.DictWriter(csvfile, fieldnames=['n_server', 'dist_wait', 'dist_serve', 'priority', 'preempt', 'avg_waiting_time', 'avg_system_time', 'avg_utilization'])
     writer.writeheader()
 
-num_runs = 20
+num_runs = 10
 for experiment in configs():
     print(f"Running simulations for {experiment}...")
     for n_servers in [1, 2, 4]:
         for run_number in range(1, num_runs + 1):
-            print("\033[A                                                        \033[A")
-            print(f"Run {run_number}/{num_runs} for {n_servers} servers")
             experiment_config = configs()[experiment]['kwargs']
             experiment_config['lam'] *= n_servers
             random.seed(run_number)
@@ -47,6 +46,8 @@ for experiment in configs():
             avg_system_time = sum(results['system_times']) / len(results['system_times'])
             avg_utilization = sum(results['utilization']) / len(results['utilization'])
 
+            print("\033[A                                                                                             \033[A")
+            print(f"Run {run_number}/{num_runs} for {n_servers} servers, {experiment}, avg wait {avg_waiting_time:.2f}, observations {len(results['waiting_times'])}")
             average_results = {
                 'avg_waiting_time': avg_waiting_time,
                 'avg_system_time': avg_system_time,
