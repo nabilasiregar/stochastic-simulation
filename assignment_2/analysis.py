@@ -204,9 +204,10 @@ def statistics(filename):
             
     #One-Sample T-Tests for general M/M/n distributions
 
-    analytical_mean_mm1 = (0.99)*(1/(1 - 0.99))
-    analytical_mean_mm2 = ((2*(0.99)**2)/(1 + (0.99)))*(1/(1 - 0.99))*(1/2)
-    analytical_mean_mm4 = ((32*(0.99)**4)/(8*(0.99)**3 + 12*(0.99)**2 + 9*(0.99) + 3))*(1/(1 - 0.99))*(1/4)
+    lam = 0.98
+    analytical_mean_mm1 = (lam)*(1/(1 - lam))
+    analytical_mean_mm2 = ((2*(lam)**2)/(1 + (lam)))*(1/(1 - lam))*(1/2)
+    analytical_mean_mm4 = ((32*(lam)**4)/(8*(lam)**3 + 12*(lam)**2 + 9*(lam) + 3))*(1/(1 - lam))*(1/4)
     
     test_statistic1, p_value1 = stats.ttest_1samp(mm1_data.values, analytical_mean_mm1, alternative="two-sided")
     print()

@@ -4,6 +4,7 @@ import csv
 import random
 from configs import configs
 import matplotlib.pyplot as plt
+import pandas as pd
 
 results_dir = "simulation_results"
 if not os.path.exists(results_dir):
@@ -30,7 +31,10 @@ with open(file_path, 'w', newline='') as csvfile:
     writer = csv.DictWriter(csvfile, fieldnames=['n_server', 'dist_wait', 'dist_serve', 'priority', 'preempt', 'avg_waiting_time', 'avg_system_time', 'avg_utilization'])
     writer.writeheader()
 
-num_runs = 10
+with open("simulation_results/warmup.csv", 'w', newline='') as csvfile:
+    writer = csv.DictWriter(csvfile, fieldnames=['run', 'waiting_time'])
+    writer.writeheader()
+num_runs = 20
 for experiment in configs():
     print(f"Running simulations for {experiment}...")
     for n_servers in [1, 2, 4]:
