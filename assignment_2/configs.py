@@ -19,7 +19,7 @@ def configs():
             "priority": False,
             "preempt": False,
             "debug": False,
-            "runtime": 1000},
+            "runtime": 20000},
         },
         "experiment_2":
         {"name": "M/M/1P",
@@ -31,7 +31,7 @@ def configs():
             "priority": True,
             "preempt": False,
             "debug": False,
-            "runtime": 1000}
+            "runtime": 20000}
         },
         "experiment_3":
         {"name": "M/G/n",
@@ -43,7 +43,7 @@ def configs():
             "priority": False,
             "preempt": False,
             "debug": False,
-            "runtime": 1000}
+            "runtime": 20000}
         },
         "experiment_4":
         {"name": "M/G/n",
@@ -55,7 +55,7 @@ def configs():
             "priority": False,
             "preempt": False,
             "debug": False,
-            "runtime": 1000}
+            "runtime": 20000}
         },
         "experiment_5":
         {"name": "M/M/nPreempt",
@@ -67,7 +67,7 @@ def configs():
             "priority": True,
             "preempt": True,
             "debug": False,
-            "runtime": 1000}
+            "runtime": 20000}
         },
         "experiment_6":
         {"name": "M/M/1Preempt",
@@ -79,6 +79,6 @@ def configs():
             "priority": True,
             "preempt": True,
             "debug": False,
-            "runtime": 1000}
+            "runtime": 20000}
         },
     }
