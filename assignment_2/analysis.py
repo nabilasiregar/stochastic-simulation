@@ -113,37 +113,31 @@ def statistics(filename):
     
 
     #Kruskal-Wallis tests 
-    mm1_kw_statistic, mm1_kw_p_value = stats.kruskal(mm1_data, prio_mm1_data, preempt_mm1_data, hyp_mm1_data, log_mm1_data)
+    mm1_kw_statistic, mm1_kw_p_value = stats.kruskal(mm1_data, prio_mm1_data, preempt_mm1_data, hyp_mm1_data, log_mm1_data, preempt_log_mm1_data)
     print(f"P_value for Kruskal-Wallis test of M/X/1 Variants without LN: {mm1_kw_p_value}")
 
-    mm2_kw_statistic, mm2_kw_p_value = stats.kruskal(mm2_data, prio_mm2_data, preempt_mm2_data, hyp_mm2_data, log_mm2_data)
+    mm2_kw_statistic, mm2_kw_p_value = stats.kruskal(mm2_data, prio_mm2_data, preempt_mm2_data, hyp_mm2_data, log_mm2_data, preempt_log_mm2_data)
     print(f"P_value for Kruskal-Wallis test of M/X/2 Variants without LN: {mm2_kw_p_value}")
 
-    mm4_kw_statistic, mm4_kw_p_value = stats.kruskal(mm4_data, prio_mm4_data, preempt_mm4_data, hyp_mm4_data, log_mm4_data)
+    mm4_kw_statistic, mm4_kw_p_value = stats.kruskal(mm4_data, prio_mm4_data, preempt_mm4_data, hyp_mm4_data, log_mm4_data, preempt_log_mm4_data)
     print(f"P_value for Kruskal-Wallis test of M/X/4 Variants without LN: {mm4_kw_p_value}")
     print()
     
     #Tukey Post-hoc tests for each significant Kruskall-Wallis
-    tukey = pairwise_tukeyhsd(np.concatenate([mm1_data.values, mm2_data.values, mm4_data.values]),
-                     groups=np.repeat(["M/M/1", "M/M/2", "M/M/4"], [len(mm1_data), len(mm2_data), len(mm4_data)]))
-    print("Tukey for General Comparison")
-    print(tukey)
-    print()
-    
-    tukey = pairwise_tukeyhsd(np.concatenate([mm1_data.values, prio_mm1_data.values, preempt_mm1_data.values, hyp_mm1_data.values]),
-                     groups=np.repeat(["M/M/1", "M/M/1NP", "M/M/1P", "M/H/1"], [len(mm1_data), len(prio_mm1_data), len(preempt_mm1_data), len(hyp_mm1_data)]))
+    tukey = pairwise_tukeyhsd(np.concatenate([mm1_data.values, prio_mm1_data.values, preempt_mm1_data.values, hyp_mm1_data.values, log_mm1_data.values, preempt_log_mm1_data.values]),
+                     groups=np.repeat(["M/M/1", "M/M/1NP", "M/M/1P", "M/H/1", "M/LN/1", "M/LN/1P"], [len(mm1_data), len(prio_mm1_data), len(preempt_mm1_data), len(hyp_mm1_data), len(log_mm1_data), len(preempt_log_mm1_data)]))
     print("Tukey for M/X/1 without LN")
     print(tukey)
     print()
     
-    tukey = pairwise_tukeyhsd(np.concatenate([mm2_data.values, prio_mm2_data.values, preempt_mm2_data.values, hyp_mm2_data.values]),
-                     groups=np.repeat(["M/M/2", "M/M/2NP", "M/M/2P", "M/H/2"], [len(mm2_data), len(prio_mm2_data), len(preempt_mm2_data), len(hyp_mm2_data)]))
+    tukey = pairwise_tukeyhsd(np.concatenate([mm2_data.values, prio_mm2_data.values, preempt_mm2_data.values, hyp_mm2_data.values, log_mm2_data.values, preempt_log_mm2_data.values]),
+                     groups=np.repeat(["M/M/2", "M/M/2NP", "M/M/2P", "M/H/2", "M/LN/2", "M/LN/2P"], [len(mm2_data), len(prio_mm2_data), len(preempt_mm2_data), len(hyp_mm2_data), len(log_mm2_data), len(preempt_log_mm2_data)]))
     print("Tukey for M/X/2 without LN")
     print(tukey)
     print()
     
-    tukey = pairwise_tukeyhsd(np.concatenate([mm4_data.values, prio_mm4_data.values, preempt_mm4_data.values, hyp_mm4_data.values]),
-                     groups=np.repeat(["M/M/4", "M/M/4NP", "M/M/4P", "M/H/4"], [len(mm4_data), len(prio_mm4_data), len(preempt_mm4_data), len(hyp_mm4_data)]))
+    tukey = pairwise_tukeyhsd(np.concatenate([mm4_data.values, prio_mm4_data.values, preempt_mm4_data.values, hyp_mm4_data.values, log_mm4_data.values, preempt_log_mm4_data.values]),
+                     groups=np.repeat(["M/M/4", "M/M/4NP", "M/M/4P", "M/H/4", "M/LN/4", "M/LN/4P"], [len(mm4_data), len(prio_mm4_data), len(preempt_mm4_data), len(hyp_mm4_data), len(log_mm4_data), len(preempt_log_mm4_data)]))
     print("Tukey for M/X/4 without LN")
     print(tukey)
     print()
