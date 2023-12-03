@@ -40,11 +40,13 @@ for experiment in configs():
             random.seed(run_number)
             simulation = Simulation(**experiment_config, n_servers=n_servers)
             results = simulation.run()
-
+            
+            exclude = int(0.3 * len(results['waiting_times']))
+            
             # Calculate averages for each run
-            avg_waiting_time = sum(results['waiting_times']) / len(results['waiting_times'])
-            avg_system_time = sum(results['system_times']) / len(results['system_times'])
-            avg_utilization = sum(results['utilization']) / len(results['utilization'])
+            avg_waiting_time = sum(results['waiting_times'][exclude:]) / (len(results['waiting_times']) - exclude)
+            avg_system_time = sum(results['system_times'][exclude:]) / (len(results['system_times']) - exclude)
+            avg_utilization = sum(results['utilization'][exclude:]) / (len(results['utilization']) - exclude)
 
             print("\033[A                                                                                             \033[A")
             print(f"Run {run_number}/{num_runs} for {n_servers} servers, {experiment}, avg wait {avg_waiting_time:.2f}, observations {len(results['waiting_times'])}")

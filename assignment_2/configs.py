@@ -10,7 +10,6 @@ def lognormal(x):
     scaled_mean = np.log(1/x) - block/ 2
     return np.random.lognormal(scaled_mean, scaled_variance)
 
-
 def hyperexponential(x):
     return random.expovariate(x) if random.random() < 0.75 else random.expovariate(x*1.5)
 
@@ -26,7 +25,7 @@ def configs():
             "priority": False,
             "preempt": False,
             "debug": False,
-            "runtime": 10000},
+            "runtime": 100000},
         },
         "experiment_2":
         {"name": "M/M/1P",
@@ -38,7 +37,7 @@ def configs():
             "priority": True,
             "preempt": False,
             "debug": False,
-            "runtime": 10000}
+            "runtime": 100000}
         },
         "experiment_3":
         {"name": "M/G/n",
@@ -50,7 +49,7 @@ def configs():
             "priority": False,
             "preempt": False,
             "debug": False,
-            "runtime": 10000}
+            "runtime": 100000}
         },
         "experiment_4":
         {"name": "M/G/n",
@@ -62,7 +61,7 @@ def configs():
             "priority": False,
             "preempt": False,
             "debug": False,
-            "runtime": 10000}
+            "runtime": 100000}
         },
         "experiment_5":
         {"name": "M/M/nPreempt",
@@ -74,7 +73,7 @@ def configs():
             "priority": True,
             "preempt": True,
             "debug": False,
-            "runtime": 10000}
+            "runtime": 100000}
         },
         "experiment_6":
         {"name": "M/M/1Preempt",
@@ -86,6 +85,6 @@ def configs():
             "priority": True,
             "preempt": True,
             "debug": False,
-            "runtime": 10000}
+            "runtime": 100000}
         },
     }

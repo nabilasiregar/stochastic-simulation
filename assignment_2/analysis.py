@@ -94,13 +94,13 @@ def statistics(filename):
     preempt_log_mm2_wait_std = np.std(preempt_log_mm2_data)
     preempt_log_mm4_wait_std = np.std(preempt_log_mm4_data)
     
-    methods = ["M/M/1", "M/M/1NP", "M/M/1P", "M/LN/1P", "M/H/1", "M/M/2", "M/M/2NP", "M/M/2P", "M/LN/2P", "M/H/2", "M/M/4", "M/M/4NP", "M/M/4P", "M/LN/4P", "M/H/4"]
-    means = [mm1_wait_mean, prio_mm1_wait_mean, preempt_mm1_wait_mean, preempt_log_mm1_wait_mean, hyp_mm1_wait_mean, 
-             mm2_wait_mean, prio_mm2_wait_mean, preempt_mm2_wait_mean, preempt_log_mm2_wait_mean, hyp_mm2_wait_mean, 
-             mm4_wait_mean, prio_mm4_wait_mean, preempt_mm4_wait_mean, preempt_log_mm4_wait_mean, hyp_mm4_wait_mean]
-    stds = [mm1_wait_std, prio_mm1_wait_std, preempt_mm1_wait_std, preempt_log_mm1_wait_std, hyp_mm1_wait_std, 
-            mm2_wait_std, prio_mm2_wait_std, preempt_mm2_wait_std, preempt_log_mm2_wait_std, hyp_mm2_wait_std, 
-            mm4_wait_std, prio_mm4_wait_std, preempt_mm4_wait_std, preempt_log_mm4_wait_std, hyp_mm4_wait_std]
+    methods = ["M/M/1NP", "M/M/1P", "M/LN/1P", "M/H/1", "M/M/2NP", "M/M/2P", "M/LN/2P", "M/H/2", "M/M/4NP", "M/M/4P", "M/LN/4P", "M/H/4"]
+    means = [prio_mm1_wait_mean, preempt_mm1_wait_mean, preempt_log_mm1_wait_mean, hyp_mm1_wait_mean, 
+             prio_mm2_wait_mean, preempt_mm2_wait_mean, preempt_log_mm2_wait_mean, hyp_mm2_wait_mean, 
+             prio_mm4_wait_mean, preempt_mm4_wait_mean, preempt_log_mm4_wait_mean, hyp_mm4_wait_mean]
+    stds = [prio_mm1_wait_std, preempt_mm1_wait_std, preempt_log_mm1_wait_std, hyp_mm1_wait_std, 
+            prio_mm2_wait_std, preempt_mm2_wait_std, preempt_log_mm2_wait_std, hyp_mm2_wait_std, 
+            prio_mm4_wait_std, preempt_mm4_wait_std, preempt_log_mm4_wait_std, hyp_mm4_wait_std]
     
     log_methods = ["M/M/1", "M/LN/1", "M/M/2", "M/LN/2","M/M/4", "M/LN/4"]
     log_means = [mm1_wait_mean, log_mm1_wait_mean, mm2_wait_mean, log_mm2_wait_mean, mm4_wait_mean, log_mm4_wait_mean]
@@ -115,19 +115,15 @@ def statistics(filename):
     #Kruskal-Wallis tests 
     gen_kw_statistic, gen_kw_p_value = stats.kruskal(mm1_data, mm2_data, mm4_data)
     print(f"P_value for General Kruskal-Wallis test: {gen_kw_p_value}")
-    print()
 
     mm1_kw_statistic, mm1_kw_p_value = stats.kruskal(mm1_data, prio_mm1_data, preempt_mm1_data, hyp_mm1_data)
     print(f"P_value for Kruskal-Wallis test of M/X/1 Variants without LN: {mm1_kw_p_value}")
-    print()
 
     mm2_kw_statistic, mm2_kw_p_value = stats.kruskal(mm2_data, prio_mm2_data, preempt_mm2_data, hyp_mm2_data)
     print(f"P_value for Kruskal-Wallis test of M/X/2 Variants without LN: {mm2_kw_p_value}")
-    print()
 
     mm4_kw_statistic, mm4_kw_p_value = stats.kruskal(mm4_data, prio_mm4_data, preempt_mm4_data, hyp_mm4_data)
     print(f"P_value for Kruskal-Wallis test of M/X/4 Variants without LN: {mm4_kw_p_value}")
-    print()
 
     log_kw_statistic, log_kw_p_value = stats.kruskal(log_mm1_data, log_mm2_data, log_mm4_data)
     print(f"P_value for Kruskal-Wallis test with LN: {log_kw_p_value}")
@@ -154,6 +150,12 @@ def statistics(filename):
     
     tukey = pairwise_tukeyhsd(np.concatenate([mm4_data.values, prio_mm4_data.values, preempt_mm4_data.values, hyp_mm4_data.values]),
                      groups=np.repeat(["M/M/4", "M/M/4NP", "M/M/4P", "M/H/4"], [len(mm4_data), len(prio_mm4_data), len(preempt_mm4_data), len(hyp_mm4_data)]))
+    print("Tukey for M/X/4 without LN")
+    print(tukey)
+    print()
+    
+    tukey = pairwise_tukeyhsd(np.concatenate([log_mm1_data.values, log_mm2_data.values, log_mm4_data.values]),
+                     groups=np.repeat(["M/LN/1", "M/LN/2", "M/LN/4"], [len(log_mm1_data), len(log_mm2_data), len(log_mm4_data)]))
     print("Tukey for M/X/4 without LN")
     print(tukey)
     print()
@@ -199,7 +201,23 @@ def statistics(filename):
             conf_interval = stats.t.interval(1-alpha, df, all_means[i], scale=standard_error)
             rounded_conf_interval = tuple(round(value, 3) for value in conf_interval)
             print(f"{all_methods[i]} Confidence Interval: {rounded_conf_interval}")
+            
+    #One-Sample T-Tests for general M/M/n distributions
+
+    analytical_mean_mm1 = (0.99)*(1/(1 - 0.99))
+    analytical_mean_mm2 = ((2*(0.99)**2)/(1 + (0.99)))*(1/(1 - 0.99))*(1/2)
+    analytical_mean_mm4 = ((32*(0.99)**4)/(8*(0.99)**3 + 12*(0.99)**2 + 9*(0.99) + 3))*(1/(1 - 0.99))*(1/4)
     
+    test_statistic1, p_value1 = stats.ttest_1samp(mm1_data.values, analytical_mean_mm1, alternative="two-sided")
+    print()
+    print(f"P-value 1-Sample T-test for MM1 data: {p_value1}")
+
+    test_statistic2, p_value2 = stats.ttest_1samp(mm2_data.values, analytical_mean_mm2, alternative="two-sided")
+    print(f"P-value 1-Sample T-test for MM2 data: {p_value2}")
+
+    test_statistic3, p_value4 = stats.ttest_1samp(mm4_data.values, analytical_mean_mm4, alternative="two-sided")
+    print(f"P-value 1-Sample T-test for MM4 data: {p_value4}")
+
     #Creating bar charts for M/X/n queues exclusing M/LN/n queues
     
     method_colors = {
@@ -258,32 +276,3 @@ def statistics(filename):
 
 
 statistics("./simulation_results/results.csv")
-
-
-def expected_wait_time_n(n, lam, mu):
-    rho = lam/(n* mu)
-    delay_probability = ((n* rho) ** n / math.factorial(n)) * (((1 - rho) *  np.sum([(n * rho) ** m / math.factorial(m) for m in range(n)]) + (n * rho) ** n / math.factorial(n)) ** -1)
-    expected_wait_time_n = delay_probability / (n * mu * (1 - rho))
-    
-    return expected_wait_time_n
-
-def power_analysis(lam, mu):
-
-    mm1_wait = expected_wait_time_n(2, lam, mu)
-    mm2_wait = expected_wait_time_n(2, 2*lam, mu)
-    mm4_wait = expected_wait_time_n(4, 4*lam, mu)
-    
-    var_mm1_wait = (1/mm1_wait)**2
-    var_mm2_wait = (1/mm2_wait)**2
-    var_mm4_wait = (1/mm4_wait)**2
-
-    waiting_time_data = np.array([mm1_wait, mm2_wait, mm4_wait])
-    overall_mean = np.mean(waiting_time_data)
-    ss_total = np.sum((waiting_time_data - overall_mean) ** 2)
-    ss_between = np.sum([(np.mean(queue_type) - overall_mean) ** 2 for queue_type in waiting_time_data])
-    eta_squared = ss_between /ss_total
-    
-    sample_size = smp.FTestAnovaPower().solve_power(effect_size=1, alpha=0.01, k_groups=3, power=0.8, nobs=None)
-    print(f"Number of samples needed for lam = {lam} and mu = {mu}: {int(np.ceil(sample_size))}")
-
-    
