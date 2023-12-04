@@ -62,10 +62,6 @@ def save_results_to_csv_with_rho(results, file_path, n_server, kwargs, rho):
                 'rho': rho
             })
 
-    with open(file_path, 'w', newline='', encoding='utf-8') as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=['n_server', 'dist_wait', 'dist_serve', 'priority', 'preempt', 'waiting_time', 'system_time', 'utilization', 'rho'])
-        writer.writeheader()
-
 def main_simulation():
     """The main simulation function to run the experiment"""
     file_path = os.path.join(RESULTS_DIR, 'results.csv')
@@ -101,6 +97,11 @@ def main_simulation():
 
 def simulate_with_different_arrival_rates(lambda_values, server_counts):
     """Simulation function to see how the number of measurements (e.g. varying the arrival rate) depend on rho"""
+    file_path = os.path.join(RESULTS_DIR, 'results_with_rho.csv')
+    with open(file_path, 'w', newline='', encoding='utf-8') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=['n_server', 'dist_wait', 'dist_serve', 'priority', 'preempt', 'waiting_time', 'system_time', 'utilization', 'rho'])
+        writer.writeheader()
+
     for lam in lambda_values:
         for n_servers in server_counts:
             # Only running M/M/n queue type
@@ -124,7 +125,6 @@ def simulate_with_different_arrival_rates(lambda_values, server_counts):
                 simulation = Simulation(**experiment_config, n_servers=n_servers)
                 results = simulation.run()
 
-                file_path = os.path.join(RESULTS_DIR, 'results_with_rho.csv')
                 save_results_to_csv_with_rho(results, file_path, n_servers, experiment_config, rho)
     print(f'Results for simulation saved to {file_path}')
 
