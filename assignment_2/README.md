@@ -19,7 +19,8 @@ General is the main simulation to produce results.csv and test system load is wh
 
 If you run the simulation, the csv file be saved under simulation_results folder.
 
-❗ You need to run the simulation first to have the csv files in the specified file path
+❗ You need to run the simulation first to have the csv files in the specified file path.
+
 📊 Reproduce plots and stats that are presented in our report
 ```bash
   python analysis.py
