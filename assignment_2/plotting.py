@@ -1,10 +1,7 @@
 """
-Comprehensive file to plot rho values against variances in waiting times from results_with_rho.csv and
-plot starting point against the average waiting from results_individual.csv
-Input: Path to file results_with_rho.csv and results_individual.csv
-Output: Plots for rho against variances in waiting times and average waiting time under varied starting points
-
-Plots are saved under simulation_results folder
+Comprehensive file to plot rho values against variances in waiting times from results_with_rho.csv 
+Input: Path to file results_with_rho.csv
+Output: Plot for rho against variances in waiting times and saved under simulation_results folder
 """
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -44,55 +41,4 @@ plt.yticks(fontsize = 18)
 plt.title('Waiting Time Variances for M/M/1, M/M/2, M/M/4 Based on Rho', fontsize = 18)
 plt.legend(fontsize = 16)
 plt.savefig('./simulation_results/variances.png')
-plt.close()
-
-f = pd.read_csv('simulation_results/results_individual.csv',header=0)
-
-data1 = f.loc[f['n_server'] == 1]['waiting_time'].to_numpy()
-data2 = f.loc[f['n_server'] == 2]['waiting_time'].to_numpy()
-data4 = f.loc[f['n_server'] == 4]['waiting_time'].to_numpy()
-
-def get_means(data):
-    split_data = np.array_split(data, 1000)
-    means = np.array([np.mean(arr) for arr in split_data])  # Calculate the mean for each split
-    return means
-
-def get_waiting_time(lam, mu, rho, n):
-    if n == 1:
-        return rho / (mu-lam)
-
-    if n == 2:
-        PI = 2 * rho**2 / (1+ rho)
-        return PI / (n*mu-lam)
-    else:
-        PI = 32*rho**4 / (8*rho**3 + 12*rho**2 + 9*rho + 3)
-        return PI / (n*mu-lam)
-    
-means1 = get_means(data1)
-means2 = get_means(data2)
-means4 = get_means(data4)
-
-cumulative_mean1 = np.cumsum(means1) / np.arange(1, len(means1) + 1)
-cumulative_mean2 = np.cumsum(means2) / np.arange(1, len(means2) + 1)
-cumulative_mean4 = np.cumsum(means4) / np.arange(1, len(means4) + 1)
-
-analytical1 = get_waiting_time(0.98, 1, 0.98, 1)
-analytical2 = get_waiting_time(0.98*2, 1, 0.98, 2)
-analytical4 = get_waiting_time(0.98*4, 1, 0.98, 4)
-
-# Plotting using matplotlib
-plt.plot(range(0,100000,100), cumulative_mean1, label='1 Server',  color=method_colors['M/M/1'])
-plt.plot(range(0,100000,100),cumulative_mean2, label='2 Servers', color=method_colors['M/M/2'])
-plt.plot(range(0,100000,100),cumulative_mean4, label='4 Servers', color=method_colors['M/M/4'])
-
-# Horizontal line showing the analytical value
-plt.axhline(analytical1, label='Analytical 1 Server', linestyle='--', color=method_colors['M/M/1'])
-plt.axhline(analytical2, label='Analytical 2 Servers', linestyle='--', color=method_colors['M/M/2'])
-plt.axhline(analytical4, label='Analytical 4 Servers', linestyle='--', color=method_colors['M/M/4'])
-plt.legend(loc='upper right' ,fontsize=10, borderaxespad = 2)
-plt.title('Caclulated Average Waiting Times for Different Warm-up', fontsize=14)
-plt.xlabel('Warm-up Cut Off', fontsize=12)
-plt.ylabel('Mean Waiting Time', fontsize=12)
-plt.tight_layout()
-plt.savefig('./simulation_results/.png')
 plt.close()

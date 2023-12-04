@@ -11,8 +11,8 @@ Queue-tie Py: Discrete event simulation for varying queue types with SimPy
 ```bash
   python simulation.py
 ```
-You will be prompted to choose what kind of simulation to run from your terminal: `general`, `test system load` or `individual`.
-General is the main simulation to produce **results.csv**, test system load is when we vary the arrival rates to produce **results_with_rho.csv**, individual is when the simulation produce **results_individual.csv**
+You will be prompted to choose what kind of simulation to run from your terminal: `general` or `test system load`.
+General is the main simulation to produce **results.csv** and test system load is when we vary the arrival rates to produce **results_with_rho.csv**
 
 All csv files generated from simulation run will be saved under the simulation_results folder.
 

@@ -4,7 +4,6 @@ import random
 import sys
 from configs import configs
 from main import Simulation
-import pandas as pd
 
 RESULTS_DIR = "simulation_results"
 if not os.path.exists(RESULTS_DIR):
@@ -129,42 +128,6 @@ def simulate_with_different_arrival_rates(lambda_values, server_counts):
                 save_results_to_csv_with_rho(results, file_path, n_servers, experiment_config, rho)
     print(f'Results for simulation saved to {file_path}')
 
-def simulate_with_different_arrival_rates_save_individual():
-    '''Runs the simulation similar to simulate_with_different_arrival_rates but saves each run to a csv file'''
-
-    file_path = os.path.join(RESULTS_DIR, 'results_individual.csv')
-    with open(file_path, 'w', newline='', encoding='utf-8') as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=['run', 'n_server', 'samples', 'time', 'lambda', 'waiting_time'])
-        writer.writeheader()
-
-
-    experiment_name = 'experiment_1'
-    experiment_config = configs()[experiment_name]['kwargs']
-    for n_servers in [1, 2, 4]:
-        copy_experiment_config =  experiment_config.copy()
-        copy_experiment_config['lam'] = copy_experiment_config['lam'] * n_servers
-        for run_number in range(1, NUM_RUNS + 1):
-            random.seed(run_number)
-            simulation = Simulation(**experiment_config, n_servers=n_servers)
-            results = simulation.run()
-            
-            length = len(results['waiting_times'])
-            exclude = int(0.3 * length)
-            
-            # # Calculate averages for each run
-            avg_waiting_time = sum(results['waiting_times'][exclude:]) / (length - exclude)
-            print("\033[A                                                                                             \033[A")
-            print(f"Run {run_number}/{NUM_RUNS} for {n_servers} servers, {experiment_name}, avg wait {avg_waiting_time:.2f}, observations {length}")
-
-            # writing to warmup
-            list_servers = [n_servers] * length
-            list_time = list(range(length))
-            run_number_list = [run_number] *length
-            lam_list = [experiment_config['lam']] *length
-            samples_size_list = [experiment_config['runtime']] * length
-            pd.DataFrame({'run': run_number_list, 'n_server': list_servers,'samples':samples_size_list, 'time': list_time,'lambda' :lam_list, 'waiting_time': results['waiting_times']}).to_csv(file_path, mode='a', header=False, index=False)
-
-
 def run_simulation(simulation_type):
     """Function to switch between simulation types from terminal"""
     if simulation_type == "general":
@@ -174,8 +137,6 @@ def run_simulation(simulation_type):
         lambda_values = [0.90, 0.91, 0.92, 0.93, 0.94, 0.95, 0.96, 0.97, 0.98, 0.99]
         server_counts = [1, 2, 4]
         simulate_with_different_arrival_rates(lambda_values, server_counts)
-    elif simulation_type == "individual":
-        simulate_with_different_arrival_rates_save_individual()
     else:
         print("Invalid simulation type")
 
@@ -183,5 +144,5 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         sim_type = sys.argv[1]
     else:
-        sim_type = input("Enter the simulation type (general, test system load or individual): ")
+        sim_type = input("Enter the simulation type (general or test system load): ")
     run_simulation(sim_type)
