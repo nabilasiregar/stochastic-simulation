@@ -132,8 +132,8 @@ def simulate_with_different_arrival_rates(lambda_values, server_counts):
 def simulate_with_different_arrival_rates_save_individual():
     '''Runs the simulation similar to simulate_with_different_arrival_rates but saves each run to a csv file'''
 
-    file_path = os.path.join(RESULTS_DIR, 'ttest.csv')
-    with open(file_path, 'w', newline='') as csvfile:
+    file_path = os.path.join(RESULTS_DIR, 'results_individual.csv')
+    with open(file_path, 'w', newline='', encoding='utf-8') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=['run', 'n_server', 'samples', 'time', 'lambda', 'waiting_time'])
         writer.writeheader()
 
@@ -159,8 +159,8 @@ def simulate_with_different_arrival_rates_save_individual():
             # writing to warmup
             list_servers = [n_servers] * length
             list_time = list(range(length))
-            run_number_list = [run_number] *length 
-            lam_list = [experiment_config['lam']] *length 
+            run_number_list = [run_number] *length
+            lam_list = [experiment_config['lam']] *length
             samples_size_list = [experiment_config['runtime']] * length
             pd.DataFrame({'run': run_number_list, 'n_server': list_servers,'samples':samples_size_list, 'time': list_time,'lambda' :lam_list, 'waiting_time': results['waiting_times']}).to_csv(file_path, mode='a', header=False, index=False)
 

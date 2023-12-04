@@ -11,10 +11,10 @@ Queue-tie Py: Discrete event simulation of average waiting times for varying que
 ```bash
   python simulation.py
 ```
-You will be prompted to choose what kind of simulation to run from your terminal: `general` or `test system load`.
-General is the main simulation to produce results.csv and test system load is when we vary the arrival rates to produce results_with_rho.csv
+You will be prompted to choose what kind of simulation to run from your terminal: `general`, `test system load` or `individual`.
+General is the main simulation to produce **results.csv**, test system load is when we vary the arrival rates to produce **results_with_rho.csv**, individual is when the simulation produce **results_individual.csv**
 
-If you run the simulation, the csv file be saved under simulation_results folder.
+All csv files generated from simulation run will be saved under the simulation_results folder.
 
 📊 Reproduce plots and stats that are presented in our report (❗ You need to run the simulation first)
 ```bash

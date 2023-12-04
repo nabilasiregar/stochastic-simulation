@@ -1,7 +1,7 @@
 """
 Comprehensive file to plot rho values against variances in waiting times from results_with_rho.csv and
-plot starting point against the average waiting from ttest.csv
-Input: Path to file results_with_rho.csv and ttest.csv
+plot starting point against the average waiting from results_individual.csv
+Input: Path to file results_with_rho.csv and results_individual.csv
 Output: Plots for rho against variances in waiting times and average waiting time under varied starting points
 
 Plots are saved under simulation_results folder
@@ -46,7 +46,8 @@ plt.legend(fontsize = 16)
 plt.savefig('./simulation_results/variances.png')
 plt.close()
 
-f = pd.read_csv('simulation_results/ttest.csv',header=0)
+f = pd.read_csv('simulation_results/results_individual.csv',header=0)
+
 data1 = f.loc[f['n_server'] == 1]['waiting_time'].to_numpy()
 data2 = f.loc[f['n_server'] == 2]['waiting_time'].to_numpy()
 data4 = f.loc[f['n_server'] == 4]['waiting_time'].to_numpy()
