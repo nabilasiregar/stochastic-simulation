@@ -1,10 +1,12 @@
 # Assignment 2
-Discrete event simulation for queuing system using SimPy
-
-## Prerequisite
-Python >3.10
+Queue-tie Py: Discrete event simulation of average waiting times for varying queue types with SimPy
 
 ## How to Run
+📁 Go to the project directory
+```bash
+  cd stochastic-simulation/assignment_2
+```
+
 💻  Run the simulation
 ```bash
   python simulation.py
@@ -14,7 +16,7 @@ General is the main simulation to produce results.csv and test system load is wh
 
 If you run the simulation, the csv file be saved under simulation_results folder.
 
-📊 Reproduce plots and stats that are presented in our report
+📊 Reproduce plots and stats that are presented in our report (❗ You need to run the simulation first)
 ```bash
   python analysis.py
 ```
@@ -22,5 +24,4 @@ If you run the simulation, the csv file be saved under simulation_results folder
 ```bash
   python plotting.py
 ```
-❗ You need to run the simulation first to have the csv files in the specified file path.
 All plots will be saved under 'simulation_results' folder.
