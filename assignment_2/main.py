@@ -65,16 +65,15 @@ class Simulation:
                     yield self.env.timeout(customer.duration)
                     if self.debug:
                         print(f'{customer.name} finished service at {self.env.now:.2f}')
-                    waiting_time = self.env.now - arrival_time
                 except simpy.Interrupt as interrupt:
-                    by = interrupt.cause.by
                     usage = self.env.now - interrupt.cause.usage_since
-                    waiting_time = self.env.now - arrival_time - usage
+                    customer.duration -= usage
+                    yield self.env.timeout(customer.duration)
+
                     if self.debug:
-                        print(f'{customer.name} got preempted by {by} at {self.env.now} after {usage}')
+                        print(f'{customer.name} finished service after preemption at {self.env.now:.2f}')
 
-
-
+            waiting_time = self.env.now - arrival_time - customer.duration
             system_time = self.env.now - customer.arrival_time
             busy_time = customer.duration
             self.results['waiting_times'].append(waiting_time)

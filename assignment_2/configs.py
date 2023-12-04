@@ -27,7 +27,7 @@ def configs():
         "experiment_1":
         {"name": "M/M/n",
         "kwargs": {
-            "lam": 0.99,
+            "lam": 0.98,
             "mu": 1,
             "dist_wait": random.expovariate,
             "dist_serve": random.expovariate,
@@ -39,7 +39,7 @@ def configs():
         "experiment_2":
         {"name": "M/M/1P",
         "kwargs": {
-            "lam": 0.99,
+            "lam": 0.98,
             "mu": 1,
             "dist_wait": random.expovariate,
             "dist_serve": random.expovariate,
@@ -51,7 +51,7 @@ def configs():
         "experiment_3":
         {"name": "M/G/n",
         "kwargs": {
-            "lam": 0.99,
+            "lam": 0.98,
             "mu": 1,
             "dist_wait": random.expovariate,
             "dist_serve": lognormal,
@@ -63,7 +63,7 @@ def configs():
         "experiment_4":
         {"name": "M/G/n",
         "kwargs": {
-            "lam": 0.99,
+            "lam": 0.98,
             "mu": 1,
             "dist_wait": random.expovariate,
             "dist_serve": hyperexponential,
@@ -75,7 +75,7 @@ def configs():
         "experiment_5":
         {"name": "M/M/nPreempt",
         "kwargs": {
-            "lam": 0.99,
+            "lam": 0.98,
             "mu": 1,
             "dist_wait": random.expovariate,
             "dist_serve": random.expovariate,
@@ -87,7 +87,7 @@ def configs():
         "experiment_6":
         {"name": "M/M/1Preempt",
         "kwargs": {
-            "lam": 0.99,
+            "lam": 0.98,
             "mu": 1,
             "dist_wait": random.expovariate,
             "dist_serve": lognormal,
