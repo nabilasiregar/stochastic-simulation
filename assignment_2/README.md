@@ -10,14 +10,16 @@ Python >3.10
   python main.py
 ```
 
-⏳ Run the simulation (optional)
+⏳ Run the simulation
 ```bash
   python simulation.py
 ```
-❗ You will be prompted to choose what kind of simulation to run from your terminal: `general` or `test system load`.
+You will be prompted to choose what kind of simulation to run from your terminal: `general` or `test system load`.
 General is the main simulation to produce results.csv and test system load is when we vary the arrival rates to produce results_with_rho.csv
+
 If you run the simulation, the csv file be saved under simulation_results folder.
 
+❗ You need to run the simulation first to have the csv files in the specified file path
 📊 Reproduce plots and stats that are presented in our report
 ```bash
   python analysis.py
