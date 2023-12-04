@@ -1,8 +1,8 @@
+"""Module to perform discrete-event simulation"""
 import simpy
-import random
-import argparse
 
 class Customer():
+    """Customer arrives, is served and leaves."""
     def __init__(self, env, name, duration, priority=False):
         self.env = env
         self.name = name
@@ -11,10 +11,24 @@ class Customer():
         self.priority = self.duration if priority else 0
 
 class Server:
+    """Server preempt less important tasks. The server continues serving the costumer when the server is done
+  serving customer with the shortest job"""
     def __init__(self, env, capacity):
         self.resource = simpy.PreemptiveResource(env, capacity=capacity)
 
 class Simulation:
+    """
+        Input parameters
+        lam: the arrival rate to the system
+        mu: the capacity of each of n equal servers
+        dist_wait: the arrival rate distribution
+        dist_serve: the service rate distribution
+        n_servers: the number of servers/resources
+        priority: Give priority to the smallest jobs (True/False)
+        preempt: Abandoning current customer being served (True/False)
+        debug: Run in debug mode (True/False)
+        runtime: An integer to limit how long the queue keeps going
+    """
     def __init__(self, lam, mu, dist_wait, dist_serve, n_servers, priority, preempt, debug, runtime):
         self.lam = lam
         self.mu = mu
@@ -71,20 +85,3 @@ class Simulation:
     def run(self):
         self.env.run(until=self.runtime)
         return self.results
-    
-def main(debug, n_servers):
-    mu = 0.8
-    lam = 0.28
-    priority = True
-    runtime = 1000
-
-    simulation = Simulation(lam, mu, n_servers, priority, debug, runtime)
-    simulation.run()
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Run the simulation in debug mode.')
-    parser.add_argument('--debug', action='store_true', help='Enable debug mode')
-    parser.add_argument('--servers', type=int, default=2, help='Number of servers')
-    args = parser.parse_args()
-
-    main(args.debug, args.servers)
