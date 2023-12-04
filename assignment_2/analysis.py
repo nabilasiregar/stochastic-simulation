@@ -107,58 +107,38 @@ def statistics(filename):
     log_stds = [mm1_wait_std, log_mm1_wait_std, mm2_wait_std, log_mm2_wait_std, mm4_wait_std, log_mm4_wait_std]
 
     
-    #Creating the general stats and displaying in LaTeX 
-    general_stats = df.groupby(["n_server", "dist_serve", "priority", "preempt"])["avg_waiting_time"].agg(["mean", "std"])
-    print(general_stats.style.to_latex())
     
 
     #Kruskal-Wallis tests 
-    gen_kw_statistic, gen_kw_p_value = stats.kruskal(mm1_data, mm2_data, mm4_data)
-    print(f"P_value for General Kruskal-Wallis test: {gen_kw_p_value}")
-
-    mm1_kw_statistic, mm1_kw_p_value = stats.kruskal(mm1_data, prio_mm1_data, preempt_mm1_data, hyp_mm1_data)
+    mm1_kw_statistic, mm1_kw_p_value = stats.kruskal(mm1_data, prio_mm1_data, preempt_mm1_data, hyp_mm1_data, log_mm1_data, preempt_log_mm1_data)
     print(f"P_value for Kruskal-Wallis test of M/X/1 Variants without LN: {mm1_kw_p_value}")
 
-    mm2_kw_statistic, mm2_kw_p_value = stats.kruskal(mm2_data, prio_mm2_data, preempt_mm2_data, hyp_mm2_data)
+    mm2_kw_statistic, mm2_kw_p_value = stats.kruskal(mm2_data, prio_mm2_data, preempt_mm2_data, hyp_mm2_data, log_mm2_data, preempt_log_mm2_data)
     print(f"P_value for Kruskal-Wallis test of M/X/2 Variants without LN: {mm2_kw_p_value}")
 
-    mm4_kw_statistic, mm4_kw_p_value = stats.kruskal(mm4_data, prio_mm4_data, preempt_mm4_data, hyp_mm4_data)
+    mm4_kw_statistic, mm4_kw_p_value = stats.kruskal(mm4_data, prio_mm4_data, preempt_mm4_data, hyp_mm4_data, log_mm4_data, preempt_log_mm4_data)
     print(f"P_value for Kruskal-Wallis test of M/X/4 Variants without LN: {mm4_kw_p_value}")
-
-    log_kw_statistic, log_kw_p_value = stats.kruskal(log_mm1_data, log_mm2_data, log_mm4_data)
-    print(f"P_value for Kruskal-Wallis test with LN: {log_kw_p_value}")
     print()
     
     #Tukey Post-hoc tests for each significant Kruskall-Wallis
-    tukey = pairwise_tukeyhsd(np.concatenate([mm1_data.values, mm2_data.values, mm4_data.values]),
-                     groups=np.repeat(["M/M/1", "M/M/2", "M/M/4"], [len(mm1_data), len(mm2_data), len(mm4_data)]))
-    print("Tukey for General Comparison")
-    print(tukey)
-    print()
-    
-    tukey = pairwise_tukeyhsd(np.concatenate([mm1_data.values, prio_mm1_data.values, preempt_mm1_data.values, hyp_mm1_data.values]),
-                     groups=np.repeat(["M/M/1", "M/M/1NP", "M/M/1P", "M/H/1"], [len(mm1_data), len(prio_mm1_data), len(preempt_mm1_data), len(hyp_mm1_data)]))
+    tukey = pairwise_tukeyhsd(np.concatenate([mm1_data.values, prio_mm1_data.values, preempt_mm1_data.values, hyp_mm1_data.values, log_mm1_data.values, preempt_log_mm1_data.values]),
+                     groups=np.repeat(["M/M/1", "M/M/1NP", "M/M/1P", "M/H/1", "M/LN/1", "M/LN/1P"], [len(mm1_data), len(prio_mm1_data), len(preempt_mm1_data), len(hyp_mm1_data), len(log_mm1_data), len(preempt_log_mm1_data)]))
     print("Tukey for M/X/1 without LN")
     print(tukey)
     print()
     
-    tukey = pairwise_tukeyhsd(np.concatenate([mm2_data.values, prio_mm2_data.values, preempt_mm2_data.values, hyp_mm2_data.values]),
-                     groups=np.repeat(["M/M/2", "M/M/2NP", "M/M/2P", "M/H/2"], [len(mm2_data), len(prio_mm2_data), len(preempt_mm2_data), len(hyp_mm2_data)]))
+    tukey = pairwise_tukeyhsd(np.concatenate([mm2_data.values, prio_mm2_data.values, preempt_mm2_data.values, hyp_mm2_data.values, log_mm2_data.values, preempt_log_mm2_data.values]),
+                     groups=np.repeat(["M/M/2", "M/M/2NP", "M/M/2P", "M/H/2", "M/LN/2", "M/LN/2P"], [len(mm2_data), len(prio_mm2_data), len(preempt_mm2_data), len(hyp_mm2_data), len(log_mm2_data), len(preempt_log_mm2_data)]))
     print("Tukey for M/X/2 without LN")
     print(tukey)
     print()
     
-    tukey = pairwise_tukeyhsd(np.concatenate([mm4_data.values, prio_mm4_data.values, preempt_mm4_data.values, hyp_mm4_data.values]),
-                     groups=np.repeat(["M/M/4", "M/M/4NP", "M/M/4P", "M/H/4"], [len(mm4_data), len(prio_mm4_data), len(preempt_mm4_data), len(hyp_mm4_data)]))
+    tukey = pairwise_tukeyhsd(np.concatenate([mm4_data.values, prio_mm4_data.values, preempt_mm4_data.values, hyp_mm4_data.values, log_mm4_data.values, preempt_log_mm4_data.values]),
+                     groups=np.repeat(["M/M/4", "M/M/4NP", "M/M/4P", "M/H/4", "M/LN/4", "M/LN/4P"], [len(mm4_data), len(prio_mm4_data), len(preempt_mm4_data), len(hyp_mm4_data), len(log_mm4_data), len(preempt_log_mm4_data)]))
     print("Tukey for M/X/4 without LN")
     print(tukey)
     print()
-    
-    tukey = pairwise_tukeyhsd(np.concatenate([log_mm1_data.values, log_mm2_data.values, log_mm4_data.values]),
-                     groups=np.repeat(["M/LN/1", "M/LN/2", "M/LN/4"], [len(log_mm1_data), len(log_mm2_data), len(log_mm4_data)]))
-    print("Tukey for M/X/4 without LN")
-    print(tukey)
-    print()
+
     
     #Shapiro-Wilk Tests for Normality
     data_arrays = [mm1_data, mm2_data, mm4_data, prio_mm1_data, prio_mm2_data, prio_mm4_data,
@@ -185,7 +165,6 @@ def statistics(filename):
     print()
     
     #Create and display the confidence intervals
-    
     all_methods = ["M/M/1", "M/M/1NP", "M/M/1P", "M/LN/1P", "M/H/1", "M/M/2", "M/M/2NP", "M/M/2P", "M/LN/2P", "M/H/2", "M/M/4", "M/M/4NP", "M/M/4P", "M/LN/4P", "M/H/4", "M/LN/1", "M/LN/2", "M/LN/4"]
     all_means = [mm1_wait_mean, prio_mm1_wait_mean, preempt_mm1_wait_mean, preempt_log_mm1_wait_mean, hyp_mm1_wait_mean,
              mm2_wait_mean, prio_mm2_wait_mean, preempt_mm2_wait_mean, preempt_log_mm2_wait_mean, hyp_mm2_wait_mean,
@@ -194,13 +173,21 @@ def statistics(filename):
             mm2_wait_std, prio_mm2_wait_std, preempt_mm2_wait_std, preempt_log_mm2_wait_std, hyp_mm2_wait_std, 
             mm4_wait_std, prio_mm4_wait_std, preempt_mm4_wait_std, preempt_log_mm4_wait_std, hyp_mm4_wait_std, log_mm1_wait_std, log_mm2_wait_std, log_mm4_wait_std]
     
+    intervals = []
     for i, method in enumerate(all_methods):
-            alpha = 0.05
-            standard_error = all_stds[i]/ np.sqrt(20)
-            df = 19
-            conf_interval = stats.t.interval(1-alpha, df, all_means[i], scale=standard_error)
+            alpha = 0.01
+            standard_error = all_stds[i]/ np.sqrt(len(mm1_data))
+            select_df = len(mm1_data) - 1
+            conf_interval = stats.t.interval(1-alpha, select_df, all_means[i], scale=standard_error)
             rounded_conf_interval = tuple(round(value, 3) for value in conf_interval)
+            intervals.append(rounded_conf_interval)
             print(f"{all_methods[i]} Confidence Interval: {rounded_conf_interval}")
+
+    #Creating the general stats and displaying in LaTeX 
+    general_stats = df.groupby(["n_server", "dist_serve", "priority", "preempt"])["avg_waiting_time"].agg(["mean", "std"])
+    general_stats["conf_interval"] = intervals
+    print(general_stats.head())
+    print(general_stats.to_latex(float_format="%.3f"))
             
     #One-Sample T-Tests for general M/M/n distributions
 
@@ -219,8 +206,7 @@ def statistics(filename):
     test_statistic3, p_value4 = stats.ttest_1samp(mm4_data.values, analytical_mean_mm4, alternative="two-sided")
     print(f"P-value 1-Sample T-test for MM4 data: {p_value4}")
 
-    #Creating bar charts for M/X/n queues exclusing M/LN/n queues
-    
+    #Creating bar charts for M/X/n queues excluding M/LN/n queues
     method_colors = {
     "M/M/1": "#8BBF9F",
     "M/M/1NP": "#83BCFF",
