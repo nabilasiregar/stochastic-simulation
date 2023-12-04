@@ -5,16 +5,6 @@ Discrete event simulation for queuing system using SimPy
 Python >3.10
 
 ## How to Run
-📋 Clone the project
-```bash
-  git clone https://github.com/nabilasiregar/stochastic-simulation
-```
-
-📁 Go to the project directory
-```bash
-  cd stochastic-simulation/assignment_2
-```
-
 💻 Run the main file
 ```bash
   python main.py
