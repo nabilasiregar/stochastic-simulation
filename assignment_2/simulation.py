@@ -35,10 +35,6 @@ def save_average_results_to_csv(average_results, file_path, n_server, kwargs):
             'avg_utilization': average_results['avg_utilization']
         })
 
-    with open(file_path, 'w', newline='', encoding='utf-8') as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=['n_server', 'dist_wait', 'dist_serve', 'priority', 'preempt', 'avg_waiting_time', 'avg_system_time', 'avg_utilization'])
-        writer.writeheader()
-
 def save_results_to_csv_with_rho(results, file_path, n_server, kwargs, rho):
     """
      A function to save experiment results from the simulation to a csv file with extra rho column appended
@@ -72,6 +68,11 @@ def save_results_to_csv_with_rho(results, file_path, n_server, kwargs, rho):
 
 def main_simulation():
     """The main simulation function to run the experiment"""
+    file_path = os.path.join(RESULTS_DIR, 'results.csv')
+    with open(file_path, 'w', newline='', encoding='utf-8') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=['n_server', 'dist_wait', 'dist_serve', 'priority', 'preempt', 'avg_waiting_time', 'avg_system_time', 'avg_utilization'])
+        writer.writeheader()
+
     for experiment in configs():
         print(f"Running simulations for {experiment}...")
         for n_servers in [1, 2, 4]:
@@ -95,7 +96,6 @@ def main_simulation():
                     'avg_utilization': avg_utilization
                 }
 
-                file_path = os.path.join(RESULTS_DIR, 'main_results.csv')
                 save_average_results_to_csv(average_results, file_path, n_servers, experiment_config)
     print(f'Results for simulation saved to {file_path}')
 
