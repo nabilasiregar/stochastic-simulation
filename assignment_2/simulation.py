@@ -12,6 +12,15 @@ if not os.path.exists(RESULTS_DIR):
 NUM_RUNS = 20
 
 def save_average_results_to_csv(average_results, file_path, n_server, kwargs):
+    """
+     A function to save experiment results from the simulation to a csv file
+
+     Input parameters
+     average_results: averaged simulation results from each run
+     file_path: to specify the csv filename and location
+     n_server: the number of servers
+     kwargs: arguments from configs file
+    """
     with open(file_path, 'a', newline='', encoding='utf-8') as csvfile:
         fieldnames = ['n_server', 'dist_wait', 'dist_serve', 'priority', 'preempt', 'avg_waiting_time', 'avg_system_time', 'avg_utilization']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
@@ -31,6 +40,16 @@ def save_average_results_to_csv(average_results, file_path, n_server, kwargs):
         writer.writeheader()
 
 def save_results_to_csv_with_rho(results, file_path, n_server, kwargs, rho):
+    """
+     A function to save experiment results from the simulation to a csv file with extra rho column appended
+
+     Input parameters
+     average_results: averaged simulation results from each run
+     file_path: to specify the csv filename and location
+     n_server: the number of servers
+     kwargs: arguments from configs file
+     rho: analytical rho based on mu, lambda, and number of servers
+    """
     with open(file_path, 'a', newline='', encoding='utf-8') as csvfile:
         fieldnames = ['n_server', 'dist_wait', 'dist_serve', 'priority', 'preempt', 'waiting_time', 'system_time', 'utilization', 'rho']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
@@ -52,6 +71,7 @@ def save_results_to_csv_with_rho(results, file_path, n_server, kwargs, rho):
         writer.writeheader()
 
 def main_simulation():
+    """The main simulation function to run the experiment"""
     for experiment in configs():
         print(f"Running simulations for {experiment}...")
         for n_servers in [1, 2, 4]:
@@ -80,6 +100,7 @@ def main_simulation():
     print(f'Results for simulation saved to {file_path}')
 
 def simulate_with_different_arrival_rates(lambda_values, server_counts):
+    """Simulation function to see how the number of measurements (e.g. varying the arrival rate) depend on rho"""
     for lam in lambda_values:
         for n_servers in server_counts:
             # Only running M/M/n queue type
@@ -108,6 +129,7 @@ def simulate_with_different_arrival_rates(lambda_values, server_counts):
     print(f'Results for simulation saved to {file_path}')
 
 def run_simulation(simulation_type):
+    """Function to switch between simulation types from terminal"""
     if simulation_type == "general":
         main_simulation()
     elif simulation_type == "test system load":
