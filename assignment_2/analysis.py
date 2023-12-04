@@ -144,13 +144,13 @@ data_names = ["mm1", "mm2", "mm4", "prio_mm1", "prio_mm2", "prio_mm4",
 shapiro_stats = []
 shapiro_pvalues = []
 for data in data_arrays:
-shapiro_stat, shapiro_pvalue = stats.shapiro(data)
-shapiro_stats.append(shapiro_stat)
-shapiro_pvalues.append(shapiro_pvalue)
+        shapiro_stat, shapiro_pvalue = stats.shapiro(data)
+        shapiro_stats.append(shapiro_stat)
+        shapiro_pvalues.append(shapiro_pvalue)
 
 for i, p_value in enumerate(shapiro_pvalues):
-print(f"Shapiro-Wilk p-value for {data_names[i]}: {p_value}")
-print()
+        print(f"Shapiro-Wilk p-value for {data_names[i]}: {p_value}")
+        print()
 
 
 #Create and display the confidence intervals
