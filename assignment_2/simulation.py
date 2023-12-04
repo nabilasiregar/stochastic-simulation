@@ -25,15 +25,18 @@ def save_average_results_to_csv(average_results, file_path, run_number, n_server
             'avg_utilization': average_results['avg_utilization']
         })
 
-file_path = os.path.join(results_dir, 'results.csv')
+# file_path = os.path.join(results_dir, 'results.csv')
+# with open(file_path, 'w', newline='') as csvfile:
+#     writer = csv.DictWriter(csvfile, fieldnames=['n_server', 'dist_wait', 'dist_serve', 'priority', 'preempt', 'avg_waiting_time', 'avg_system_time', 'avg_utilization'])
+#     writer.writeheader()
 
+file_path = os.path.join(results_dir, 'ttest.csv')
 with open(file_path, 'w', newline='') as csvfile:
-    writer = csv.DictWriter(csvfile, fieldnames=['n_server', 'dist_wait', 'dist_serve', 'priority', 'preempt', 'avg_waiting_time', 'avg_system_time', 'avg_utilization'])
+    writer = csv.DictWriter(csvfile, fieldnames=['run', 'n_server', 'samples', 'time', 'lambda', 'waiting_time'])
     writer.writeheader()
 
-with open("simulation_results/warmup.csv", 'w', newline='') as csvfile:
-    writer = csv.DictWriter(csvfile, fieldnames=['run', 'waiting_time'])
-    writer.writeheader()
+
+
 num_runs = 20
 for experiment in configs():
     print(f"Running simulations for {experiment}...")
@@ -45,21 +48,30 @@ for experiment in configs():
             simulation = Simulation(**experiment_config, n_servers=n_servers)
             results = simulation.run()
             
-            exclude = int(0.3 * len(results['waiting_times']))
+            length = len(results['waiting_times'])
+            exclude = int(0.3 * length)
             
-            # Calculate averages for each run
-            avg_waiting_time = sum(results['waiting_times'][exclude:]) / (len(results['waiting_times']) - exclude)
-            avg_system_time = sum(results['system_times'][exclude:]) / (len(results['system_times']) - exclude)
-            avg_utilization = sum(results['utilization'][exclude:]) / (len(results['utilization']) - exclude)
+            # # Calculate averages for each run
+            avg_waiting_time = sum(results['waiting_times'][exclude:]) / (length - exclude)
+            # avg_system_time = sum(results['system_times'][exclude:]) / (len(results['system_times']) - exclude)
+            # avg_utilization = sum(results['utilization'][exclude:]) / (len(results['utilization']) - exclude)
 
+            # average_results = {
+            #     'avg_waiting_time': avg_waiting_time,
+            #     'avg_system_time': avg_system_time,
+            #     'avg_utilization': avg_utilization
+            # }
             print("\033[A                                                                                             \033[A")
-            print(f"Run {run_number}/{num_runs} for {n_servers} servers, {experiment}, avg wait {avg_waiting_time:.2f}, observations {len(results['waiting_times'])}")
-            average_results = {
-                'avg_waiting_time': avg_waiting_time,
-                'avg_system_time': avg_system_time,
-                'avg_utilization': avg_utilization
-            }
+            print(f"Run {run_number}/{num_runs} for {n_servers} servers, {experiment}, avg wait {avg_waiting_time:.2f}, observations {length}")
 
-            save_average_results_to_csv(average_results, file_path, run_number, n_servers, experiment_config)
+            # writing to warmup
+            list_servers = [n_servers] * length
+            list_time = list(range(length))
+            run_number_list = [run_number] *length 
+            lam_list = [experiment_config['lam']] *length 
+            samples_size_list = [experiment_config['runtime']] * length
+            pd.DataFrame({'run': run_number_list, 'n_server': list_servers,'samples':samples_size_list, 'time': list_time,'lambda' :lam_list, 'waiting_time': results['waiting_times']}).to_csv(file_path, mode='a', header=False, index=False)
+
+            # save_average_results_to_csv(average_results, file_path, run_number, n_servers, experiment_config)
 
 print(f'Results for simulation saved to {file_path}')

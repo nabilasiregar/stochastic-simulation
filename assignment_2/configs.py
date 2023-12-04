@@ -13,78 +13,93 @@ def lognormal(x):
 def hyperexponential(x):
     return random.expovariate(x) if random.random() < 0.75 else random.expovariate(x*1.5)
 
+# def configs():
+#     return {
+#         "experiment_1":
+#         {"name": "M/M/n",
+#         "kwargs": {
+#             "lam": 0.9,
+#             "mu": 1,
+#             "dist_wait": random.expovariate,
+#             "dist_serve": random.expovariate,
+#             "priority": False,
+#             "preempt": False,
+#             "debug": False,
+#             "runtime": 30000},
+#         },
+#         "experiment_2":
+#         {"name": "M/M/1P",
+#         "kwargs": {
+#             "lam": 0.98,
+#             "mu": 1,
+#             "dist_wait": random.expovariate,
+#             "dist_serve": random.expovariate,
+#             "priority": True,
+#             "preempt": False,
+#             "debug": False,
+#             "runtime": 30000},
+#         },
+#         "experiment_3":
+#         {"name": "M/G/n",
+#         "kwargs": {
+#             "lam": 0.98,
+#             "mu": 1,
+#             "dist_wait": random.expovariate,
+#             "dist_serve": lognormal,
+#             "priority": False,
+#             "preempt": False,
+#             "debug": False,
+#             "runtime": 30000},
+#         },
+#         "experiment_4":
+#         {"name": "M/G/n",
+#         "kwargs": {
+#             "lam": 0.98,
+#             "mu": 1,
+#             "dist_wait": random.expovariate,
+#             "dist_serve": hyperexponential,
+#             "priority": False,
+#             "preempt": False,
+#             "debug": False,
+#             "runtime": 30000},
+#         },
+#         "experiment_5":
+#         {"name": "M/M/nPreempt",
+#         "kwargs": {
+#             "lam": 0.98,
+#             "mu": 1,
+#             "dist_wait": random.expovariate,
+#             "dist_serve": random.expovariate,
+#             "priority": True,
+#             "preempt": True,
+#             "debug": False,
+#             "runtime": 30000},
+#         },
+#         "experiment_6":
+#         {"name": "M/M/1Preempt",
+#         "kwargs": { 
+#             "lam": 0.98,
+#             "mu": 1,
+#             "dist_wait": random.expovariate,
+#             "dist_serve": lognormal,
+#             "priority": True,
+#             "preempt": True,
+#             "debug": False,
+#             "runtime": 30000},
+#         },
+#     }
 def configs():
+    lams = np.arange(0.9,0.99, 0.01)
     return {
-        "experiment_1":
+        f"experiment_{i}{runs}":
         {"name": "M/M/n",
         "kwargs": {
-            "lam": 0.98,
+            "lam": lam,
             "mu": 1,
             "dist_wait": random.expovariate,
             "dist_serve": random.expovariate,
             "priority": False,
             "preempt": False,
             "debug": False,
-            "runtime": 30000},
-        },
-        "experiment_2":
-        {"name": "M/M/1P",
-        "kwargs": {
-            "lam": 0.98,
-            "mu": 1,
-            "dist_wait": random.expovariate,
-            "dist_serve": random.expovariate,
-            "priority": True,
-            "preempt": False,
-            "debug": False,
-            "runtime": 30000},
-        },
-        "experiment_3":
-        {"name": "M/G/n",
-        "kwargs": {
-            "lam": 0.98,
-            "mu": 1,
-            "dist_wait": random.expovariate,
-            "dist_serve": lognormal,
-            "priority": False,
-            "preempt": False,
-            "debug": False,
-            "runtime": 30000},
-        },
-        "experiment_4":
-        {"name": "M/G/n",
-        "kwargs": {
-            "lam": 0.98,
-            "mu": 1,
-            "dist_wait": random.expovariate,
-            "dist_serve": hyperexponential,
-            "priority": False,
-            "preempt": False,
-            "debug": False,
-            "runtime": 30000},
-        },
-        "experiment_5":
-        {"name": "M/M/nPreempt",
-        "kwargs": {
-            "lam": 0.98,
-            "mu": 1,
-            "dist_wait": random.expovariate,
-            "dist_serve": random.expovariate,
-            "priority": True,
-            "preempt": True,
-            "debug": False,
-            "runtime": 30000},
-        },
-        "experiment_6":
-        {"name": "M/M/1Preempt",
-        "kwargs": { 
-            "lam": 0.98,
-            "mu": 1,
-            "dist_wait": random.expovariate,
-            "dist_serve": lognormal,
-            "priority": True,
-            "preempt": True,
-            "debug": False,
-            "runtime": 30000},
-        },
-    }
+            "runtime": runs},
+        } for i,lam in enumerate(lams) for runs in [100, 1000, 10000]}
