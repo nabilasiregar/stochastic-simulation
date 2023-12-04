@@ -53,7 +53,7 @@ class Simulation:
             if self.debug:
                 print(f'Customer {i} arrived at {self.env.now:.2f}')
             self.env.process(self.serve_customer(customer))
-
+            
     def serve_customer(self, customer):
         arrival_time = self.env.now
         while True:
