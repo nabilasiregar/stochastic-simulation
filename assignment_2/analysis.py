@@ -1,6 +1,6 @@
 """
 Comprehensive file to provide all of the statistics from the generated data from all of the queues.
-Input: Path to file for csv with result data
+Input: Path to file results.csv
 Output:  Latex formatted summary statistics, 
 p-values for ANOVA between M/M/n queues and for each n in the M/X/n queues and their Tukey Post-hoc results, 
 p-values for T-tests between M/M/n queues and their M/LN/X counterparts, 
