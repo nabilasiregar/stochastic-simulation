@@ -79,12 +79,12 @@ analytical1 = get_waiting_time(0.98, 1, 0.98, 1)
 analytical2 = get_waiting_time(0.98*2, 1, 0.98, 2)
 analytical4 = get_waiting_time(0.98*4, 1, 0.98, 4)
 
-#plotting using matplotlib
+# Plotting using matplotlib
 plt.plot(range(0,100000,100), cumulative_mean1, label='1 Server',  color=method_colors['M/M/1'])
 plt.plot(range(0,100000,100),cumulative_mean2, label='2 Servers', color=method_colors['M/M/2'])
 plt.plot(range(0,100000,100),cumulative_mean4, label='4 Servers', color=method_colors['M/M/4'])
 
-# horizontal line showing the analytical value
+# Horizontal line showing the analytical value
 plt.axhline(analytical1, label='Analytical 1 Server', linestyle='--', color=method_colors['M/M/1'])
 plt.axhline(analytical2, label='Analytical 2 Servers', linestyle='--', color=method_colors['M/M/2'])
 plt.axhline(analytical4, label='Analytical 4 Servers', linestyle='--', color=method_colors['M/M/4'])

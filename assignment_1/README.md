@@ -5,6 +5,11 @@ Estimating the area of Mandelbrot set with monte carlo integration
 Python >3.10
 
 ## How to Run
+📁 Go to the project directory
+```bash
+  cd stochastic-simulation/assignment_1
+```
+
 💻 Run the main file
 ```bash
   python main.py
