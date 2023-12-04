@@ -1,11 +1,9 @@
+import math
 import numpy as np
 import pandas as pd
-import pingouin as pg
-import math
 from scipy import stats
 import matplotlib.pyplot as plt
 from matplotlib.colors import to_rgba
-import statsmodels.stats.power as smp
 from statsmodels.stats.multicomp import pairwise_tukeyhsd
 
 def statistics(filename):
@@ -94,11 +92,11 @@ def statistics(filename):
     preempt_log_mm2_wait_std = np.std(preempt_log_mm2_data)
     preempt_log_mm4_wait_std = np.std(preempt_log_mm4_data)
 
-    
+
     #Creating the general stats and displaying in LaTeX 
     general_stats = df.groupby(["n_server", "dist_serve", "priority", "preempt"])["avg_waiting_time"].agg(["mean", "std"])
     print(general_stats.style.to_latex())
-    
+
 
     #Kruskal-Wallis tests 
     mm1_kw_statistic, mm1_kw_p_value = stats.kruskal(mm1_data, prio_mm1_data, preempt_mm1_data, hyp_mm1_data, log_mm1_data, preempt_log_mm1_data)
@@ -111,6 +109,7 @@ def statistics(filename):
     print(f"P_value for Kruskal-Wallis test of M/X/4 Variants without LN: {mm4_kw_p_value}")
     print()
     
+
     #Tukey Post-hoc tests for each significant Kruskall-Wallis
     tukey = pairwise_tukeyhsd(np.concatenate([mm1_data.values, prio_mm1_data.values, preempt_mm1_data.values, hyp_mm1_data.values, log_mm1_data.values, preempt_log_mm1_data.values]),
                      groups=np.repeat(["M/M/1", "M/M/1NP", "M/M/1P", "M/H/1", "M/LN/1", "M/LN/1P"], [len(mm1_data), len(prio_mm1_data), len(preempt_mm1_data), len(hyp_mm1_data), len(log_mm1_data), len(preempt_log_mm1_data)]))
@@ -155,6 +154,7 @@ def statistics(filename):
         print(f"Shapiro-Wilk p-value for {data_names[i]}: {p_value}")
     print()
     
+
     #Create and display the confidence intervals
     all_methods = ["M/M/1", "M/M/1NP", "M/M/1P", "M/LN/1P", "M/H/1", "M/M/2", "M/M/2NP", "M/M/2P", "M/LN/2P", "M/H/2", "M/M/4", "M/M/4NP", "M/M/4P", "M/LN/4P", "M/H/4", "M/LN/1", "M/LN/2", "M/LN/4"]
     all_means = [mm1_wait_mean, prio_mm1_wait_mean, preempt_mm1_wait_mean, preempt_log_mm1_wait_mean, hyp_mm1_wait_mean,
@@ -171,7 +171,8 @@ def statistics(filename):
             conf_interval = stats.t.interval(1-alpha, df, all_means[i], scale=standard_error)
             rounded_conf_interval = tuple(round(value, 3) for value in conf_interval)
             print(f"{all_methods[i]} Confidence Interval: {rounded_conf_interval}")
-            
+
+
     #One-Sample T-Tests for general M/M/n distributions
     analytical_mean_mm1 = (0.98)*(1/(1 - 0.98))
     analytical_mean_mm2 = ((2*(0.98)**2)/(1 + (0.98)))*(1/(1 - 0.98))*(1/2)
@@ -186,6 +187,7 @@ def statistics(filename):
 
     test_statistic3, p_value4 = stats.ttest_1samp(mm4_data.values, analytical_mean_mm4, alternative="two-sided")
     print(f"P-value 1-Sample T-test for MM4 data: {p_value4}")
+
 
     #Creating bar charts for M/X/n queues excluding M/LN/n queues
     method_colors = {
@@ -237,6 +239,7 @@ def statistics(filename):
     plt.tight_layout()
     plt.show()
     print()
+    
     
     #Creating Bar Charts for M/M/n queues against M/LN/n queues
     plt.figure(figsize=(12, 6))
