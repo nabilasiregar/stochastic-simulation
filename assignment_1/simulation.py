@@ -1,4 +1,4 @@
-from Engels_14947994_Sahrani_12661651_Siregar_1486305 import uniform_circle, uniform_square, orthogonal_circle, latin_hypercube, orthogonal, monte_carlo_integration
+from main import uniform_circle, uniform_square, orthogonal_circle, latin_hypercube, orthogonal, monte_carlo_integration
 import pandas as pd
 import sys
 
