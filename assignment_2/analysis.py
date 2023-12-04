@@ -1,7 +1,5 @@
 import numpy as np
 import pandas as pd
-import pingouin as pg
-import math
 from scipy import stats
 import matplotlib.pyplot as plt
 from matplotlib.colors import to_rgba
