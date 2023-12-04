@@ -1,5 +1,5 @@
 # Assignment 2
-Queue-tie Py: Discrete event simulation of average waiting times for varying queue types with SimPy
+Queue-tie Py: Discrete event simulation for varying queue types with SimPy
 
 ## How to Run
 📁 Go to the project directory
