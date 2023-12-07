@@ -43,6 +43,7 @@ class Simulation:
         self.server = Server(self.env, capacity=self.n_servers)
         self.results = {'waiting_times': [], 'system_times': [], 'utilization': []}
         self.env.process(self.add_customers())
+        self.queue = []
 
     def add_customers(self):
         i = 0
@@ -50,8 +51,9 @@ class Simulation:
             yield self.env.timeout(self.dist_wait(self.lam))
             i += 1
             customer = Customer(self.env, f'customer {i}', self.dist_serve(self.mu), self.priority)
+            self.queue.append(customer)
             if self.debug:
-                print(f'Customer {i} arrived at {self.env.now:.2f}')
+                print(f'Customer {i} arrived at {self.env.now:.2f}, duration {customer.duration:.2f}')
             self.env.process(self.serve_customer(customer))
             
     def serve_customer(self, customer):
@@ -75,6 +77,7 @@ class Simulation:
 
             waiting_time = self.env.now - arrival_time - customer.duration
             system_time = self.env.now - customer.arrival_time
+            self.queue.remove(customer)
             busy_time = customer.duration
             self.results['waiting_times'].append(waiting_time)
             self.results['system_times'].append(system_time)
@@ -83,4 +86,8 @@ class Simulation:
 
     def run(self):
         self.env.run(until=self.runtime)
+        # printing all the unterminated customers
+        if self.debug:
+            for customer in self.queue:
+                print(f'Customer {customer.name} did not finish service, arrived at {customer.arrival_time:.2f}')
         return self.results
