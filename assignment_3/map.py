@@ -37,7 +37,7 @@ class Map:
 
     def add_paths(self, paths):
         if type(paths) is not str:
-            self.paths = paths
+            self.paths = paths.copy()
             self.paths.append(paths[0])
         else:
             self.paths = []
@@ -65,6 +65,7 @@ class Map:
         return length
 
 
+# Setting the operators for the map
 def inverse(path):
     '''Creates an inverse of the path between two nodes
     '''
@@ -98,7 +99,8 @@ def swap(path):
 
 
 def swap_routes(path):
-    '''Picks a random subroute, removes it from one part of the path and inserts it elsewhere'''
+    ''' Picks a random subroute, removes it from one part of the 
+        path and inserts it elsewhere'''
     node1 = np.random.randint(0, len(path))
     node2 = np.random.randint(0, len(path))
     subroute = path[min(node1, node2):max(node1, node2)]
@@ -136,13 +138,14 @@ def sim_annealing(map, T, alpha, stopping_T, stopping_iter, starting_path):
     iterations: the number of iterations it took to find the best path
     '''
     solution = starting_path.copy()
-    max_length = len(map.nodes) + 1
+    max_length = len(map.nodes)
     iter = 0
     t_list = []
     length_list = []
 
-    while iter < stopping_iter:
+    while iter < stopping_iter and T > stopping_T:
         neighbor = get_neighbor(solution)
+
         assert len(
             neighbor) == max_length, f'Added an edge in iteration {iter}, current path length: {len(neighbor)}, max length: {max_length}'
         new_length = map.calculate_path_length(neighbor)
@@ -157,7 +160,7 @@ def sim_annealing(map, T, alpha, stopping_T, stopping_iter, starting_path):
 
         if iter % 1000 == 0:
             print(
-                f'Iteration {iter}, current path length: {map.calculate_path_length(solution)}')
+                f'Iteration {iter}, current path length: {map.calculate_path_length(solution)}, temperature: {T}')
 
         iter += 1
         T *= alpha
