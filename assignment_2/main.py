@@ -1,8 +1,8 @@
+"""Module to perform discrete-event simulation"""
 import simpy
-import random
-import argparse
 
 class Customer():
+    """Customer arrives, is served and leaves."""
     def __init__(self, env, name, duration, priority=False):
         self.env = env
         self.name = name
@@ -11,10 +11,24 @@ class Customer():
         self.priority = self.duration if priority else 0
 
 class Server:
+    """Server preempt less important tasks. The server continues serving the costumer when the server is done
+  serving customer with the shortest job"""
     def __init__(self, env, capacity):
         self.resource = simpy.PreemptiveResource(env, capacity=capacity)
 
 class Simulation:
+    """
+        Input parameters
+        lam: the arrival rate to the system
+        mu: the capacity of each of n equal servers
+        dist_wait: the arrival rate distribution
+        dist_serve: the service rate distribution
+        n_servers: the number of servers/resources
+        priority: Give priority to the smallest jobs (True/False)
+        preempt: Abandoning current customer being served (True/False)
+        debug: Run in debug mode (True/False)
+        runtime: An integer to limit how long the queue keeps going
+    """
     def __init__(self, lam, mu, dist_wait, dist_serve, n_servers, priority, preempt, debug, runtime):
         self.lam = lam
         self.mu = mu
@@ -41,7 +55,7 @@ class Simulation:
             if self.debug:
                 print(f'Customer {i} arrived at {self.env.now:.2f}, duration {customer.duration:.2f}')
             self.env.process(self.serve_customer(customer))
-
+            
     def serve_customer(self, customer):
         arrival_time = self.env.now
         while True:
@@ -54,15 +68,12 @@ class Simulation:
                     if self.debug:
                         print(f'{customer.name} finished service at {self.env.now:.2f}')
                 except simpy.Interrupt as interrupt:
-                    by = interrupt.cause.by
                     usage = self.env.now - interrupt.cause.usage_since
                     customer.duration -= usage
                     yield self.env.timeout(customer.duration)
 
                     if self.debug:
                         print(f'{customer.name} finished service after preemption at {self.env.now:.2f}')
-
-
 
             waiting_time = self.env.now - arrival_time - customer.duration
             system_time = self.env.now - customer.arrival_time
@@ -80,23 +91,3 @@ class Simulation:
             for customer in self.queue:
                 print(f'Customer {customer.name} did not finish service, arrived at {customer.arrival_time:.2f}')
         return self.results
-    
-def main(debug, n_servers):
-    mu = 0.8
-    lam = 0.28
-    priority = True
-    debug = True
-    n_servers = 2
-    preempt = True
-    runtime = 100
-
-    simulation = Simulation(lam, mu, random.expovariate, random.expovariate, n_servers, priority, preempt, debug, runtime)
-    simulation.run()
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Run the simulation in debug mode.')
-    parser.add_argument('--debug', action='store_true', help='Enable debug mode')
-    parser.add_argument('--servers', type=int, default=2, help='Number of servers')
-    args = parser.parse_args()
-
-    main(args.debug, args.servers)
