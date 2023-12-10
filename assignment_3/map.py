@@ -1,14 +1,13 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-SMALL_MAP = "TSP-Configurations/eil51.tsp.txt"
-MEDIUM_MAP = "TSP-Configurations/a280.tsp.txt"
-LARGE_MAP = "TSP-Configurations/pcb442.tsp.txt"
+SMALL_MAP = "tsp_configs/eil51.tsp.txt"
+MEDIUM_MAP = "tsp_configs/a280.tsp.txt"
+LARGE_MAP = "tsp_configs/pcb442.tsp.txt"
 
-SMALL_OPT = "TSP-Configurations/eil51.opt.tour.txt"
-MEDIUM_OPT = "TSP-Configurations/a280.opt.tour.txt"
-LARGE_OPT = "TSP-Configurations/pcb442.opt.tour.txt"
-
+SMALL_OPT = "tsp_configs/eil51.opt.tour.txt"
+MEDIUM_OPT = "tsp_configs/a280.opt.tour.txt"
+LARGE_OPT = "tsp_configs/pcb442.opt.tour.txt"
 
 class Map:
     def __init__(self, csv):
@@ -37,7 +36,7 @@ class Map:
 
     def add_paths(self, paths):
         if type(paths) is not str:
-            self.paths = paths
+            self.paths = paths.copy()
             self.paths.append(paths[0])
         else:
             self.paths = []
@@ -65,6 +64,7 @@ class Map:
         return length
 
 
+# Setting the operators for the map
 def inverse(path):
     '''Creates an inverse of the path between two nodes
     '''
@@ -136,13 +136,14 @@ def sim_annealing(map, T, alpha, stopping_T, stopping_iter, starting_path):
     iterations: the number of iterations it took to find the best path
     '''
     solution = starting_path.copy()
-    max_length = len(map.nodes) + 1
+    max_length = len(map.nodes)
     iter = 0
     t_list = []
     length_list = []
 
-    while iter < stopping_iter:
+    while iter < stopping_iter and T > stopping_T:
         neighbor = get_neighbor(solution)
+
         assert len(
             neighbor) == max_length, f'Added an edge in iteration {iter}, current path length: {len(neighbor)}, max length: {max_length}'
         new_length = map.calculate_path_length(neighbor)
@@ -157,10 +158,118 @@ def sim_annealing(map, T, alpha, stopping_T, stopping_iter, starting_path):
 
         if iter % 1000 == 0:
             print(
-                f'Iteration {iter}, current path length: {map.calculate_path_length(solution)}')
+                f'Iteration {iter}, current path length: {map.calculate_path_length(solution)}, temperature: {T}')
 
         iter += 1
         T *= alpha
         t_list.append(T)
         length_list.append(map.calculate_path_length(solution))
     return solution, map.calculate_path_length(solution), iter, t_list, length_list
+
+
+def get_temperature_list(map, list_length, p0, starting_path):
+    solution = starting_path.copy()
+    temperature_list = []
+    i = 0
+
+    while i < list_length:
+        neighbor = get_neighbor(solution)
+        current_length = map.calculate_path_length(solution)
+        new_length = map.calculate_path_length(neighbor)
+        if new_length < current_length:
+            solution = neighbor
+        
+        temp = (-1 * abs(new_length - current_length)) / (np.log(p0))
+        temperature_list.append(temp)
+        i += 1
+    
+    temperature_list = sorted(temperature_list, reverse=True)
+
+    return temperature_list
+
+
+def sim_annealing_list(map, k, stopping_iter, starting_path):
+    temperature_list = get_temperature_list(map, 120, 0.9, starting_path)
+    k = 0
+    solution = starting_path.copy()
+    max_length = len(map.nodes) + 1
+    length_list = []
+
+    while k < stopping_iter:
+        if not temperature_list:
+            break
+        max_temp = temperature_list.pop(0)
+        k += 1
+        t = 0
+        c = 0
+        iter = 0
+        while iter < stopping_iter:
+            neighbor = get_neighbor(solution)
+            iter += 1
+            assert len(
+                neighbor) == max_length - 1, f'Added an edge in iteration {iter}, current path length: {len(neighbor)}, max length: {max_length}'
+            new_length = map.calculate_path_length(neighbor)
+            length_diff = new_length - map.calculate_path_length(solution)
+            if length_diff <= 0:
+                solution = neighbor
+
+            else:
+                e = np.exp(-(1/length_diff*max_temp))
+                r = np.random.random()
+                if r >= e:
+                    t = (t - length_diff)/(np.log(r))
+                    c += 1
+                    solution = neighbor
+        if c != 0:
+            temperature_list.append(t/c)
+            temperature_list = sorted(temperature_list, reverse=True)
+
+        length_list.append(map.calculate_path_length(solution))
+
+    return solution, map.calculate_path_length(solution), iter, length_list
+
+
+        
+def main():
+    map1 = Map(SMALL_MAP)
+    initial_temperature = 1000.0
+    cooling_factor = 0.995
+    stopping_temperature = 0.1
+    stopping_iterations = 1000
+
+
+    initial_path = list(map1.nodes.keys())
+    np.random.shuffle(initial_path)
+
+    #Running general Simulated Annealing
+    best_path, best_length, iterations, temp_list, length_list = sim_annealing(
+        map1, initial_temperature, cooling_factor, stopping_temperature, stopping_iterations, initial_path)
+    
+    # Run Simulated Annealing with List to find the best path
+    # best_path, best_length, iterations, length_list = sim_annealing_list(
+    #     map1, stopping_iterations, stopping_iterations, initial_path)
+    
+
+    # Print the results
+    print("Best Path:", best_path)
+    print("Best Path Length:", best_length)
+    print("Iterations:", iterations)
+
+    # Plot the temperature and path length changes over iterations
+    # plt.figure(figsize=(12, 4))
+    # plt.subplot(1, 2, 1)
+    # plt.plot(temp_list)
+    # plt.xlabel("Iterations")
+    # plt.ylabel("Temperature")
+    # plt.subplot(1, 2, 2)
+    # plt.plot(length_list)
+    # plt.xlabel("Iterations")
+    # plt.ylabel("Path Length")
+    # plt.show()
+
+    # Plot the best path
+    map1.add_paths(best_path)
+    map1.plot()
+    plt.show()
+
+main()
