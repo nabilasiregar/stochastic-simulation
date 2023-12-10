@@ -13,9 +13,9 @@
 > [List based Simulated annealing](https://www.hindawi.com/journals/cin/2016/1712630/)
 
 # Q5 (Amir)
->  Adaptive cooling
+>  [Adaptive cooling](https://arxiv.org/pdf/2002.06124.pdf)
 
 # Q6 (Amir)
-> Stopping criteria
+> [Stopping criteria](https://sci-hub.yncjkj.com/10.1109/iccd.1988.25760) (Instituational access means nothing anymore)
 
 

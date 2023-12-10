@@ -99,8 +99,7 @@ def swap(path):
 
 
 def swap_routes(path):
-    ''' Picks a random subroute, removes it from one part of the 
-        path and inserts it elsewhere'''
+    '''Picks a random subroute, removes it from one part of the path and inserts it elsewhere'''
     node1 = np.random.randint(0, len(path))
     node2 = np.random.randint(0, len(path))
     subroute = path[min(node1, node2):max(node1, node2)]
