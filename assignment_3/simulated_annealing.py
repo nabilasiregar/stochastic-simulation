@@ -1,5 +1,5 @@
 import numpy as np
-from route_operations import get_neighbor
+from route_operations import get_neighbor, get_temperature_list
 
 def sim_annealing(map, T, alpha, stopping_T, stopping_iter, starting_path):
     '''
@@ -49,25 +49,6 @@ def sim_annealing(map, T, alpha, stopping_T, stopping_iter, starting_path):
         length_list.append(map.calculate_path_length(solution))
     return solution, map.calculate_path_length(solution), iter, t_list, length_list
 
-def get_temperature_list(map, list_length, p0, starting_path):
-    solution = starting_path.copy()
-    temperature_list = []
-    i = 0
-
-    while i < list_length:
-        neighbor = get_neighbor(solution)
-        current_length = map.calculate_path_length(solution)
-        new_length = map.calculate_path_length(neighbor)
-        if new_length < current_length:
-            solution = neighbor
-        
-        temp = (-1 * abs(new_length - current_length)) / (np.log(p0))
-        temperature_list.append(temp)
-        i += 1
-    
-    temperature_list = sorted(temperature_list, reverse=True)
-
-    return temperature_list
 
 
 def sim_annealing_list(map, k, stopping_iter, starting_path):
