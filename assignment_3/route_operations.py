@@ -51,3 +51,23 @@ def get_neighbor(path):
     operators = [inverse, insert, swap, swap_routes]
     selection = np.random.randint(0, 4)
     return operators[selection](path)
+
+def get_temperature_list(map, list_length, p0, starting_path):
+    solution = starting_path.copy()
+    temperature_list = []
+    i = 0
+
+    while i < list_length:
+        neighbor = get_neighbor(solution)
+        current_length = map.calculate_path_length(solution)
+        new_length = map.calculate_path_length(neighbor)
+        if new_length < current_length:
+            solution = neighbor
+        
+        temp = (-1 * abs(new_length - current_length)) / (np.log(p0))
+        temperature_list.append(temp)
+        i += 1
+        
+        temperature_list = sorted(temperature_list, reverse=True)
+
+    return temperature_list
