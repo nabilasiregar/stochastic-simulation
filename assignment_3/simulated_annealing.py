@@ -50,7 +50,6 @@ def sim_annealing(map, T, alpha, stopping_T, stopping_iter, starting_path):
     return solution, map.calculate_path_length(solution), iter, t_list, length_list
 
 
-
 def sim_annealing_list(map, k, stopping_iter, starting_path):
     temperature_list = get_temperature_list(map, 120, 0.9, starting_path)
     k = 0
