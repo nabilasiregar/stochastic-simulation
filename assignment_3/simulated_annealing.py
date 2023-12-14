@@ -1,5 +1,6 @@
 import numpy as np
 from numba import njit
+from map import *
 from route_operations import get_neighbor, get_temperature_list
 
 @njit

@@ -1,58 +1,53 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from numba import jit, void, double
+from numba import njit
 
-class Map:
-    def __init__(self, csv):
-        self.nodes = {}
-        self.paths = []
-        self.csv = csv
-        self.read_csv()
+def read_csv(csv):
+    nodes = []
+    with open(csv) as f:
+        file = f.readlines()
+    for line in file:
+        if not line.strip()[0].isnumeric():
+            continue
+        line = line.split()
+        nodes.append([float(line[1]), float(line[2])])
+    return np.array(nodes)
 
-    def read_csv(self):
-        with open(self.csv) as f:
-            file = f.readlines()
-        for line in file:
-            if not line.strip()[0].isnumeric():
-                continue
-            line = line.split()
-            self.nodes[int(line[0])] = [float(line[1]), float(line[2])]
+def add_paths(csv):
 
-    def plot(self, ax=None):
-        if ax is None:
-            ax = plt.plot()
-        for node in self.nodes:
-            ax.plot(self.nodes[node][0], self.nodes[node][1], 'ro')
-            ax.text(self.nodes[node][0], self.nodes[node][1], str(node))
-        if any(self.paths):
-            path = [self.nodes[i] for i in self.paths]
-            ax.plot([i[0] for i in path], [i[1] for i in path], 'b-')
+    paths = []
+    with open(csv) as f:
+        file = f.readlines()
+    for line in file:
+        if not line[0].isnumeric():
+            continue
+        paths.append(abs(int(line)))
+    # paths.append(paths[0])
+    return np.array(paths)
 
-    def add_paths(self, paths):
-        if type(paths) is not str:
-            self.paths = paths.copy()
-            self.paths.append(paths[0])
-        else:
-            self.paths = []
-            with open(paths) as f:
-                file = f.readlines()
-            for line in file:
-                if not line[0].isnumeric():
-                    continue
-                self.paths.append(abs(int(line)))
-            self.paths.append(self.paths[0])
+def plotmap(nodes, ax=None, path = None):
+    if ax is None:
+        ax = plt.plot()
+    for node in nodes:
+        ax.plot(node[0], node[1], 'ro')
+        # ax.text(node[0], node[1], str(node))
+    if any(path):
+        for i in range(len(path)-1):
+            ax.plot([nodes[path[i]-1][0], nodes[path[i+1]-1][0]], [nodes[path[i]-1][1], nodes[path[i+1]-1][1]], 'b-')
+        ax.plot([nodes[path[-1]-1][0], nodes[path[0]-1][0]], [nodes[path[-1]-1][1], nodes[path[0]-1][1]], 'b-')
+@njit
+def distance_between_nodes(node1, node2):
+    x_diff = node1[0] - node2[0]
+    y_diff = node1[1] - node2[1]
+    return np.sqrt(x_diff**2 + y_diff**2)
 
-    def distance_between_nodes(self, node1, node2):
-        x_diff = node1[0] - node2[0]
-        y_diff = node1[1] - node2[1]
-        return np.sqrt(x_diff**2 + y_diff**2)
-
-    def calculate_path_length(self, paths=None):
-        '''Calculates the path length of the current path'''
-        if paths is not None:
-            self.add_paths(paths)
-        length = 0
-        for i in range(len(self.paths)-1):
-            length += self.distance_between_nodes(
-                self.nodes[self.paths[i]], self.nodes[self.paths[i+1]])
-        return length
+@njit
+def calculate_path_length(paths, nodes):
+    '''Calculates the path length of the current path'''
+    length = 0
+    for i in range(len(paths)-1):
+        dist = distance_between_nodes(nodes[paths[i]-1], nodes[paths[i+1]-1])
+        length += dist
+    dist = distance_between_nodes(nodes[paths[-1]-1], nodes[paths[0]-1])
+    length += dist
+    return length
