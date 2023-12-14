@@ -52,15 +52,15 @@ def get_neighbor(path):
     selection = np.random.randint(0, len(operators))
     return operators[selection](path)
 
-def get_temperature_list(map, list_length, p0, starting_path):
-    solution = starting_path.copy()
-    temperature_list = []
+def get_temperature_list(nodes, list_length, p0, starting_path):
+    solution = starting_path 
+    temperature_list = [] 
     i = 0
 
     while i < list_length:
-        neighbor = get_neighbor(solution)
-        current_length = map.calculate_path_length(solution)
-        new_length = map.calculate_path_length(neighbor)
+        neighbor = get_neighbor(np.copy(solution))
+        current_length = calculate_path_length(solution, nodes)
+        new_length = calculate_path_length(neighbor, nodes)
         if new_length < current_length:
             solution = neighbor
         
