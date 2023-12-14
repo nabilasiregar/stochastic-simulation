@@ -1,5 +1,7 @@
 import numpy as np
+from numba import njit, int32
 
+@njit
 def inverse(path):
     '''Creates an inverse of the path between two nodes
     '''
@@ -17,11 +19,12 @@ def insert(path):
     node1 = np.random.randint(0, len(path))
     node2 = np.random.randint(0, len(path))
     new_path = path.copy()
-    new_path.insert(node1, new_path.pop(node2))
+    new_path[node1+1:] = new_path[node1:-1]
+    new_path[node1] = path[node2]
     assert len(new_path) == len(path), "Inserting caused an error"
     return new_path
 
-
+@njit
 def swap(path):
     '''Swaps two random nodes in the path'''
     node1 = np.random.randint(0, len(path))
@@ -31,27 +34,28 @@ def swap(path):
     assert len(new_path) == len(path), "swapping caused an error"
     return new_path
 
-
+@njit
 def swap_routes(path):
     '''Picks a random subroute, removes it from one part of the path and inserts it elsewhere'''
     node1 = np.random.randint(0, len(path))
     node2 = np.random.randint(0, len(path))
-    subroute = path[min(node1, node2):max(node1, node2)]
-    new_path = path.copy()
-    del new_path[min(node1, node2):max(node1, node2)]
+    start, end = min(node1, node2), max(node1, node2)
+    subroute = path[start:end]
+    new_path = np.concatenate((path[:start], path[end:]))
     insertion_point = np.random.randint(0, len(new_path))
-    for position in subroute[::-1]:
-        new_path.insert(insertion_point, position)
-    assert len(new_path) == len(path), "swapping routes caused an error"
+    new_path = np.concatenate((new_path[:insertion_point], subroute, new_path[insertion_point:]))
+    assert len(new_path) == len(path), "Swapping routes caused an error"
     return new_path
 
-
+@njit
 def get_neighbor(path):
-    '''Returns a random neighbour of the path'''
-    operators = [inverse, insert, swap]
-    selection = np.random.randint(0, len(operators))
-    return operators[selection](path)
+    '''Returns a random neighbor of the path'''
+    # operators = [inverse, insert, swap, swap_routes]  
+    # selection = np.random.randint(0, len(operators))
+    # new_path = operators[selection](path)
+    return inverse(path)
 
+@njit
 def get_temperature_list(map, list_length, p0, starting_path):
     solution = starting_path.copy()
     temperature_list = []
