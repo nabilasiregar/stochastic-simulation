@@ -103,3 +103,44 @@ def fast_annealing(nodes, T, alpha, stopping_T, chain_length, starting_path):
 
         T *= alpha
     return best_path, best_length, iter, t_list, length_list
+
+
+def sim_annealing_list(map, k, stopping_iter, starting_path):
+    temperature_list = get_temperature_list(map, 120, 0.9, starting_path)
+    k = 0
+    solution = starting_path.copy()
+    max_length = len(map.nodes) + 1
+    length_list = []
+
+    while k < stopping_iter:
+        if not temperature_list:
+            break
+        max_temp = temperature_list.pop(0)
+        k += 1
+        t = 0
+        c = 0
+        iter = 0
+        while iter < stopping_iter:
+            neighbor = get_neighbor(solution)
+            iter += 1
+            assert len(
+                neighbor) == max_length - 1, f'Added an edge in iteration {iter}, current path length: {len(neighbor)}, max length: {max_length}'
+            new_length = map.calculate_path_length(neighbor)
+            length_diff = new_length - map.calculate_path_length(solution)
+            if length_diff <= 0:
+                solution = neighbor
+
+            else:
+                e = np.exp(-(1/length_diff*max_temp))
+                r = np.random.random()
+                if r >= e:
+                    t = (t - length_diff)/(np.log(r))
+                    c += 1
+                    solution = neighbor
+        if c != 0:
+            temperature_list.append(t/c)
+            temperature_list = sorted(temperature_list, reverse=True)
+
+        length_list.append(map.calculate_path_length(solution))
+
+    return solution, map.calculate_path_length(solution), iter, length_list
