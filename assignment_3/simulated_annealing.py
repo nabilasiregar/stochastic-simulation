@@ -1,7 +1,7 @@
 import numpy as np
 from numba import njit
 from map import *
-from route_operations import get_neighbor, get_temperature_list
+from route_operations import *
 
 @njit
 def sim_annealing(nodes, T, alpha, stopping_T, chain_length , starting_path):
@@ -80,7 +80,7 @@ def fast_annealing(nodes, T, alpha, stopping_T, chain_length, starting_path):
     best_length = calculate_path_length(starting_path, nodes)
     best_length = np.inf
     while T > stopping_T:
-        for i in range(chain_length):
+        for _ in range(chain_length):
             neighbor = get_neighbor(solution)
             
 
@@ -90,8 +90,9 @@ def fast_annealing(nodes, T, alpha, stopping_T, chain_length, starting_path):
             if length_diff < 0:
                 solution = neighbor
             else:
-                e = np.exp(-length_diff / T)
-                if np.random.random() <= e:
+                e = length_diff / T
+                rho = 1/ (1+e)
+                if np.random.random() <= rho:
                     solution = neighbor
 
             if new_length < best_length:
@@ -105,29 +106,37 @@ def fast_annealing(nodes, T, alpha, stopping_T, chain_length, starting_path):
         T *= alpha
     return best_path, best_length, iter, t_list, length_list
 
-
-def sim_annealing_list(map, k, stopping_iter, starting_path):
-    temperature_list = get_temperature_list(map, 120, 0.9, starting_path)
+@njit
+def sim_annealing_list(nodes, k, stopping_iter, starting_path, temperature_list):
     k = 0
-    solution = starting_path.copy()
-    max_length = len(map.nodes) + 1
+    solution = starting_path
+    max_length = len(nodes) + 1
     length_list = []
 
-    while k < stopping_iter:
-        if not temperature_list:
-            break
-        max_temp = temperature_list.pop(0)
+    best_path = np.copy(starting_path)
+    best_length = calculate_path_length(starting_path, nodes)
+    best_length = np.inf
+
+    TEMP_STOP = False
+    while k < stopping_iter or not TEMP_STOP:
+
+        max_temp = temperature_list[0]
+
+        if len(temperature_list) == 1:
+            TEMP_STOP = True
+        else:
+            temperature_list = temperature_list[1:]
         k += 1
         t = 0
         c = 0
         iter = 0
         while iter < stopping_iter:
-            neighbor = get_neighbor(solution)
+            neighbor = get_neighbor(np.copy(solution))
             iter += 1
             assert len(
                 neighbor) == max_length - 1, f'Added an edge in iteration {iter}, current path length: {len(neighbor)}, max length: {max_length}'
-            new_length = map.calculate_path_length(neighbor)
-            length_diff = new_length - map.calculate_path_length(solution)
+            new_length = calculate_path_length(neighbor, nodes)
+            length_diff = new_length - calculate_path_length(solution, nodes)
             if length_diff <= 0:
                 solution = neighbor
 
@@ -138,10 +147,14 @@ def sim_annealing_list(map, k, stopping_iter, starting_path):
                     t = (t - length_diff)/(np.log(r))
                     c += 1
                     solution = neighbor
+
+            if new_length < best_length:
+                best_path[:] = neighbor
+                best_length = new_length
         if c != 0:
             temperature_list.append(t/c)
             temperature_list = sorted(temperature_list, reverse=True)
 
-        length_list.append(map.calculate_path_length(solution))
+        length_list.append(calculate_path_length(solution, nodes))
 
-    return solution, map.calculate_path_length(solution), iter, length_list
+    return solution, calculate_path_length(solution, nodes), iter, length_list

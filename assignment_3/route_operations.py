@@ -1,4 +1,5 @@
 import numpy as np
+from map import *
 from numba import njit, int32
 
 @njit
@@ -13,12 +14,12 @@ def inverse(path):
     assert len(new_path) == len(path), "Inverse caused an error"
     return new_path
 
-
+@njit
 def insert(path):
     '''Picks a random node and inserts it into a random position in the path'''
     node1 = np.random.randint(0, len(path))
     node2 = np.random.randint(0, len(path))
-    new_path = path.copy()
+    new_path = np.copy(path)
     new_path[node1+1:] = new_path[node1:-1]
     new_path[node1] = path[node2]
     assert len(new_path) == len(path), "Inserting caused an error"
@@ -29,7 +30,7 @@ def swap(path):
     '''Swaps two random nodes in the path'''
     node1 = np.random.randint(0, len(path))
     node2 = np.random.randint(0, len(path))
-    new_path = path.copy()
+    new_path = np.copy(path)
     new_path[node1], new_path[node2] = new_path[node2], new_path[node1]
     assert len(new_path) == len(path), "swapping caused an error"
     return new_path
@@ -47,6 +48,7 @@ def swap_routes(path):
     assert len(new_path) == len(path), "Swapping routes caused an error"
     return new_path
 
+# TODO MAYBE FIX??
 @njit
 def get_neighbor(path):
     '''Returns a random neighbor of the path'''
@@ -55,16 +57,15 @@ def get_neighbor(path):
     # new_path = operators[selection](path)
     return inverse(path)
 
-@njit
-def get_temperature_list(map, list_length, p0, starting_path):
-    solution = starting_path.copy()
-    temperature_list = []
+def get_temperature_list(nodes, list_length, p0, starting_path):
+    solution = starting_path 
+    temperature_list = [] 
     i = 0
 
     while i < list_length:
-        neighbor = get_neighbor(solution)
-        current_length = map.calculate_path_length(solution)
-        new_length = map.calculate_path_length(neighbor)
+        neighbor = get_neighbor(np.copy(solution))
+        current_length = calculate_path_length(solution, nodes)
+        new_length = calculate_path_length(neighbor, nodes)
         if new_length < current_length:
             solution = neighbor
         

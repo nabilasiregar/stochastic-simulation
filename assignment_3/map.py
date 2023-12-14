@@ -22,7 +22,6 @@ def add_paths(csv):
         if not line[0].isnumeric():
             continue
         paths.append(abs(int(line)))
-    # paths.append(paths[0])
     return np.array(paths)
 
 def plotmap(nodes, ax=None, path = None):
@@ -30,7 +29,6 @@ def plotmap(nodes, ax=None, path = None):
         ax = plt.plot()
     for node in nodes:
         ax.plot(node[0], node[1], 'ro')
-        # ax.text(node[0], node[1], str(node))
     if any(path):
         for i in range(len(path)-1):
             ax.plot([nodes[path[i]-1][0], nodes[path[i+1]-1][0]], [nodes[path[i]-1][1], nodes[path[i+1]-1][1]], 'b-')
