@@ -17,14 +17,15 @@ class Map:
             line = line.split()
             self.nodes[int(line[0])] = [float(line[1]), float(line[2])]
 
-    def plot(self):
-        plt.figure(figsize=(10, 10))
+    def plot(self, ax=None):
+        if ax is None:
+            ax = plt.plot()
         for node in self.nodes:
-            plt.plot(self.nodes[node][0], self.nodes[node][1], 'ro')
-            plt.text(self.nodes[node][0], self.nodes[node][1], str(node))
+            ax.plot(self.nodes[node][0], self.nodes[node][1], 'ro')
+            ax.text(self.nodes[node][0], self.nodes[node][1], str(node))
         if any(self.paths):
             path = [self.nodes[i] for i in self.paths]
-            plt.plot([i[0] for i in path], [i[1] for i in path], 'b-')
+            ax.plot([i[0] for i in path], [i[1] for i in path], 'b-')
 
     def add_paths(self, paths):
         if type(paths) is not str:

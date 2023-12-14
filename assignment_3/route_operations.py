@@ -48,8 +48,8 @@ def swap_routes(path):
 
 def get_neighbor(path):
     '''Returns a random neighbour of the path'''
-    operators = [inverse, insert, swap, swap_routes]
-    selection = np.random.randint(0, 4)
+    operators = [inverse, insert, swap]
+    selection = np.random.randint(0, len(operators))
     return operators[selection](path)
 
 def get_temperature_list(map, list_length, p0, starting_path):
