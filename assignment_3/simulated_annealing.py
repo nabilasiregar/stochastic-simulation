@@ -30,7 +30,8 @@ def sim_annealing(nodes, T, alpha, stopping_T, chain_length , starting_path):
     best_length = np.inf
     while T > stopping_T:
         for i in range(chain_length):
-            neighbor = get_neighbor(solution)
+            selection = np.random.randint(0, 3)
+            neighbor = get_neighbor(solution, selection)
             
 
             new_length = calculate_path_length(neighbor, nodes)
@@ -81,7 +82,8 @@ def fast_annealing(nodes, T, alpha, stopping_T, chain_length, starting_path):
     best_length = np.inf
     while T > stopping_T:
         for _ in range(chain_length):
-            neighbor = get_neighbor(solution)
+            selection = np.random.randint(0, 3)
+            neighbor = get_neighbor(solution, selection)
             
 
             new_length = calculate_path_length(neighbor, nodes)
@@ -118,8 +120,7 @@ def sim_annealing_list(nodes, k, stopping_iter, starting_path, temperature_list)
     best_length = np.inf
 
     TEMP_STOP = False
-    while k < stopping_iter or not TEMP_STOP:
-
+    while k < stopping_iter and not TEMP_STOP:
         max_temp = temperature_list[0]
 
         if len(temperature_list) == 1:
@@ -131,10 +132,10 @@ def sim_annealing_list(nodes, k, stopping_iter, starting_path, temperature_list)
         c = 0
         iter = 0
         while iter < stopping_iter:
-            neighbor = get_neighbor(np.copy(solution))
             iter += 1
-            assert len(
-                neighbor) == max_length - 1, f'Added an edge in iteration {iter}, current path length: {len(neighbor)}, max length: {max_length}'
+            selection = np.random.randint(0, 3)
+            neighbor = get_neighbor(solution, selection)
+
             new_length = calculate_path_length(neighbor, nodes)
             length_diff = new_length - calculate_path_length(solution, nodes)
             if length_diff <= 0:
@@ -154,6 +155,7 @@ def sim_annealing_list(nodes, k, stopping_iter, starting_path, temperature_list)
         if c != 0:
             temperature_list.append(t/c)
             temperature_list = sorted(temperature_list, reverse=True)
+
 
         length_list.append(calculate_path_length(solution, nodes))
 

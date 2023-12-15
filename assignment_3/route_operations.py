@@ -3,59 +3,39 @@ from map import *
 from numba import njit, int32
 
 @njit
-def inverse(path):
-    '''Creates an inverse of the path between two nodes
-    '''
-    node1 = np.random.randint(0, len(path))
-    node2 = np.random.randint(0, len(path))
-    new_path = path.copy()
-    new_path[min(node1, node2):max(node1, node2)] = new_path[min(
-        node1, node2):max(node1, node2)][::-1]
-    assert len(new_path) == len(path), "Inverse caused an error"
-    return new_path
-
-@njit
-def insert(path):
-    '''Picks a random node and inserts it into a random position in the path'''
-    node1 = np.random.randint(0, len(path))
-    node2 = np.random.randint(0, len(path))
-    new_path = np.copy(path)
-    new_path[node1+1:] = new_path[node1:-1]
-    new_path[node1] = path[node2]
-    assert len(new_path) == len(path), "Inserting caused an error"
-    return new_path
-
-@njit
-def swap(path):
-    '''Swaps two random nodes in the path'''
-    node1 = np.random.randint(0, len(path))
-    node2 = np.random.randint(0, len(path))
-    new_path = np.copy(path)
-    new_path[node1], new_path[node2] = new_path[node2], new_path[node1]
-    assert len(new_path) == len(path), "swapping caused an error"
-    return new_path
-
-@njit
-def swap_routes(path):
-    '''Picks a random subroute, removes it from one part of the path and inserts it elsewhere'''
-    node1 = np.random.randint(0, len(path))
-    node2 = np.random.randint(0, len(path))
-    start, end = min(node1, node2), max(node1, node2)
-    subroute = path[start:end]
-    new_path = np.concatenate((path[:start], path[end:]))
-    insertion_point = np.random.randint(0, len(new_path))
-    new_path = np.concatenate((new_path[:insertion_point], subroute, new_path[insertion_point:]))
-    assert len(new_path) == len(path), "Swapping routes caused an error"
-    return new_path
-
-# TODO MAYBE FIX??
-@njit
-def get_neighbor(path):
+def get_neighbor(path, selection):
     '''Returns a random neighbor of the path'''
-    # operators = [inverse, insert, swap, swap_routes]  
-    # selection = np.random.randint(0, len(operators))
-    # new_path = operators[selection](path)
-    return inverse(path)
+    node1 = np.random.randint(0, len(path))
+    node2 = np.random.randint(0, len(path))
+    while node1 == node2:
+        node2 = np.random.randint(0, len(path))
+
+    new_path = path.copy()
+
+    if selection == 0:
+        # Inverse
+        new_path[min(node1, node2):max(node1, node2)] = new_path[min(node1, node2):max(node1, node2)][::-1]
+        
+    elif selection == 1:
+        # Swap
+        new_path[node1], new_path[node2] = new_path[node2], new_path[node1]
+        
+    elif selection == 2:
+        # Swap routes
+        start, end = min(node1, node2), max(node1, node2)
+        subroute = path[start:end]
+        new_path = np.concatenate((path[:start], path[end:]))
+        insertion_point = np.random.randint(0, len(new_path))
+        new_path = np.concatenate((new_path[:insertion_point], subroute, new_path[insertion_point:]))
+        
+    else:
+        # Handle invalid selection
+        raise ValueError("Invalid selection value")
+
+    assert len(new_path) == len(path), "Operation caused an error"
+    assert len(np.unique(new_path)) == len(new_path), f"Operation caused an error using slection {selection}\n {new_path}"
+    return new_path
+
 
 def get_temperature_list(nodes, list_length, p0, starting_path):
     solution = starting_path 
@@ -63,7 +43,8 @@ def get_temperature_list(nodes, list_length, p0, starting_path):
     i = 0
 
     while i < list_length:
-        neighbor = get_neighbor(np.copy(solution))
+        selection = np.random.randint(0, 3)
+        neighbor = get_neighbor(solution, selection)
         current_length = calculate_path_length(solution, nodes)
         new_length = calculate_path_length(neighbor, nodes)
         if new_length < current_length:
