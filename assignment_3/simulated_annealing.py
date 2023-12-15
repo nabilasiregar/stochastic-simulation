@@ -114,15 +114,16 @@ def sim_annealing_list(nodes, temp_list_length, chain_length, starting_path, tem
     solution = starting_path
     max_length = len(nodes) + 1
     length_list = []
-
+    t_list = []
+    
     best_path = np.copy(starting_path)
     best_length = calculate_path_length(starting_path, nodes)
     best_length = np.inf
-
+    
     TEMP_STOP = False
     while k < temp_list_length and not TEMP_STOP:
         max_temp = temperature_list[0]
-
+        t_list.append(max_temp)
         if len(temperature_list) == 1:
             TEMP_STOP = True
         else:
@@ -142,7 +143,7 @@ def sim_annealing_list(nodes, temp_list_length, chain_length, starting_path, tem
                 solution = neighbor
 
             else:
-                e = np.exp(-(1/length_diff*max_temp))
+                e = np.exp(-(1/length_diff)*max_temp)
                 r = np.random.random()
                 if r >= e:
                     t = (t - length_diff)/(np.log(r))
@@ -157,4 +158,4 @@ def sim_annealing_list(nodes, temp_list_length, chain_length, starting_path, tem
             temperature_list = sorted(temperature_list, reverse=True)
 
         length_list.append(calculate_path_length(solution, nodes))
-    return solution, calculate_path_length(solution, nodes), iter, length_list
+    return solution, calculate_path_length(solution, nodes), iter, t_list, length_list
