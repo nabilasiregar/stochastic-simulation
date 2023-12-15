@@ -14,7 +14,6 @@ def read_csv(csv):
     return np.array(nodes)
 
 def add_paths(csv):
-
     paths = []
     with open(csv) as f:
         file = f.readlines()
