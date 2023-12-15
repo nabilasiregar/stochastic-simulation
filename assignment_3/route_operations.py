@@ -36,7 +36,6 @@ def get_neighbor(path, selection):
     assert len(np.unique(new_path)) == len(new_path), f"Operation caused an error using slection {selection}\n {new_path}"
     return new_path
 
-
 def get_temperature_list(nodes, list_length, p0, starting_path):
     solution = starting_path 
     temperature_list = [] 
@@ -45,6 +44,7 @@ def get_temperature_list(nodes, list_length, p0, starting_path):
     while i < list_length:
         selection = np.random.randint(0, 3)
         neighbor = get_neighbor(solution, selection)
+
         current_length = calculate_path_length(solution, nodes)
         new_length = calculate_path_length(neighbor, nodes)
         if new_length < current_length:

@@ -156,7 +156,5 @@ def sim_annealing_list(nodes, k, stopping_iter, starting_path, temperature_list)
             temperature_list.append(t/c)
             temperature_list = sorted(temperature_list, reverse=True)
 
-
         length_list.append(calculate_path_length(solution, nodes))
-
     return solution, calculate_path_length(solution, nodes), iter, length_list
