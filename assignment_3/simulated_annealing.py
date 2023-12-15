@@ -12,7 +12,7 @@ def sim_annealing(nodes, T, alpha, stopping_T, chain_length , starting_path):
     T: the starting temperature
     alpha: the cooling factor
     stopping_T: the temperature to stop at
-    stopping_iter: the number of iterations to stop at
+    chain_length: the length of Markov Chain to complete the tour
     starting_path: the starting path, this can be changed to test convergence for different initial paths
 
 
