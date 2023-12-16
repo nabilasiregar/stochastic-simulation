@@ -1,8 +1,11 @@
+from map import *
+from map_config import *
 import numpy as np
 import pandas as pd
 import scipy.stats as stats
 import pingouin as pg
 import matplotlib.pyplot as plt
+import ast
 from matplotlib.colors import to_rgba
 
 data = pd.read_csv("./results.csv", header=0)
@@ -75,18 +78,43 @@ def bar_plot(csv_data):
     plt.show()
 
 
-def error_plot(csv_data, method):
+def error_plot(csv_data, sim_type):
+    nodes = read_csv(SMALL_MAP)
+    paths = add_paths(SMALL_OPT)
+    known_best_length = calculate_path_length(paths, nodes)
+    
     df = pd.DataFrame(data)
-    sa_data = data.groupby("method").get_group("sim_annealing")["best_length"].iloc[0]
-    fast_sa_data = data.groupby("method").get_group("fast_annealing")["best_length"].iloc[0]
-    list_sa_data = data.groupby("method").get_group("list_sim_annealing")["best_length"].iloc[0]
+    filtered_df = df[df['method'] == sim_type]
+
+    t_lists = filtered_df['t_list']
+    length_lists = filtered_df['length_list']
     
-    if method == "sim_annealing":
-        sa_data = data.groupby("method").get_group("sim_annealing")["best_length"].iloc[0]
+    t_lists = [np.array(ast.literal_eval(t_list)) for t_list in t_lists]
+    length_lists = [np.array(ast.literal_eval(length_list)) for length_list in length_lists]
+
+    mean_t_list = np.mean(t_lists, axis=0)
+    mean_length_list = np.mean(length_lists, axis=0)
     
+    std_t_list = np.std(t_lists, axis=0)
+    std_length_list = np.std(length_lists, axis=0)
+    
+    error_list = mean_length_list - known_best_length
+    
+    plt.figure(figsize=(10, 6))
+    plt.plot(mean_t_list, error_list, label=f'{sim_type} Error', color='b')
+    plt.fill_between(mean_t_list, error_list - std_length_list, error_list + std_length_list, alpha=0.3)
+    plt.gca().invert_xaxis()
+    plt.xlim([100, mean_t_list[-1]])
+    plt.xlabel('Temperature')
+    plt.ylabel(f'Difference from Optimal Path Length')
+    plt.title(f'{sim_type} Convergence Plot')
+    plt.grid(True)
+    plt.show()
 
 
-general_stats(data)
-bar_plot(data)
+
+# general_stats(data)
+# bar_plot(data)
+error_plot(data, "list_sim_annealing")
 
 

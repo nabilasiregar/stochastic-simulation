@@ -46,7 +46,7 @@ for run in range(num_runs):
             't_list': t_list, 
             'length_list': length_list
         })
-    
+
     #Running list-based simulated annealing
     temperature_list = get_temperature_list(nodes, list_length, p0, starting_path)
     best_path, best_length, iter, t_list, length_list = sim_annealing_list(nodes, temp_list_length, chain_length, starting_path, temperature_list)
@@ -59,7 +59,6 @@ for run in range(num_runs):
             'length_list': length_list
         })
     
-    
-columns = ["method", "best_path", "best_length", "iterations"]
+columns = ["method", "best_path", "best_length", "iterations", "t_list", "length_list"]
 results = pd.DataFrame(sim_annealing_results + fast_annealing_results + list_sim_annealing_results, columns=columns)
 results.to_csv("results.csv", index=False)

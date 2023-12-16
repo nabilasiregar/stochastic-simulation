@@ -49,8 +49,9 @@ def sim_annealing(nodes, T, alpha, stopping_T, chain_length , starting_path):
                 best_length = new_length
 
             iter += 1
-            t_list.append(T)
-            length_list.append(new_length)
+            if iter % 10000 == 0:
+                t_list.append(T)
+                length_list.append(new_length)
 
         T *= alpha
     return best_path, best_length, iter, t_list, length_list
@@ -102,8 +103,10 @@ def fast_annealing(nodes, T, alpha, stopping_T, chain_length, starting_path):
                 best_length = new_length
 
             iter += 1
-            t_list.append(T)
-            length_list.append(new_length)
+            
+            if iter % 10000 == 0:
+                t_list.append(T)
+                length_list.append(new_length)
 
         T *= alpha
     return best_path, best_length, iter, t_list, length_list
@@ -153,9 +156,13 @@ def sim_annealing_list(nodes, temp_list_length, chain_length, starting_path, tem
             if new_length < best_length:
                 best_path[:] = neighbor
                 best_length = new_length
+                
+        if k % 300 == 0:
+            t_list.append(max_temp)
+            length_list.append(new_length)
+                
         if c != 0:
             temperature_list.append(t/c)
             temperature_list = sorted(temperature_list, reverse=True)
 
-        length_list.append(calculate_path_length(solution, nodes))
     return solution, calculate_path_length(solution, nodes), iter, t_list, length_list
