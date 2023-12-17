@@ -69,7 +69,6 @@ def bar_plot(csv_data):
         df = 19
         color = to_rgba(method_colors[method])
         plt.bar(i, means[i], yerr=standard_error, capsize=5, color=color, label=method)      
-    #plt.xticks([1.5, 5.5, 9.5], ["n = 1", "n = 2", "n = 4"], fontsize = 14)
     plt.ylabel('Expected Waiting Time', fontsize = 16)
     plt.yticks(fontsize = 14)
     plt.legend(["Classic", "Fast", "List-based"], loc='upper right', fontsize = 14)
@@ -91,27 +90,35 @@ def error_plot(csv_data, sim_type):
     
     t_lists = [np.array(ast.literal_eval(t_list)) for t_list in t_lists]
     length_lists = [np.array(ast.literal_eval(length_list)) for length_list in length_lists]
-
     mean_t_list = np.mean(t_lists, axis=0)
     mean_length_list = np.mean(length_lists, axis=0)
-    
-    std_t_list = np.std(t_lists, axis=0)
     std_length_list = np.std(length_lists, axis=0)
     
     error_list = mean_length_list - known_best_length
     
+    method_colors = {
+    "sim_anealing": "#8BBF9F",
+    "fast_annealing": "#83BCFF",
+    "list_sim_annealing": "#124559",
+    }
+    color = to_rgba(method_colors[sim_type])
+    
     plt.figure(figsize=(10, 6))
-    plt.plot(mean_t_list, error_list, label=f'{sim_type} Error', color='b')
+    plt.loglog(mean_t_list, error_list, label=f'{sim_type} Error', color=color)
     plt.fill_between(mean_t_list, error_list - std_length_list, error_list + std_length_list, alpha=0.3)
     plt.gca().invert_xaxis()
     plt.xlim([100, mean_t_list[-1]])
-    plt.xlabel('Temperature')
-    plt.ylabel(f'Difference from Optimal Path Length')
-    plt.title(f'{sim_type} Convergence Plot')
-    plt.grid(True)
+    plt.xticks(fontsize = 16)
+    plt.yticks(fontsize = 16)
+    plt.xlabel('Temperature', fontsize = 16)
+    plt.ylabel(f'Difference from Optimal Path Length', fontsize = 16)
+    titles = {
+    "sim_anealing": "Classic Simulated Annealing",
+    "fast_annealing": "Fast Simulated Annealing",
+    "list_sim_annealing": "List-based Simulated Annealing",
+    }
+    plt.title(f'{titles[sim_type]} Convergence Plot', fontsize = 16)
     plt.show()
-
-
 
 # general_stats(data)
 # bar_plot(data)
