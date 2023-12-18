@@ -49,8 +49,9 @@ def sim_annealing(nodes, T, alpha, stopping_T, chain_length , starting_path):
                 best_length = new_length
 
             iter += 1
-            t_list.append(T)
-            length_list.append(new_length)
+            if iter % 10000 == 0:
+                t_list.append(T)
+                length_list.append(new_length)
 
         T *= alpha
     return best_path, best_length, iter, t_list, length_list
@@ -102,36 +103,37 @@ def fast_annealing(nodes, T, alpha, stopping_T, chain_length, starting_path):
                 best_length = new_length
 
             iter += 1
-            t_list.append(T)
-            length_list.append(new_length)
+            
+            if iter % 10000 == 0:
+                t_list.append(T)
+                length_list.append(new_length)
 
         T *= alpha
     return best_path, best_length, iter, t_list, length_list
 
 @njit
-def sim_annealing_list(nodes, k, stopping_iter, starting_path, temperature_list):
+def sim_annealing_list(nodes, temp_list_length, chain_length, starting_path, temperature_list):
     k = 0
     solution = starting_path
     max_length = len(nodes) + 1
     length_list = []
-
+    t_list = []
+    
     best_path = np.copy(starting_path)
     best_length = calculate_path_length(starting_path, nodes)
     best_length = np.inf
-
+    
     TEMP_STOP = False
-    while k < stopping_iter and not TEMP_STOP:
+    while k < temp_list_length and not TEMP_STOP:
         max_temp = temperature_list[0]
-
         if len(temperature_list) == 1:
             TEMP_STOP = True
         else:
             temperature_list = temperature_list[1:]
         k += 1
         t = 0
-        c = 0
         iter = 0
-        while iter < stopping_iter:
+        while iter < chain_length:
             iter += 1
             selection = np.random.randint(0, 3)
             neighbor = get_neighbor(solution, selection)
@@ -142,19 +144,17 @@ def sim_annealing_list(nodes, k, stopping_iter, starting_path, temperature_list)
                 solution = neighbor
 
             else:
-                e = np.exp(-(1/length_diff*max_temp))
+                e = np.exp(-(1/length_diff)*max_temp)
                 r = np.random.random()
                 if r >= e:
                     t = (t - length_diff)/(np.log(r))
-                    c += 1
                     solution = neighbor
 
             if new_length < best_length:
                 best_path[:] = neighbor
                 best_length = new_length
-        if c != 0:
-            temperature_list.append(t/c)
-            temperature_list = sorted(temperature_list, reverse=True)
+                
+        t_list.append(max_temp)
+        length_list.append(new_length)
 
-        length_list.append(calculate_path_length(solution, nodes))
-    return solution, calculate_path_length(solution, nodes), iter, length_list
+    return solution, calculate_path_length(solution, nodes), iter, t_list, length_list
