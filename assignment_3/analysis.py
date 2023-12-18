@@ -97,7 +97,7 @@ def error_plot(csv_data, sim_type):
     error_list = mean_length_list - known_best_length
     
     method_colors = {
-    "sim_anealing": "#8BBF9F",
+    "sim_annealing": "#8BBF9F",
     "fast_annealing": "#83BCFF",
     "list_sim_annealing": "#124559",
     }
@@ -107,13 +107,12 @@ def error_plot(csv_data, sim_type):
     plt.loglog(mean_t_list, error_list, label=f'{sim_type} Error', color=color)
     plt.fill_between(mean_t_list, error_list - std_length_list, error_list + std_length_list, alpha=0.3)
     plt.gca().invert_xaxis()
-    plt.xlim([100, mean_t_list[-1]])
     plt.xticks(fontsize = 16)
     plt.yticks(fontsize = 16)
     plt.xlabel('Temperature', fontsize = 16)
     plt.ylabel(f'Difference from Optimal Path Length', fontsize = 16)
     titles = {
-    "sim_anealing": "Classic Simulated Annealing",
+    "sim_annealing": "Classic Simulated Annealing",
     "fast_annealing": "Fast Simulated Annealing",
     "list_sim_annealing": "List-based Simulated Annealing",
     }
@@ -122,6 +121,6 @@ def error_plot(csv_data, sim_type):
 
 # general_stats(data)
 # bar_plot(data)
-error_plot(data, "list_sim_annealing")
+error_plot(data, "sim_annealing")
 
 
