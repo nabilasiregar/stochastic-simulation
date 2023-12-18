@@ -24,41 +24,83 @@ sim_annealing_results = []
 fast_annealing_results = []
 list_sim_annealing_results = []
 
-for run in range(num_runs):
-    # Running regular simulated annealing
-    best_path, best_length, iter, t_list, length_list = sim_annealing(nodes, T, alpha, stopping_T, chain_length, starting_path)
-    sim_annealing_results.append({
-            'method': "sim_annealing",
-            'best_path': best_path,
-            'best_length': best_length,
-            'iterations': iter, 
-            't_list': t_list, 
-            'length_list': length_list
-        })
 
-    # Running fast simulated annealing
-    best_path, best_length, iter, t_list, length_list = fast_annealing(nodes, T, alpha, stopping_T, chain_length, starting_path)
-    fast_annealing_results.append({
-            'method': "fast_annealing",  
-            'best_path': best_path,
-            'best_length': best_length,
-            'iterations': iter, 
-            't_list': t_list, 
-            'length_list': length_list
-        })
+def all_annealing_types():
+    for run in range(num_runs):
+        # Running regular simulated annealing
+        best_path, best_length, iter, t_list, length_list = sim_annealing(nodes, T, alpha, stopping_T, chain_length, starting_path)
+        sim_annealing_results.append({
+                'method': "sim_annealing",
+                'best_path': best_path,
+                'best_length': best_length,
+                'iterations': iter, 
+                't_list': t_list, 
+                'length_list': length_list
+            })
 
-    #Running list-based simulated annealing
-    temperature_list = get_temperature_list(nodes, list_length, p0, starting_path)
-    best_path, best_length, iter, t_list, length_list = sim_annealing_list(nodes, temp_list_length, chain_length, starting_path, temperature_list)
-    list_sim_annealing_results.append({
-            'method': "list_sim_annealing",  
-            'best_path': best_path,
-            'best_length': best_length,
-            'iterations': iter, 
-            't_list': t_list, 
-            'length_list': length_list
-        })
+        # Running fast simulated annealing
+        best_path, best_length, iter, t_list, length_list = fast_annealing(nodes, T, alpha, stopping_T, chain_length, starting_path)
+        fast_annealing_results.append({
+                'method': "fast_annealing",  
+                'best_path': best_path,
+                'best_length': best_length,
+                'iterations': iter, 
+                't_list': t_list, 
+                'length_list': length_list
+            })
+
+        #Running list-based simulated annealing
+        temperature_list = get_temperature_list(nodes, list_length, p0, starting_path)
+        best_path, best_length, iter, t_list, length_list = sim_annealing_list(nodes, temp_list_length, chain_length, starting_path, temperature_list)
+        list_sim_annealing_results.append({
+                'method': "list_sim_annealing",  
+                'best_path': best_path,
+                'best_length': best_length,
+                'iterations': iter, 
+                't_list': t_list, 
+                'length_list': length_list
+            })
+        
+    columns = ["method", "best_path", "best_length", "iterations", "t_list", "length_list"]
+    results = pd.DataFrame(sim_annealing_results + fast_annealing_results + list_sim_annealing_results, columns=columns)
+    results.to_csv("results.csv", index=False)
+
+
+def vary_cooling_factor():
+    cooling_factor_list = []
+    for run in range(num_runs):
+        for cooling_factor in cooling_factor_list:
+            best_path, best_length, iter, t_list, length_list = sim_annealing(nodes, T, cooling_factor, stopping_T, chain_length, starting_path)
+            sim_annealing_results.append({
+                    'method': "sim_annealing",
+                    'best_path': best_path,
+                    'best_length': best_length,
+                    'iterations': iter, 
+                    't_list': t_list, 
+                    'length_list': length_list,
+                    'cooling_factor': cooling_factor
+                })
     
-columns = ["method", "best_path", "best_length", "iterations", "t_list", "length_list"]
-results = pd.DataFrame(sim_annealing_results + fast_annealing_results + list_sim_annealing_results, columns=columns)
-results.to_csv("results.csv", index=False)
+    columns = ["method", "best_path", "best_length", "iterations", "t_list", "length_list", "cooling_factor"]
+    results = pd.DataFrame(sim_annealing_results, columns=columns)
+    results.to_csv("cooling_factor_results.csv", index=False)
+
+
+def vary_chain_length():
+    chain_length_list = []
+    for run in range(num_runs):
+        for chain_length in chain_length_list:
+            best_path, best_length, iter, t_list, length_list = sim_annealing(nodes, T, alpha, stopping_T, chain_length, starting_path)
+            sim_annealing_results.append({
+                    'method': "sim_annealing",
+                    'best_path': best_path,
+                    'best_length': best_length,
+                    'iterations': iter, 
+                    't_list': t_list, 
+                    'length_list': length_list,
+                    'chain_length': chain_length
+                })
+    
+    columns = ["method", "best_path", "best_length", "iterations", "t_list", "length_list", "chain_length"]
+    results = pd.DataFrame(sim_annealing_results, columns=columns)
+    results.to_csv("chain_length_results.csv", index=False)
