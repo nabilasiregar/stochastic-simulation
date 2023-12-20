@@ -4,20 +4,19 @@ from map_config import *
 import numpy as np
 import pandas as pd
 
-nodes = read_csv(SMALL_MAP)
-paths = add_paths(SMALL_OPT)
+nodes = read_csv(MEDIUM_MAP)
+paths = add_paths(MEDIUM_OPT)
 known_best_length = calculate_path_length(paths, nodes)
-T = 1000
-alpha = 0.999
-stopping_T = 0.1
-chain_length = 1000
+T = 100
+alpha = 0.989
+stopping_T = 0.001
+chain_length = 18578
 temp_list_length = 1000
 starting_path = np.random.permutation(range(1, len(nodes) + 1))
 p0 = 0.5
-list_length = 120
 
 # Number of runs
-num_runs = 2
+num_runs = 20
 
 # Lists to store results
 sim_annealing_results = []
@@ -38,6 +37,8 @@ def all_annealing_types():
                 'length_list': length_list
             })
 
+        print(f"Run {run} for normal simulated annealing complete.")
+        
         # Running fast simulated annealing
         best_path, best_length, iter, t_list, length_list = fast_annealing(nodes, T, alpha, stopping_T, chain_length, starting_path)
         fast_annealing_results.append({
@@ -49,8 +50,10 @@ def all_annealing_types():
                 'length_list': length_list
             })
 
+        print(f"Run {run} for fast simulated annealing complete.")
+
         #Running list-based simulated annealing
-        temperature_list = get_temperature_list(nodes, list_length, p0, starting_path)
+        temperature_list = get_temperature_list(nodes, temp_list_length, p0, starting_path)
         best_path, best_length, iter, t_list, length_list = sim_annealing_list(nodes, temp_list_length, chain_length, starting_path, temperature_list)
         list_sim_annealing_results.append({
                 'method': "list_sim_annealing",  
@@ -61,9 +64,12 @@ def all_annealing_types():
                 'length_list': length_list
             })
         
+        print(f"Run {run} for list-based simulated annealing complete.")
+        print()
+        
     columns = ["method", "best_path", "best_length", "iterations", "t_list", "length_list"]
     results = pd.DataFrame(sim_annealing_results + fast_annealing_results + list_sim_annealing_results, columns=columns)
-    results.to_csv("results.csv", index=False)
+    results.to_csv("method_results_medium.csv", index=False)
 
 
 def vary_cooling_factor():
@@ -104,3 +110,5 @@ def vary_chain_length():
     columns = ["method", "best_path", "best_length", "iterations", "t_list", "length_list", "chain_length"]
     results = pd.DataFrame(sim_annealing_results, columns=columns)
     results.to_csv("chain_length_results.csv", index=False)
+    
+all_annealing_types()
