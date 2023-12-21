@@ -3,13 +3,13 @@ from map_config import *
 import numpy as np
 import pandas as pd
 import scipy.stats as stats
-import pingouin as pg
+import scikit_posthocs as sp
 import matplotlib.pyplot as plt
 import ast
 from matplotlib.colors import to_rgba
 
 
-def general_stats(csv_data):
+def general_stats(data):
     df = pd.DataFrame(data)
     alpha = 0.01
 
@@ -22,59 +22,26 @@ def general_stats(csv_data):
     array_like = df.groupby("method")["best_length"].apply(
         list).reset_index()["best_length"].values
     methods = df["method"].unique()
+    
+    shapiro_stat_group1, shapiro_pvalue_group1 = stats.shapiro(array_like[0])
+    shapiro_stat_group2, shapiro_pvalue_group2 = stats.shapiro(array_like[1])
+    shapiro_stat_group3, shapiro_pvalue_group3 = stats.shapiro(array_like[2])
 
-    bartlett_stat, bartlett_pvalue = stats.bartlett(*array_like)
     print(
-        f"Bartlett's Test - Statistic: {bartlett_stat}, p-value: {bartlett_pvalue}")
+        f"Shapiro-Wilk Test - {methods[0]}: Statistic: {shapiro_stat_group1}, p-value: {shapiro_pvalue_group1}")
+    print(
+        f"Shapiro-Wilk Test - {methods[1]}: Statistic: {shapiro_stat_group2}, p-value: {shapiro_pvalue_group2}")
+    print(
+        f"Shapiro-Wilk Test - {methods[2]}: Statistic: {shapiro_stat_group3}, p-value: {shapiro_pvalue_group3}")
+
+    kruskal_stat, kruskal_pvalue = stats.kruskal(*array_like)
+    print(
+        f"Kruskal-Wallis Test - Statistic: {kruskal_stat}, p-value: {kruskal_pvalue}")
     print()
 
-    welch_result = pg.welch_anova(data=data, dv="best_length", between="method")
-    print(f"Welch's ANOVA statistic: {welch_result['F'][0]}    p-value: {welch_result['p-unc'][0]}")
-
-    posthoc_result = pg.pairwise_gameshowell(data=data, dv="best_length", between="method")
-    print(posthoc_result)
-
-
-def bar_plot(csv_data):
-    df = pd.DataFrame(data)
-    alpha = 0.01
-    methods = ["Classic Simulated Annealing", "Fast Simulated Annealing", "List-Based Simulated Annealing"]
-    
-    sa_data = data.groupby("method").get_group("sim_annealing")["best_length"].iloc[0]
-    fast_sa_data = data.groupby("method").get_group("fast_annealing")["best_length"].iloc[0]
-    list_sa_data = data.groupby("method").get_group("list_sim_annealing")["best_length"].iloc[0]
-    
-    mean_sa = np.mean(sa_data)
-    mean_fast_sa = np.mean(fast_sa_data)
-    mean_list_sa = np.mean(list_sa_data)
-    
-    std_sa = np.std(sa_data)
-    std_fast_sa = np.std(fast_sa_data)
-    std_list_sa = np.std(list_sa_data)
-    
-    means = [mean_sa, mean_fast_sa, mean_list_sa]
-    stds = [std_sa, std_fast_sa, std_list_sa]
-    
-    method_colors = {
-    "Classic Simulated Annealing": "#8BBF9F",
-    "Fast Simulated Annealing": "#83BCFF",
-    "List-Based Simulated Annealing": "#124559",
-    }
-    
-    plt.figure(figsize=(10, 6))
-    for i, method in enumerate(methods):
-        alpha = 0.05
-        standard_error = stds[i]/ np.sqrt(20)
-        df = 19
-        color = to_rgba(method_colors[method])
-        plt.bar(i, means[i], yerr=standard_error, capsize=5, color=color, label=method)      
-    plt.ylabel('Expected Waiting Time', fontsize = 16)
-    plt.yticks(fontsize = 14)
-    plt.legend(["Classic", "Fast", "List-based"], loc='upper right', fontsize = 14)
-    plt.title('Mean Best Path Lengths', fontsize = 16)
-    plt.tight_layout()
-    plt.show()
-
+    dunn_results = sp.posthoc_dunn(df, val_col='best_length', group_col='method', p_adjust='bonferroni')
+    print("Dunn's Test with Bonferroni Correction:")
+    print(dunn_results)
 
 def error_plot_methods(csv_data):
     nodes = read_csv(MEDIUM_MAP)
@@ -206,9 +173,9 @@ method_data = pd.read_csv("./method_results_medium.csv", header=0)
 cooling_factor_data = pd.read_csv("./cooling_factor_results.csv", header=0)
 chain_length_data = pd.read_csv("./chain_length_results.csv", header=0)
 
-# general_stats(data)
+general_stats(method_data)
 # bar_plot(data)
-error_plot_methods(method_data)
-error_plot_cooling_factors(cooling_factor_data)
-error_plot_chain_lengths(chain_length_data)
+# error_plot_methods(method_data)
+# error_plot_cooling_factors(cooling_factor_data)
+# error_plot_chain_lengths(chain_length_data)
 
