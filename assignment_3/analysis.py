@@ -81,7 +81,7 @@ def error_plot_methods(csv_data):
     paths = add_paths(MEDIUM_OPT)
     known_best_length = calculate_path_length(paths, nodes)
     
-    df = pd.DataFrame(data)
+    df = pd.DataFrame(csv_data)
     grouped = df.groupby('method')
     
     method_colors = {
@@ -96,7 +96,7 @@ def error_plot_methods(csv_data):
         "list_sim_annealing": "List-based Simulated Annealing",
     }
     
-    fig, axes = plt.subplots(1, 3, figsize=(18, 6)) 
+    fig, axes = plt.subplots(1, 3, figsize=(18, 6))
     
     for i, (sim_type, sim_data) in enumerate(grouped):
         sa_t_lists = sim_data['t_list']
@@ -114,19 +114,20 @@ def error_plot_methods(csv_data):
         color = to_rgba(method_colors[sim_type])
     
         axes[i].loglog(mean_t_list, error_list, label=f'{sim_type} Error', color=color)
-        axes[i].fill_between(mean_t_list, error_list - std_length_list, error_list + std_length_list, color = color, alpha=0.3)
+        axes[i].fill_between(mean_t_list, error_list - std_length_list, error_list + std_length_list, color=color, alpha=0.3)
         axes[i].invert_xaxis()
-        axes[i].tick_params(axis='both', which='both', labelsize=16)  
+        axes[i].tick_params(axis='both', which='both', labelsize=14)  
         axes[i].set_title(f'{titles[sim_type]}', fontsize=16)
         best_length = min(sim_data["best_length"].values)
         axes[i].text(0.5, 0.9, f'Best Length: {round(best_length, 3)}', transform=axes[i].transAxes, fontsize=12, color='black')
-
     
+    plt.subplots_adjust(left=0.1)
     axes[1].set_xlabel('Temperature (log-scale)', fontsize=16)
-    axes[0].set_ylabel(f'Difference from Optimal Path Length (log-scale)', fontsize=16)
+    axes[0].set_ylabel('Difference from Optimal Path Length (log-scale)', fontsize=16)
     plt.suptitle('Convergence Plots for Simulated Annealing Methods', fontsize=18)
-    plt.tight_layout(rect=[0, 0, 1, 0.95])
+    plt.tight_layout()
     plt.show()
+
     
 def error_plot_cooling_factors(csv_data):
     nodes = read_csv(MEDIUM_MAP)
@@ -149,10 +150,7 @@ def error_plot_cooling_factors(csv_data):
         mean_length_list = np.mean(length_lists, axis=0)
         std_length_list = np.std(length_lists, axis=0)
     
-        error_list = mean_length_list - known_best_length
-    
-        #color = to_rgba(method_colors[sim_type])
-    
+        error_list = mean_length_list - known_best_length    
         plt.loglog(mean_t_list, error_list, label=f'{sim_type}')
         plt.gca().invert_xaxis()
         plt.fill_between(mean_t_list, error_list - std_length_list, error_list + std_length_list, alpha=0.3)
@@ -169,27 +167,28 @@ def error_plot_chain_lengths(csv_data):
     nodes = read_csv(MEDIUM_MAP)
     paths = add_paths(MEDIUM_OPT)
     known_best_length = calculate_path_length(paths, nodes)
-    
+
     df = pd.DataFrame(csv_data)
     grouped = df.groupby('chain_length')
-    
+
     plt.figure(figsize=(10, 6))
-    
+
+    max_temp_for_chain_length_50 = 0  
     for sim_type, sim_data in grouped:
         sa_t_lists = sim_data['t_list']
         sa_length_lists = sim_data['length_list']
 
         t_lists = [np.array(ast.literal_eval(t_list)) for t_list in sa_t_lists]
         length_lists = [np.array(ast.literal_eval(length_list)) for length_list in sa_length_lists]
-    
+
         mean_t_list = np.mean(t_lists, axis=0)
         mean_length_list = np.mean(length_lists, axis=0)
         std_length_list = np.std(length_lists, axis=0)
-    
+
         error_list = mean_length_list - known_best_length
-    
-        #color = to_rgba(method_colors[sim_type])
-    
+        if 50 in sim_data['chain_length'].values:
+            max_temp_for_chain_length_50 = max(max_temp_for_chain_length_50, np.max(mean_t_list))
+
         plt.loglog(mean_t_list, error_list, label=f'{sim_type}')
         plt.fill_between(mean_t_list, error_list - std_length_list, error_list + std_length_list, alpha=0.3)
 
@@ -198,55 +197,18 @@ def error_plot_chain_lengths(csv_data):
     plt.ylabel('Difference from Optimal Path Length (log-scale)', fontsize=16)
     plt.title('Convergence Plots for Varying Chain Lengths', fontsize=18)
     plt.legend(title='Chain Length', fontsize=12)
+    plt.xlim(max_temp_for_chain_length_50, 0.01)
 
     plt.tight_layout()
     plt.show()
-    
-def error_plot_chain_lengths_var(csv_data):
-    nodes = read_csv(MEDIUM_MAP)
-    paths = add_paths(MEDIUM_OPT)
-    known_best_length = calculate_path_length(paths, nodes)
-    
-    df = pd.DataFrame(csv_data)
-    grouped = df.groupby('chain_length')
-    
-    plt.figure(figsize=(10, 6))
-    
-    for sim_type, sim_data in grouped:
-        sa_t_lists = sim_data['t_list']
-        sa_length_lists = sim_data['length_list']
-
-        t_lists = [np.array(ast.literal_eval(t_list)) for t_list in sa_t_lists]
-        length_lists = [np.array(ast.literal_eval(length_list)) for length_list in sa_length_lists]
-    
-        mean_t_list = np.mean(t_lists, axis=0)
-        var_length_list = np.var(length_lists, axis=0)
-        #std_length_list = np.std(length_lists, axis=0)
-    
-        #color = to_rgba(method_colors[sim_type])
-    
-        plt.plot(mean_t_list, var_length_list, label=f'{sim_type}')
-        #plt.fill_between(mean_t_list, error_list - std_length_list, error_list + std_length_list, alpha=0.3)
-
-    plt.gca().invert_xaxis()
-    plt.xlabel('Temperature (log-scale)', fontsize=16)
-    plt.ylabel('Difference from Optimal Path Length (log-scale)', fontsize=16)
-    plt.title('Convergence Plots for Varying Chain Lengths', fontsize=18)
-    plt.legend(title='Chain Length', fontsize=12)
-
-    plt.tight_layout()
-    plt.show()
-
 
 method_data = pd.read_csv("./method_results_medium.csv", header=0)
-cooling_factor_data = pd.read_csv("./bad_cooling_factor_results.csv", header=0)
+cooling_factor_data = pd.read_csv("./cooling_factor_results.csv", header=0)
 chain_length_data = pd.read_csv("./chain_length_results.csv", header=0)
 
 # general_stats(data)
 # bar_plot(data)
-#error_plot_methods(data)
-#error_plot_cooling_factors(cooling_factor_data)
-#error_plot_chain_lengths(chain_length_data)
-error_plot_chain_lengths_var(chain_length_data)
-
+error_plot_methods(method_data)
+error_plot_cooling_factors(cooling_factor_data)
+error_plot_chain_lengths(chain_length_data)
 
