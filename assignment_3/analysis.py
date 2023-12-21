@@ -201,16 +201,52 @@ def error_plot_chain_lengths(csv_data):
 
     plt.tight_layout()
     plt.show()
+    
+def error_plot_chain_lengths_var(csv_data):
+    nodes = read_csv(MEDIUM_MAP)
+    paths = add_paths(MEDIUM_OPT)
+    known_best_length = calculate_path_length(paths, nodes)
+    
+    df = pd.DataFrame(csv_data)
+    grouped = df.groupby('chain_length')
+    
+    plt.figure(figsize=(10, 6))
+    
+    for sim_type, sim_data in grouped:
+        sa_t_lists = sim_data['t_list']
+        sa_length_lists = sim_data['length_list']
+
+        t_lists = [np.array(ast.literal_eval(t_list)) for t_list in sa_t_lists]
+        length_lists = [np.array(ast.literal_eval(length_list)) for length_list in sa_length_lists]
+    
+        mean_t_list = np.mean(t_lists, axis=0)
+        var_length_list = np.var(length_lists, axis=0)
+        #std_length_list = np.std(length_lists, axis=0)
+    
+        #color = to_rgba(method_colors[sim_type])
+    
+        plt.plot(mean_t_list, var_length_list, label=f'{sim_type}')
+        #plt.fill_between(mean_t_list, error_list - std_length_list, error_list + std_length_list, alpha=0.3)
+
+    plt.gca().invert_xaxis()
+    plt.xlabel('Temperature (log-scale)', fontsize=16)
+    plt.ylabel('Difference from Optimal Path Length (log-scale)', fontsize=16)
+    plt.title('Convergence Plots for Varying Chain Lengths', fontsize=18)
+    plt.legend(title='Chain Length', fontsize=12)
+
+    plt.tight_layout()
+    plt.show()
 
 
 method_data = pd.read_csv("./method_results_medium.csv", header=0)
-cooling_factor_data = pd.read_csv("./cooling_factor_results.csv", header=0)
+cooling_factor_data = pd.read_csv("./bad_cooling_factor_results.csv", header=0)
 chain_length_data = pd.read_csv("./chain_length_results.csv", header=0)
 
 # general_stats(data)
 # bar_plot(data)
 #error_plot_methods(data)
-error_plot_cooling_factors(cooling_factor_data)
+#error_plot_cooling_factors(cooling_factor_data)
 #error_plot_chain_lengths(chain_length_data)
+error_plot_chain_lengths_var(chain_length_data)
 
 
