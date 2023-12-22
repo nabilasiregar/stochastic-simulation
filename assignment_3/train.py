@@ -35,6 +35,7 @@ def main(cfg: DictConfig):
                     'large': LARGE_MAP
                 }.get(cfg.map_size, MEDIUM_MAP) # Default to MEDIUM_MAP if an unknown map size is specified
         
+        initial_temperature = trial.suggest_int("initial_temperature", 10, 1000)
         cooling_factor = trial.suggest_float("cooling_factor", 0.80, 0.99)
         chain_length = trial.suggest_int("chain_length", 1000, 20000)
 
@@ -47,8 +48,8 @@ def main(cfg: DictConfig):
         for _ in range(10):  # Run the algorithm 10 times for each trial
             starting_path = np.random.permutation(range(1, len(nodes) + 1))
             _, best_length, iters, _, _ = sim_annealing(
-                nodes, cfg.initial_temperature, cooling_factor, cfg.stopping_temperature, chain_length, starting_path)       
-            save_to_csv(trial.number, cfg.initial_temperature, cooling_factor, chain_length, best_length, iters, csv_filepath)
+                nodes, initial_temperature, cooling_factor, cfg.stopping_temperature, chain_length, starting_path)       
+            save_to_csv(trial.number, initial_temperature, cooling_factor, chain_length, best_length, iters, csv_filepath)
             total_best_length.append(best_length)
 
         average_best_length = np.average(total_best_length)
@@ -56,7 +57,7 @@ def main(cfg: DictConfig):
         return average_best_length
 
     study = optuna.create_study(direction="minimize")
-    study.optimize(objective, n_trials=40)
+    study.optimize(objective, n_trials=50)
 
 if __name__ == "__main__":
     main()
