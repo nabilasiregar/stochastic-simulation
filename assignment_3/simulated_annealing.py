@@ -1,7 +1,7 @@
-import numpy as np
-from numba import njit
 from map import *
 from route_operations import *
+import numpy as np
+from numba import njit
 
 @njit
 def sim_annealing(nodes, T, alpha, stopping_T, chain_length , starting_path):
