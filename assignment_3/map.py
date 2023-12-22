@@ -1,9 +1,9 @@
 """A module containing map-related operations: 
 reading and processing map data, extracting coordinates of nodes (locations), 
 and calculating distances between nodes based on their coordinates."""
-import numpy as np
 import matplotlib.pyplot as plt
 from numba import njit
+import numpy as np
 
 def read_csv(csv):
     """

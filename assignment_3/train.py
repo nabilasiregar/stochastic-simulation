@@ -1,12 +1,12 @@
-from omegaconf import DictConfig, OmegaConf
-import hydra
 from map_config import SMALL_MAP, MEDIUM_MAP, LARGE_MAP
 from map import *
 from simulated_annealing import sim_annealing
-import numpy as np
-import os
 import csv
+import hydra
+import numpy as np
+from omegaconf import DictConfig, OmegaConf
 import optuna
+import os
 
 def save_to_csv(trial_number, initial_temperature, cooling_factor, chain_length, best_length, iterations, csv_filepath):
     file_exists = os.path.isfile(csv_filepath)
@@ -60,3 +60,4 @@ def main(cfg: DictConfig):
 
 if __name__ == "__main__":
     main()
+    

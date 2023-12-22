@@ -1,8 +1,8 @@
 """Contain functions that are responsible for manipulating and optimizing the routes or paths 
 that need to be taken to solve the traveling salesman problem"""
-import numpy as np
 from map import *
 from numba import njit, int32
+import numpy as np
 
 @njit
 def get_neighbor(path, selection):

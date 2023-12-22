@@ -1,7 +1,7 @@
 """This file contains methods to run different type of simulation for data collection"""
 from map import *
-from simulated_annealing import *
 from map_config import *
+from simulated_annealing import *
 import numpy as np
 import pandas as pd
 import sys
