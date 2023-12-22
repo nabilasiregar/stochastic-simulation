@@ -136,10 +136,14 @@ def compare_fast_normal(fast_csv, normal_csv):
 
     plt.figure(figsize=(10, 6))
     # comparing the best length found per cooling factor
-    for sim_type, sim_data in fast_df.groupby('method'):
-        plt.bar(sim_data['cooling_factor'], sim_data['best_length'], label=f'{sim_type}')
-    for sim_type, sim_data in normal_df.groupby('method'):
-        plt.bar(sim_data['cooling_factor'], sim_data['best_length'], label=f'{sim_type}')
+    fast_grouped = fast_df.groupby('cooling_factor')
+    normal_grouped = normal_df.groupby('cooling_factor')
+    for cooling_factor, fast_data in fast_grouped:
+        normal_data = normal_grouped.get_group(cooling_factor)
+        fast_best_lengths = fast_data['best_length']
+        normal_best_lengths = normal_data['best_length']
+        plt.scatter([cooling_factor] * len(fast_best_lengths), fast_best_lengths, label='Fast Simulated Annealing', color='red')
+        plt.scatter([cooling_factor] * len(normal_best_lengths), normal_best_lengths, label='Classic Simulated Annealing', color='blue')
 
     plt.xlabel('Cooling Factor', fontsize=16)
     plt.ylabel('Best Length', fontsize=16)
@@ -192,8 +196,8 @@ cooling_factor_data = pd.read_csv("./cooling_factor_results.csv", header=0)
 cooling_factor_data_fast = pd.read_csv("./cooling_factor_results_fast.csv", header=0)
 chain_length_data = pd.read_csv("./chain_length_results.csv", header=0)
 
-general_stats(method_data)
-error_plot_methods(method_data)
+# general_stats(method_data)
+# error_plot_methods(method_data)
 compare_fast_normal(cooling_factor_data_fast, cooling_factor_data)
-error_plot_cooling_factors(cooling_factor_data)
-error_plot_chain_lengths(chain_length_data)
+# error_plot_cooling_factors(cooling_factor_data)
+# error_plot_chain_lengths(chain_length_data)

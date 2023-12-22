@@ -9,10 +9,10 @@ import sys
 nodes = read_csv(MEDIUM_MAP) # adjust map size according to need
 paths = add_paths(MEDIUM_OPT) # adjust map reference according to need
 known_best_length = calculate_path_length(paths, nodes)
-T = 1000
-alpha = 0.999
-stopping_T = 0.1
-chain_length = 1000
+T = 100
+alpha = 0.989
+stopping_T = 0.001
+chain_length = 18578
 temp_list_length = 1000
 starting_path = np.random.permutation(range(1, len(nodes) + 1))
 p0 = 0.5
