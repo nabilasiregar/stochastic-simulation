@@ -11,7 +11,9 @@ import pandas as pd
 import scipy.stats as stats
 import scikit_posthocs as sp
 import seaborn as sns
-
+import matplotlib.cm as cm
+from mpl_toolkits.mplot3d import Axes3D
+from matplotlib.colors import LinearSegmentedColormap
 
 def general_stats(data):
     """
@@ -253,30 +255,44 @@ def plot_maps(data):
     plt.show()
 
 
-def plot_heatmap(data):
-    """
-        Input: Path to file train_results.csv", generated from hypertuning parameters from train.py
-        Output: Heatmap plot
-    """
-    cooling_factor_bins = np.arange(0.8, 1.00, 0.01)
-    chain_length_bins = np.arange(2000, 22000, 2000)
+def headmap_3D(df):
+    palette = {
+        "crayola": (238, 32, 77),
+        "green": (139, 191, 159)
+    }
 
-    data['cooling_factor_group'] = pd.cut(data['cooling_factor'], bins=cooling_factor_bins, include_lowest=True, labels=np.round(cooling_factor_bins[:-1], 2))
-    data['chain_length_group'] = pd.cut(data['chain_length'], bins=chain_length_bins, include_lowest=True, labels=chain_length_bins[:-1])
-    pivoted_df = data.pivot_table(index='cooling_factor_group', columns='chain_length_group', values='best_length', aggfunc='mean')
+    normalized_palette = {key: tuple(val / 255.0 for val in value)
+                        for key, value in palette.items()}
 
-    # Index and columns represent the parameters and the cell values represent the averaged 'best_length'
-    plt.figure(figsize=(10, 8))
-    ax = sns.heatmap(pivoted_df, annot=True, fmt=".2f", cmap="YlGnBu", cbar_kws={'label': 'Average Path Length'}, annot_kws={"fontsize":11})
-    ax.set_title('Tuning Cooling Factor and Markov-Chain Length Based on Path Length', fontsize=18, pad=20)
-    plt.xlabel('Markov Chain Length', fontsize=16)
-    plt.ylabel('Cooling Factor', fontsize=16)
-    plt.xticks(fontsize=14)
-    plt.yticks(fontsize=14)
-    cbar = ax.collections[0].colorbar
-    cbar.ax.tick_params(labelsize=14)
-    cbar.ax.set_ylabel('Average Path Length', fontsize=16)
+    colors = list(normalized_palette.values())
+    color_stops = [i / (len(colors) - 1) for i in range(len(colors))]
+    cmap = LinearSegmentedColormap.from_list(
+        "custom_gradient", list(zip(color_stops, colors)))
+
+
+    fig = plt.figure(figsize=(10, 8))
+    ax = fig.add_subplot(111, projection='3d')
+    x = df['initial_temperature']
+    y = df['cooling_factor']
+    z = df['chain_length']
+    normalized_color = (df['best_length'] - df['best_length'].min()) / (df['best_length'].max() - df['best_length'].min())
+
+
+
+    tri = ax.plot_trisurf(x, y, z, cmap=cmap, edgecolor='k', linewidth=0.2, facecolors=cmap(normalized_color), alpha=0.7)
+
+    ax.set_xlabel('Initial Temperature', fontsize=16, labelpad=10)
+    ax.set_ylabel('Cooling Factor', fontsize=16, labelpad=10)
+    ax.set_zlabel('Chain Length', fontsize=16, labelpad=10)
+    ax.set_title('Parameter Space for Simulated Annealing', fontsize=18)
+
+    norm = plt.Normalize(df['best_length'].min(), df['best_length'].max())
+    sm = plt.cm.ScalarMappable(cmap=cmap.reversed(), norm=norm)
+    cbar = fig.colorbar(sm, ax=ax, label='Best Length', shrink=0.5)
+    cbar.set_label('Best Length', fontsize=16, labelpad=10)
+    plt.tight_layout()
     plt.show()
+
 
 method_data = pd.read_csv("./data/method_results_medium.csv", header=0)
 cooling_factor_data = pd.read_csv("./data/cooling_factor_results.csv", header=0)
@@ -296,4 +312,4 @@ error_plot_chain_lengths(chain_length_data)
 
 plot_maps([[read_csv(MEDIUM_MAP), read_csv(SMALL_MAP)] , [best_map_medium['best_path'].values[0], best_map_small['best_path'].values[0]]])
 compare_fast_normal(cooling_factor_data_fast, cooling_factor_data)
-plot_heatmap(train_data)
+headmap_3D(train_data)
