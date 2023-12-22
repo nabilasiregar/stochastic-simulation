@@ -1,4 +1,4 @@
-# Configuration Constants
+# Path configuration to different TSP map sizes
 SMALL_MAP = "tsp_configs/eil51.tsp.txt"
 MEDIUM_MAP = "tsp_configs/a280.tsp.txt"
 LARGE_MAP = "tsp_configs/pcb442.tsp.txt"

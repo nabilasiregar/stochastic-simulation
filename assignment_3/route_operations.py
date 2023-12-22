@@ -1,10 +1,12 @@
+"""Contain functions that are responsible for manipulating and optimizing the routes or paths 
+that need to be taken to solve the traveling salesman problem"""
 import numpy as np
 from map import *
 from numba import njit, int32
 
 @njit
 def get_neighbor(path, selection):
-    '''Returns a random neighbor of the path'''
+    """Returns a random neighbor of the path"""
     node1 = np.random.randint(0, len(path))
     node2 = np.random.randint(0, len(path))
     while node1 == node2:
@@ -37,6 +39,7 @@ def get_neighbor(path, selection):
     return new_path
 
 def get_temperature_list(nodes, list_length, p0, starting_path):
+    """"Generates a list of temperatures for simulated annealing based on path changes."""
     solution = starting_path 
     temperature_list = [] 
     i = 0
