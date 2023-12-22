@@ -1,9 +1,13 @@
 """
 <<<<<<< HEAD
+<<<<<<< HEAD
 Comprehensive file to provide all of the statistics and figures from simulation runs for all simulated annealing types.
 =======
 Comprehensive file to provide all of the statistics and convergence plots from simulation runs for all simulated annealing types.
 >>>>>>> 2622068 (add data and docstring)
+=======
+Comprehensive file to provide all of the statistics and figures from simulation runs for all simulated annealing types.
+>>>>>>> 17b0746 (merge heatmap with analysis)
 """
 from map import *
 from map_config import *
