@@ -252,10 +252,6 @@ def plot_maps(data):
         ax.set_yticks([])
     plt.show()
 
-method_data = pd.read_csv("./method_results_medium.csv", header=0)
-cooling_factor_data = pd.read_csv("./cooling_factor_results.csv", header=0)
-cooling_factor_data_fast = pd.read_csv("./cooling_factor_results_fast.csv", header=0)
-chain_length_data = pd.read_csv("./chain_length_results.csv", header=0)
 
 def plot_heatmap(data):
     """
@@ -289,7 +285,7 @@ chain_length_data = pd.read_csv("./data/chain_length_results.csv", header=0)
 train_data = pd.read_csv("./data/train_results.csv")
 
 
-small_map_data = pd.read_csv("./method_results_small.csv", header=0)
+small_map_data = pd.read_csv("./data/method_results_small.csv", header=0)
 best_map_medium = method_data[method_data['best_length'] == method_data['best_length'].min()]
 best_map_small = small_map_data[small_map_data['best_length'] == small_map_data['best_length'].min()]
 
