@@ -155,19 +155,35 @@ def compare_fast_normal(fast_csv, normal_csv):
     fast_df = pd.DataFrame(fast_csv)
     normal_df = pd.DataFrame(normal_csv)
 
+    method_colors = {
+        "sim_annealing": "#8BBF9F",
+        "fast_annealing": "#83BCFF",
+        "list_sim_annealing": "#124559",
+    }
+    
     plt.figure(figsize=(10, 6))
-    # comparing the best length found per cooling factor
     fast_grouped = fast_df.groupby('cooling_factor')
     normal_grouped = normal_df.groupby('cooling_factor')
+    cooling_factors = fast_df['cooling_factor'].unique()
+    cooling_factors = np.sort(cooling_factors)
+
+    label = True
     for cooling_factor, fast_data in fast_grouped:
         normal_data = normal_grouped.get_group(cooling_factor)
         fast_best_lengths = fast_data['best_length']
         normal_best_lengths = normal_data['best_length']
-        plt.scatter([cooling_factor] * len(fast_best_lengths), fast_best_lengths, label='Fast Simulated Annealing', color='red')
-        plt.scatter([cooling_factor] * len(normal_best_lengths), normal_best_lengths, label='Classic Simulated Annealing', color='blue')
+        # Only label the first time
+        if label:
+            plt.scatter([cooling_factor] * len(fast_best_lengths), fast_best_lengths, label='Fast Simulated Annealing', color=method_colors['fast_annealing'])
+            plt.scatter([cooling_factor] * len(normal_best_lengths), normal_best_lengths, label='Classic Simulated Annealing', color=method_colors["sim_annealing"])
+            label = False
+        else:
+            plt.scatter([cooling_factor] * len(fast_best_lengths), fast_best_lengths, color=method_colors['fast_annealing'])
+            plt.scatter([cooling_factor] * len(normal_best_lengths), normal_best_lengths, color=method_colors["sim_annealing"])
 
     plt.xlabel('Cooling Factor', fontsize=16)
     plt.ylabel('Best Length', fontsize=16)
+    plt.xticks(cooling_factors, fontsize=14)
     plt.title('Best Lengths for Varying Cooling Factors', fontsize=18)
     plt.legend(title='Method', fontsize=12)
     plt.show()
