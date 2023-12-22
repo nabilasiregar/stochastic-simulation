@@ -17,11 +17,11 @@ For convenience, we provide our training results under the 'data' folder.
 ```bash
   python simulation.py
 ```
-You will be prompted to choose what kind of simulation to run from your terminal: `general`, `cooling_factor`, `cooling_factor_fast` or `markov chain`.
+You will be prompted to choose what kind of simulation to run from your terminal: `general`, `cooling_factor`, `fast_cooling_factor` or `markov chain`.
 
 + `general`: Run all simulated annealing types (Simulated Annealing, List-Based Simulated Annealing, Fast Simulated Annealing)
 + `cooling_factor`: Run regular simulated annealing with varying cooling factors
-+ `cooling_factor_fast`: Run fast simulated annealing with varying cooling factors
++ `fast_cooling_factor`: Run fast simulated annealing with varying cooling factors
 + `markov_chain`: Run regular simulated annealing with varying Markov chain length
 
 All csv files generated from simulation run will be saved under the root of assignment_3 folder.
