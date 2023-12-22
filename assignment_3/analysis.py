@@ -1,13 +1,5 @@
 """
-<<<<<<< HEAD
-<<<<<<< HEAD
 Comprehensive file to provide all of the statistics and figures from simulation runs for all simulated annealing types.
-=======
-Comprehensive file to provide all of the statistics and convergence plots from simulation runs for all simulated annealing types.
->>>>>>> 2622068 (add data and docstring)
-=======
-Comprehensive file to provide all of the statistics and figures from simulation runs for all simulated annealing types.
->>>>>>> 17b0746 (merge heatmap with analysis)
 """
 from map import *
 from map_config import *
@@ -156,11 +148,7 @@ def error_plot_cooling_factors(csv_data):
 
 def compare_fast_normal(fast_csv, normal_csv):
     """
-<<<<<<< HEAD
         Input: Path to file cooling_factor_results.csv and cooling_factor_results_fast.csv", generated from running simulation type cooling_factor and cooling_factor_fast
-=======
-        Input: Path to file cooling_factor_results.csv and cooling_factor_results_fast.csv", generated from running simulation type cooling_factor
->>>>>>> 2622068 (add data and docstring)
         with different simulated annealing method from simulation.py
         Output: Plot comparing returned path length between 2 types of simulated annealing
     """
