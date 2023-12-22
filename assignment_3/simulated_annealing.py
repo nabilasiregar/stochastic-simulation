@@ -1,7 +1,7 @@
-import numpy as np
-from numba import njit
 from map import *
 from route_operations import *
+import numpy as np
+from numba import njit
 
 @njit
 def sim_annealing(nodes, T, alpha, stopping_T, chain_length , starting_path):
@@ -113,6 +113,29 @@ def fast_annealing(nodes, T, alpha, stopping_T, chain_length, starting_path):
 
 @njit
 def sim_annealing_list(nodes, temp_list_length, chain_length, starting_path, temperature_list):
+    '''
+    Optimizes a path using simulated annealing with a list of temperature values.
+
+    This function applies simulated annealing to optimize a path based on a list of
+    temperature values. It iteratively selects temperatures from the list and explores
+    neighboring paths to find an optimal or near-optimal solution.
+
+    Parameters:
+    nodes: An array of node coordinates.
+    temp_list_length (int): The number of temperature values to use from the list.
+    chain_length (int): The number of iterations to perform at each temperature.
+    starting_path (numpy.ndarray): The initial path for the optimization process.
+    temperature_list (list): A list of temperature values to use during the optimization.
+
+    Returns:
+    Tuple[numpy.ndarray, float, int, List[float], List[float]]:
+        - The optimized path as a numpy array of node indices.
+        - The length of the optimized path.
+        - The total number of iterations performed.
+        - A list of temperature values used during the optimization.
+        - A list of corresponding path lengths at each temperature.
+
+    '''
     k = 0
     solution = starting_path
     max_length = len(nodes) + 1

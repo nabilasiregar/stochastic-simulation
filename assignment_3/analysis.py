@@ -1,15 +1,31 @@
+"""
+<<<<<<< HEAD
+<<<<<<< HEAD
+Comprehensive file to provide all of the statistics and figures from simulation runs for all simulated annealing types.
+=======
+Comprehensive file to provide all of the statistics and convergence plots from simulation runs for all simulated annealing types.
+>>>>>>> 2622068 (add data and docstring)
+=======
+Comprehensive file to provide all of the statistics and figures from simulation runs for all simulated annealing types.
+>>>>>>> 17b0746 (merge heatmap with analysis)
+"""
 from map import *
 from map_config import *
+import ast
+import matplotlib.pyplot as plt
+from matplotlib.colors import to_rgba
 import numpy as np
 import pandas as pd
 import scipy.stats as stats
 import scikit_posthocs as sp
-import matplotlib.pyplot as plt
-import ast
-from matplotlib.colors import to_rgba
+import seaborn as sns
 
 
 def general_stats(data):
+    """
+        Input: Path to file method_results_medium.csv, generated from running the general simulation from simulation.py
+        Output:  Latex formatted summary statistics, p-values from Shapiro-Wilk Test and Kruskal-Wallis Test, Dunn's Test with Bonferroni Correction
+    """
     df = pd.DataFrame(data)
     alpha = 0.01
 
@@ -44,6 +60,10 @@ def general_stats(data):
     print(dunn_results)
 
 def error_plot_methods(csv_data):
+    """
+        Input: Path to file method_results_medium.csv, generated from running the general simulation from simulation.py
+        Output: 
+    """
     nodes = read_csv(MEDIUM_MAP)
     paths = add_paths(MEDIUM_OPT)
     known_best_length = calculate_path_length(paths, nodes)
@@ -97,6 +117,10 @@ def error_plot_methods(csv_data):
 
     
 def error_plot_cooling_factors(csv_data):
+    """
+        Input: Path to file cooling_factor_results.csv", generated from running simulation type cooling_factor from simulation.py
+        Output: Convergence plot
+    """
     nodes = read_csv(MEDIUM_MAP)
     paths = add_paths(MEDIUM_OPT)
     known_best_length = calculate_path_length(paths, nodes)
@@ -131,6 +155,15 @@ def error_plot_cooling_factors(csv_data):
     plt.show()
 
 def compare_fast_normal(fast_csv, normal_csv):
+    """
+<<<<<<< HEAD
+        Input: Path to file cooling_factor_results.csv and cooling_factor_results_fast.csv", generated from running simulation type cooling_factor and cooling_factor_fast
+=======
+        Input: Path to file cooling_factor_results.csv and cooling_factor_results_fast.csv", generated from running simulation type cooling_factor
+>>>>>>> 2622068 (add data and docstring)
+        with different simulated annealing method from simulation.py
+        Output: Plot comparing returned path length between 2 types of simulated annealing
+    """
     fast_df = pd.DataFrame(fast_csv)
     normal_df = pd.DataFrame(normal_csv)
 
@@ -169,6 +202,10 @@ def compare_fast_normal(fast_csv, normal_csv):
     
 
 def error_plot_chain_lengths(csv_data):
+    """
+        Input: Path to file chain_length_results.csv", generated from running simulation type markov_chain from simulation.py
+        Output: Convergence plot
+    """
     nodes = read_csv(MEDIUM_MAP)
     paths = add_paths(MEDIUM_OPT)
     known_best_length = calculate_path_length(paths, nodes)
@@ -207,18 +244,40 @@ def error_plot_chain_lengths(csv_data):
     plt.tight_layout()
     plt.show()
 
-method_data = pd.read_csv("./method_results_medium.csv", header=0)
-cooling_factor_data = pd.read_csv("./cooling_factor_results.csv", header=0)
-cooling_factor_data_fast = pd.read_csv("./cooling_factor_results_fast.csv", header=0)
-chain_length_data = pd.read_csv("./chain_length_results.csv", header=0)
+def plot_heatmap(data):
+    """
+        Input: Path to file train_results.csv", generated from hypertuning parameters from train.py
+        Output: Heatmap plot
+    """
+    cooling_factor_bins = np.arange(0.8, 1.00, 0.01)
+    chain_length_bins = np.arange(2000, 22000, 2000)
+
+    data['cooling_factor_group'] = pd.cut(data['cooling_factor'], bins=cooling_factor_bins, include_lowest=True, labels=np.round(cooling_factor_bins[:-1], 2))
+    data['chain_length_group'] = pd.cut(data['chain_length'], bins=chain_length_bins, include_lowest=True, labels=chain_length_bins[:-1])
+    pivoted_df = data.pivot_table(index='cooling_factor_group', columns='chain_length_group', values='best_length', aggfunc='mean')
+
+    # Index and columns represent the parameters and the cell values represent the averaged 'best_length'
+    plt.figure(figsize=(10, 8))
+    ax = sns.heatmap(pivoted_df, annot=True, fmt=".2f", cmap="YlGnBu", cbar_kws={'label': 'Average Path Length'}, annot_kws={"fontsize":11})
+    ax.set_title('Tuning Cooling Factor and Markov-Chain Length Based on Path Length', fontsize=18, pad=20)
+    plt.xlabel('Markov Chain Length', fontsize=16)
+    plt.ylabel('Cooling Factor', fontsize=16)
+    plt.xticks(fontsize=14)
+    plt.yticks(fontsize=14)
+    cbar = ax.collections[0].colorbar
+    cbar.ax.tick_params(labelsize=14)
+    cbar.ax.set_ylabel('Average Path Length', fontsize=16)
+    plt.show()
+
+method_data = pd.read_csv("./data/method_results_medium.csv", header=0)
+cooling_factor_data = pd.read_csv("./data/cooling_factor_results.csv", header=0)
+cooling_factor_data_fast = pd.read_csv("./data/cooling_factor_results_fast.csv", header=0)
+chain_length_data = pd.read_csv("./data/chain_length_results.csv", header=0)
+train_data = pd.read_csv("./data/train_results.csv")
 
 general_stats(method_data)
 error_plot_methods(method_data)
-general_stats(method_data)
-error_plot_methods(method_data)
+error_plot_cooling_factors(cooling_factor_data)
+error_plot_chain_lengths(chain_length_data)
 compare_fast_normal(cooling_factor_data_fast, cooling_factor_data)
-error_plot_cooling_factors(cooling_factor_data)
-error_plot_chain_lengths(chain_length_data)
-
-error_plot_cooling_factors(cooling_factor_data)
-error_plot_chain_lengths(chain_length_data)
+plot_heatmap(train_data)
