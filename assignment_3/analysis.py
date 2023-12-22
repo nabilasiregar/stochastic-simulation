@@ -237,13 +237,13 @@ small_map_data = pd.read_csv("./method_results_small.csv", header=0)
 best_map_medium = method_data[method_data['best_length'] == method_data['best_length'].min()]
 best_map_small = small_map_data[small_map_data['best_length'] == small_map_data['best_length'].min()]
 
-# general_stats(method_data)
-# error_plot_methods(method_data)
-# general_stats(method_data)
-# error_plot_methods(method_data)
-# compare_fast_normal(cooling_factor_data_fast, cooling_factor_data)
-# error_plot_cooling_factors(cooling_factor_data)
-# error_plot_chain_lengths(chain_length_data)
+general_stats(method_data)
+error_plot_methods(method_data)
+general_stats(method_data)
+error_plot_methods(method_data)
+compare_fast_normal(cooling_factor_data_fast, cooling_factor_data)
+error_plot_cooling_factors(cooling_factor_data)
+error_plot_chain_lengths(chain_length_data)
 plot_maps([[read_csv(MEDIUM_MAP), read_csv(SMALL_MAP)] , [best_map_medium['best_path'].values[0], best_map_small['best_path'].values[0]]])
 
 
