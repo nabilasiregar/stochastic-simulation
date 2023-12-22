@@ -1,3 +1,10 @@
+"""
+This file sets up an Optuna study to optimize the hyperparameters of the 
+simulated annealing algorithm for different sizes of maps. It reads the 
+configuration from a Hydra config file, sets up the study, and saves the results 
+of each trial to a CSV file. The study aims to minimize the average best path 
+length over a number of trials
+"""
 from map_config import SMALL_MAP, MEDIUM_MAP, LARGE_MAP
 from map import *
 from simulated_annealing import sim_annealing
@@ -9,6 +16,9 @@ import optuna
 import os
 
 def save_to_csv(trial_number, initial_temperature, cooling_factor, chain_length, best_length, iterations, csv_filepath):
+    """
+    Save the results of a single trial from a set of parameters configuration to a CSV file
+    """
     file_exists = os.path.isfile(csv_filepath)
     with open(csv_filepath, 'a', newline='') as csvfile:
         fieldnames = ['trial', 'initial_temperature', 'cooling_factor', 'chain_length', 'best_length', 'iterations']
@@ -26,6 +36,9 @@ def save_to_csv(trial_number, initial_temperature, cooling_factor, chain_length,
 
 @hydra.main(config_path=".", config_name="config")
 def main(cfg: DictConfig):
+    """
+    Main function to run the simulated annealing optimization using Hydra's configuration and Optuna for hyperparameter tuning.
+    """
     OmegaConf.to_yaml(cfg)
 
     def objective(trial):
