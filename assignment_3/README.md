@@ -7,6 +7,12 @@ Solving Traveling Salesman Problem using Simulated Annealing
   cd stochastic-simulation/assignment_3
 ```
 
+⚙️ Tuning simulated annealing parameters: initial temperature, Markov chain length, cooling factor 
+```bash
+  python train.py --multirun
+```
+For convenience, we provide our training results under the 'data' folder. 
+
 ⏳ Run the simulation (optional)
 ```bash
   python simulation.py
