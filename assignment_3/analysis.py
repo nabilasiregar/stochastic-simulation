@@ -214,6 +214,11 @@ chain_length_data = pd.read_csv("./chain_length_results.csv", header=0)
 
 general_stats(method_data)
 error_plot_methods(method_data)
+general_stats(method_data)
+error_plot_methods(method_data)
 compare_fast_normal(cooling_factor_data_fast, cooling_factor_data)
+error_plot_cooling_factors(cooling_factor_data)
+error_plot_chain_lengths(chain_length_data)
+
 error_plot_cooling_factors(cooling_factor_data)
 error_plot_chain_lengths(chain_length_data)
