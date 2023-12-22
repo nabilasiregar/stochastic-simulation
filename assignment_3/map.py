@@ -3,6 +3,7 @@ reading and processing map data, extracting coordinates of nodes (locations),
 and calculating distances between nodes based on their coordinates."""
 import matplotlib.pyplot as plt
 from numba import njit
+from matplotlib.colors import to_rgba
 import numpy as np
 
 def read_csv(csv):
@@ -44,7 +45,7 @@ def add_paths(csv):
         paths.append(abs(int(line)))
     return np.array(paths)
 
-def plotmap(nodes, ax=None, path = None):
+def plotmap(nodes, ax=None, path = None, title=None):
     """
     Plots the nodes and paths on a map.
 
@@ -56,14 +57,18 @@ def plotmap(nodes, ax=None, path = None):
     ax: A matplotlib axis. Defaults to None.
     path (list, optional): A list of node indices forming a path. Defaults to None.
     """
+    node_color = to_rgba('#83BCFF')
+    path_color = to_rgba('#EE204D')
     if ax is None:
         ax = plt.plot()
     for node in nodes:
-        ax.plot(node[0], node[1], 'ro')
+        ax.plot(node[0], node[1], 'o', color=node_color)
     if any(path):
         for i in range(len(path)-1):
-            ax.plot([nodes[path[i]-1][0], nodes[path[i+1]-1][0]], [nodes[path[i]-1][1], nodes[path[i+1]-1][1]], 'b-')
-        ax.plot([nodes[path[-1]-1][0], nodes[path[0]-1][0]], [nodes[path[-1]-1][1], nodes[path[0]-1][1]], 'b-')
+            ax.plot([nodes[path[i]-1][0], nodes[path[i+1]-1][0]], [nodes[path[i]-1][1], nodes[path[i+1]-1][1]], '-', color=path_color)
+        ax.plot([nodes[path[-1]-1][0], nodes[path[0]-1][0]], [nodes[path[-1]-1][1], nodes[path[0]-1][1]], '-', color=path_color)
+    if title:
+        ax.set_title(title)
 
 @njit
 def distance_between_nodes(node1, node2):
