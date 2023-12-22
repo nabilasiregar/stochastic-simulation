@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from numba import njit
+from matplotlib.colors import to_rgba
 
 def read_csv(csv):
     nodes = []
@@ -23,15 +24,20 @@ def add_paths(csv):
         paths.append(abs(int(line)))
     return np.array(paths)
 
-def plotmap(nodes, ax=None, path = None):
+def plotmap(nodes, ax=None, path = None, title=None):
+    node_color = to_rgba('#83BCFF')
+    path_color = to_rgba('#EE204D')
+
     if ax is None:
         ax = plt.plot()
     for node in nodes:
-        ax.plot(node[0], node[1], 'ro')
+        ax.plot(node[0], node[1], 'o', color=node_color)
     if any(path):
         for i in range(len(path)-1):
-            ax.plot([nodes[path[i]-1][0], nodes[path[i+1]-1][0]], [nodes[path[i]-1][1], nodes[path[i+1]-1][1]], 'b-')
-        ax.plot([nodes[path[-1]-1][0], nodes[path[0]-1][0]], [nodes[path[-1]-1][1], nodes[path[0]-1][1]], 'b-')
+            ax.plot([nodes[path[i]-1][0], nodes[path[i+1]-1][0]], [nodes[path[i]-1][1], nodes[path[i+1]-1][1]], '-', color=path_color)
+        ax.plot([nodes[path[-1]-1][0], nodes[path[0]-1][0]], [nodes[path[-1]-1][1], nodes[path[0]-1][1]], '-', color=path_color)
+    if title:
+        ax.set_title(title)
 @njit
 def distance_between_nodes(node1, node2):
     x_diff = node1[0] - node2[0]

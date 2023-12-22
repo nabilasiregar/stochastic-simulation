@@ -207,18 +207,44 @@ def error_plot_chain_lengths(csv_data):
     plt.tight_layout()
     plt.show()
 
+def plot_maps(data):
+    """Plots a map or maps in a single figure."""
+    fig, axes = plt.subplots(1, len(data), figsize=(10, 5))
+    if len(data) == 1:
+        axes = [axes]
+    maps = data[0]
+    paths = data[1]
+    name=['Medium', 'Small']
+
+    for i, (map,path) in enumerate(zip(maps,paths)):
+        path = np.fromstring(path[1:-1], dtype=int, sep=' ') 
+        plotmap(map, axes[i], path, title=f'Best Path for the {name[i]} map, length: {calculate_path_length(path, map):.2f}')
+
+    fig.suptitle('Best Path for the Medium and Small Map', fontsize=18)
+    plt.tight_layout()
+    for ax in axes:
+        ax.set_xticks([])
+        ax.set_yticks([])
+    plt.show()
+
 method_data = pd.read_csv("./method_results_medium.csv", header=0)
 cooling_factor_data = pd.read_csv("./cooling_factor_results.csv", header=0)
 cooling_factor_data_fast = pd.read_csv("./cooling_factor_results_fast.csv", header=0)
 chain_length_data = pd.read_csv("./chain_length_results.csv", header=0)
 
-general_stats(method_data)
-error_plot_methods(method_data)
-general_stats(method_data)
-error_plot_methods(method_data)
-compare_fast_normal(cooling_factor_data_fast, cooling_factor_data)
-error_plot_cooling_factors(cooling_factor_data)
-error_plot_chain_lengths(chain_length_data)
 
-error_plot_cooling_factors(cooling_factor_data)
-error_plot_chain_lengths(chain_length_data)
+small_map_data = pd.read_csv("./method_results_small.csv", header=0)
+best_map_medium = method_data[method_data['best_length'] == method_data['best_length'].min()]
+best_map_small = small_map_data[small_map_data['best_length'] == small_map_data['best_length'].min()]
+
+# general_stats(method_data)
+# error_plot_methods(method_data)
+# general_stats(method_data)
+# error_plot_methods(method_data)
+# compare_fast_normal(cooling_factor_data_fast, cooling_factor_data)
+# error_plot_cooling_factors(cooling_factor_data)
+# error_plot_chain_lengths(chain_length_data)
+plot_maps([[read_csv(MEDIUM_MAP), read_csv(SMALL_MAP)] , [best_map_medium['best_path'].values[0], best_map_small['best_path'].values[0]]])
+
+
+
