@@ -10,10 +10,10 @@ hydra:
       seed: 123
     storage: null
     study_name: route-search-space
-    n_trials: 40
+    n_trials: 50
     n_jobs: 1
 
-initial_temperature: 100
+initial_temperature: 
 cooling_factor:
 stopping_temperature: 0.001
 chain_length:
