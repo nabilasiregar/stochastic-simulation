@@ -24,7 +24,7 @@ def configs():
         experiment_config['lam'] = 0.90
     """
     return {
-        "experiment_1":
+        f"experiment_{i}{runs}":
         {"name": "M/M/n",
         "kwargs": {
             "lam": 0.98,
