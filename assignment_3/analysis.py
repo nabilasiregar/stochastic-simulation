@@ -173,9 +173,7 @@ method_data = pd.read_csv("./method_results_medium.csv", header=0)
 cooling_factor_data = pd.read_csv("./cooling_factor_results.csv", header=0)
 chain_length_data = pd.read_csv("./chain_length_results.csv", header=0)
 
-general_stats(method_data)
-# bar_plot(data)
+#general_stats(method_data)
 # error_plot_methods(method_data)
 # error_plot_cooling_factors(cooling_factor_data)
 # error_plot_chain_lengths(chain_length_data)
-
