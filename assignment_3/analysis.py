@@ -255,7 +255,11 @@ def plot_maps(data):
     plt.show()
 
 
-def headmap_3D(df):
+def plot_heatmap_3D(df):
+    """
+        Input: Path to file train_results.csv, generated from hypertuning parameters from train.py
+        Output: 3D heatmap plot
+    """
     palette = {
         "crayola": (238, 32, 77),
         "green": (139, 191, 159)
@@ -283,13 +287,25 @@ def headmap_3D(df):
 
     ax.set_xlabel('Initial Temperature', fontsize=16, labelpad=10)
     ax.set_ylabel('Cooling Factor', fontsize=16, labelpad=10)
-    ax.set_zlabel('Chain Length', fontsize=16, labelpad=10)
+    ax.set_zlabel('Chain Length', fontsize=16, labelpad=20)
     ax.set_title('Parameter Space for Simulated Annealing', fontsize=18)
+
+    cbar_ax = fig.add_axes([0.05, 0.15, 0.03, 0.7])
 
     norm = plt.Normalize(df['best_length'].min(), df['best_length'].max())
     sm = plt.cm.ScalarMappable(cmap=cmap.reversed(), norm=norm)
-    cbar = fig.colorbar(sm, ax=ax, label='Best Length', shrink=0.5)
-    cbar.set_label('Best Length', fontsize=16, labelpad=10)
+    cbar = fig.colorbar(sm, cax=cbar_ax, label='Path Length')
+    cbar.set_label('Path Length', fontsize=16)
+    cbar.ax.tick_params(labelsize=14)
+    ax.tick_params(axis='z', which='major', pad=10)
+
+    for t in ax.xaxis.get_major_ticks():
+        t.label.set_fontsize(14)
+    for t in ax.yaxis.get_major_ticks():
+        t.label.set_fontsize(14)
+    for t in ax.zaxis.get_major_ticks():
+        t.label.set_fontsize(14)
+
     plt.tight_layout()
     plt.show()
 
@@ -299,9 +315,8 @@ cooling_factor_data = pd.read_csv("./data/cooling_factor_results.csv", header=0)
 cooling_factor_data_fast = pd.read_csv("./data/cooling_factor_results_fast.csv", header=0)
 chain_length_data = pd.read_csv("./data/chain_length_results.csv", header=0)
 train_data = pd.read_csv("./data/train_results.csv")
-
-
 small_map_data = pd.read_csv("./data/method_results_small.csv", header=0)
+
 best_map_medium = method_data[method_data['best_length'] == method_data['best_length'].min()]
 best_map_small = small_map_data[small_map_data['best_length'] == small_map_data['best_length'].min()]
 
@@ -309,7 +324,6 @@ general_stats(method_data)
 error_plot_methods(method_data)
 error_plot_cooling_factors(cooling_factor_data)
 error_plot_chain_lengths(chain_length_data)
-
-plot_maps([[read_csv(MEDIUM_MAP), read_csv(SMALL_MAP)] , [best_map_medium['best_path'].values[0], best_map_small['best_path'].values[0]]])
 compare_fast_normal(cooling_factor_data_fast, cooling_factor_data)
-headmap_3D(train_data)
+plot_maps([[read_csv(MEDIUM_MAP), read_csv(SMALL_MAP)] , [best_map_medium['best_path'].values[0], best_map_small['best_path'].values[0]]])
+plot_heatmap_3D(train_data)
