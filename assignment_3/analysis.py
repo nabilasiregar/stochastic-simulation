@@ -148,7 +148,7 @@ def error_plot_cooling_factors(csv_data):
 
 def compare_fast_normal(fast_csv, normal_csv):
     """
-        Input: Path to file cooling_factor_results.csv and cooling_factor_results_fast.csv", generated from running simulation type cooling_factor
+        Input: Path to file cooling_factor_results.csv and cooling_factor_results_fast.csv", generated from running simulation type cooling_factor and cooling_factor_fast
         with different simulated annealing method from simulation.py
         Output: Plot comparing returned path length between 2 types of simulated annealing
     """
