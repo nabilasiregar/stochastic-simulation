@@ -13,7 +13,7 @@ def general_stats(data):
     df = pd.DataFrame(data)
     alpha = 0.01
 
-    point_estimated = df.groupby(["method"]).aggregate(
+    point_estimated = df.groupby(["method"])[["best_length"]].aggregate(
         ["mean", "std", "min", "max"])["best_length"]
     point_estimated["Confidence Interval"] = [stats.t.interval(
         1-alpha, 99, mean, std/33) for mean, std in zip(point_estimated["mean"], point_estimated["std"])]
@@ -130,6 +130,24 @@ def error_plot_cooling_factors(csv_data):
     plt.tight_layout()
     plt.show()
 
+def compare_fast_normal(fast_csv, normal_csv):
+    fast_df = pd.DataFrame(fast_csv)
+    normal_df = pd.DataFrame(normal_csv)
+
+    plt.figure(figsize=(10, 6))
+    # comparing the best length found per cooling factor
+    for sim_type, sim_data in fast_df.groupby('method'):
+        plt.bar(sim_data['cooling_factor'], sim_data['best_length'], label=f'{sim_type}')
+    for sim_type, sim_data in normal_df.groupby('method'):
+        plt.bar(sim_data['cooling_factor'], sim_data['best_length'], label=f'{sim_type}')
+
+    plt.xlabel('Cooling Factor', fontsize=16)
+    plt.ylabel('Best Length', fontsize=16)
+    plt.title('Best Lengths for Varying Cooling Factors', fontsize=18)
+    plt.legend(title='Method', fontsize=12)
+    plt.show()
+    
+
 def error_plot_chain_lengths(csv_data):
     nodes = read_csv(MEDIUM_MAP)
     paths = add_paths(MEDIUM_OPT)
@@ -171,9 +189,11 @@ def error_plot_chain_lengths(csv_data):
 
 method_data = pd.read_csv("./method_results_medium.csv", header=0)
 cooling_factor_data = pd.read_csv("./cooling_factor_results.csv", header=0)
+cooling_factor_data_fast = pd.read_csv("./cooling_factor_results_fast.csv", header=0)
 chain_length_data = pd.read_csv("./chain_length_results.csv", header=0)
 
 general_stats(method_data)
 error_plot_methods(method_data)
+compare_fast_normal(cooling_factor_data_fast, cooling_factor_data)
 error_plot_cooling_factors(cooling_factor_data)
 error_plot_chain_lengths(chain_length_data)

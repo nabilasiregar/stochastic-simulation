@@ -97,6 +97,25 @@ def vary_cooling_factor():
     results = pd.DataFrame(sim_annealing_results, columns=columns)
     results.to_csv("cooling_factor_results.csv", index=False)
 
+def vary_cooling_factor_fast():
+    """To run regular simulated annealing with different cooling factors"""
+    cooling_factor_list = [0.55, 0.75, 0.99]
+    for run in range(num_runs):
+        for cooling_factor in cooling_factor_list:
+            print(f'Run {run} for cooling factor {cooling_factor}')
+            best_path, best_length, iter, t_list, length_list = fast_annealing(nodes, T, cooling_factor, stopping_T, chain_length, starting_path)
+            sim_annealing_results.append({
+                    'cooling_factor': cooling_factor,
+                    'best_length': best_length,
+                    'best_path': best_path,
+                    'iterations': iter, 
+                    't_list': t_list, 
+                    'length_list': length_list
+                })
+    
+    columns = ["cooling_factor", "best_length", "best_path", "iterations", "t_list", "length_list"]
+    results = pd.DataFrame(sim_annealing_results, columns=columns)
+    results.to_csv("cooling_factor_results_fast.csv", index=False)
 
 def vary_chain_length():
     """To run regular simulated annealing with different markov chain's length"""
@@ -117,3 +136,5 @@ def vary_chain_length():
     columns = ["chain_length", "best_length", "best_path", "iterations", "t_list", "length_list"]
     results = pd.DataFrame(sim_annealing_results, columns=columns)
     results.to_csv("chain_length_results.csv", index=False)
+
+vary_cooling_factor_fast()
