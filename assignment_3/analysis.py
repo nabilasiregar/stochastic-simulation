@@ -1,3 +1,6 @@
+"""
+Comprehensive file to provide all of the statistics and convergence plots from simulation runs for all simulated annealing types.
+"""
 from map import *
 from map_config import *
 import numpy as np
@@ -10,6 +13,10 @@ from matplotlib.colors import to_rgba
 
 
 def general_stats(data):
+    """
+        Input: Path to file method_results_medium.csv, generated from running the general simulation from simulation.py
+        Output:  Latex formatted summary statistics, p-values from Shapiro-Wilk Test and Kruskal-Wallis Test, Dunn's Test with Bonferroni Correction
+    """
     df = pd.DataFrame(data)
     alpha = 0.01
 
@@ -44,6 +51,10 @@ def general_stats(data):
     print(dunn_results)
 
 def error_plot_methods(csv_data):
+    """
+        Input: Path to file method_results_medium.csv, generated from running the general simulation from simulation.py
+        Output: 
+    """
     nodes = read_csv(MEDIUM_MAP)
     paths = add_paths(MEDIUM_OPT)
     known_best_length = calculate_path_length(paths, nodes)
@@ -97,6 +108,10 @@ def error_plot_methods(csv_data):
 
     
 def error_plot_cooling_factors(csv_data):
+    """
+        Input: Path to file cooling_factor_results.csv", generated from running simulation type cooling_factor from simulation.py
+        Output: Convergence plot
+    """
     nodes = read_csv(MEDIUM_MAP)
     paths = add_paths(MEDIUM_OPT)
     known_best_length = calculate_path_length(paths, nodes)
@@ -131,6 +146,11 @@ def error_plot_cooling_factors(csv_data):
     plt.show()
 
 def compare_fast_normal(fast_csv, normal_csv):
+    """
+        Input: Path to file cooling_factor_results.csv and cooling_factor_results_fast.csv", generated from running simulation type cooling_factor
+        with different simulated annealing method from simulation.py
+        Output: Plot comparing returned path length between 2 types of simulated annealing
+    """
     fast_df = pd.DataFrame(fast_csv)
     normal_df = pd.DataFrame(normal_csv)
 
@@ -153,6 +173,10 @@ def compare_fast_normal(fast_csv, normal_csv):
     
 
 def error_plot_chain_lengths(csv_data):
+    """
+        Input: Path to file chain_length_results.csv", generated from running simulation type markov_chain from simulation.py
+        Output: Convergence plot
+    """
     nodes = read_csv(MEDIUM_MAP)
     paths = add_paths(MEDIUM_OPT)
     known_best_length = calculate_path_length(paths, nodes)
@@ -191,10 +215,10 @@ def error_plot_chain_lengths(csv_data):
     plt.tight_layout()
     plt.show()
 
-method_data = pd.read_csv("./method_results_medium.csv", header=0)
-cooling_factor_data = pd.read_csv("./cooling_factor_results.csv", header=0)
-cooling_factor_data_fast = pd.read_csv("./cooling_factor_results_fast.csv", header=0)
-chain_length_data = pd.read_csv("./chain_length_results.csv", header=0)
+method_data = pd.read_csv("./data/method_results_medium.csv", header=0)
+cooling_factor_data = pd.read_csv("./data/cooling_factor_results.csv", header=0)
+cooling_factor_data_fast = pd.read_csv("./data/cooling_factor_results_fast.csv", header=0)
+chain_length_data = pd.read_csv("./data/chain_length_results.csv", header=0)
 
 general_stats(method_data)
 error_plot_methods(method_data)
