@@ -9,16 +9,13 @@ import sys
 nodes = read_csv(MEDIUM_MAP) # adjust map size according to need
 paths = add_paths(MEDIUM_OPT) # adjust map reference according to need
 known_best_length = calculate_path_length(paths, nodes)
-
-# Define simulated annealing parameters
-T = 100
-alpha = 0.989
-stopping_T = 0.001
-chain_length = 7000
+T = 1000
+alpha = 0.999
+stopping_T = 0.1
+chain_length = 1000
 temp_list_length = 1000
 starting_path = np.random.permutation(range(1, len(nodes) + 1))
 p0 = 0.5
-list_length = 120
 
 # Number of runs
 num_runs = 20
@@ -45,6 +42,8 @@ def all_annealing_types():
                 'length_list': length_list
             })
 
+        print(f"Run {run} for normal simulated annealing complete.")
+        
         # Running fast simulated annealing
         best_path, best_length, iter, t_list, length_list = fast_annealing(nodes, T, alpha, stopping_T, chain_length, starting_path)
         fast_annealing_results.append({
@@ -56,8 +55,10 @@ def all_annealing_types():
                 'length_list': length_list
             })
 
+        print(f"Run {run} for fast simulated annealing complete.")
+
         #Running list-based simulated annealing
-        temperature_list = get_temperature_list(nodes, list_length, p0, starting_path)
+        temperature_list = get_temperature_list(nodes, temp_list_length, p0, starting_path)
         best_path, best_length, iter, t_list, length_list = sim_annealing_list(nodes, temp_list_length, chain_length, starting_path, temperature_list)
         list_sim_annealing_results.append({
                 'method': "list_sim_annealing",  
@@ -68,9 +69,12 @@ def all_annealing_types():
                 'length_list': length_list
             })
         
+        print(f"Run {run} for list-based simulated annealing complete.")
+        print()
+        
     columns = ["method", "best_path", "best_length", "iterations", "t_list", "length_list"]
     results = pd.DataFrame(sim_annealing_results + fast_annealing_results + list_sim_annealing_results, columns=columns)
-    results.to_csv("results.csv", index=False)
+    results.to_csv("method_results_medium.csv", index=False)
 
 
 def vary_cooling_factor():
@@ -113,23 +117,3 @@ def vary_chain_length():
     columns = ["chain_length", "best_length", "best_path", "iterations", "t_list", "length_list"]
     results = pd.DataFrame(sim_annealing_results, columns=columns)
     results.to_csv("chain_length_results.csv", index=False)
-
-
-def run_simulation(simulation_type):
-    """Function to switch between simulation types from terminal"""
-    if simulation_type == "all":
-        all_annealing_types()
-    elif simulation_type == "cooling_factor":
-        vary_cooling_factor()
-    elif simulation_type == "markov_chain":
-        vary_chain_length()
-    else:
-        print("Invalid simulation type")
-
-
-if __name__ == "__main__":
-    if len(sys.argv) > 1:
-        sim_type = sys.argv[1]
-    else:
-        sim_type = input("Enter the simulation type (all, cooling_factor, markov_chain): ")
-    run_simulation(sim_type)
